@@ -103,7 +103,10 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 				bw_map.get(species).write(sb.toString());
 			}
 		}
+		
 		mw.setFolder(outputFolder);
+		ms.setFolder(outputFolder);
+		mm.setFolder(outputFolder);
 	}
 
 	/**

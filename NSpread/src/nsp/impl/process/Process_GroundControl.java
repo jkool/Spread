@@ -23,6 +23,8 @@ public class Process_GroundControl implements Process, Cloneable {
 
 	private long timeIncrement = 1;
 	private Table<Integer, Long, Integer> table = HashBasedTable.create();
+	private double cost = 0;
+	private double labour = 0;
 
 	public Process_GroundControl() {
 		table.put(1, 0l, 1);
