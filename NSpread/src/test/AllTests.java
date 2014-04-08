@@ -8,11 +8,13 @@ import test.output.OutputWriter_RasterCoverTest;
 import test.process.Process_DispersalTest;
 import test.process.Process_GrowthTest;
 import test.process.Process_InfestationTest;
+import test.process.Process_MonitorTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ RasterMosaicTest.class, Process_GrowthTest.class,
 		Process_DispersalTest.class, Process_InfestationTest.class,
-		OutputWriter_RasterCoverTest.class, ExperimentTest.class })
+		Process_MonitorTest.class, OutputWriter_RasterCoverTest.class, 
+		ExperimentTest.class })
 public class AllTests {
 
 }

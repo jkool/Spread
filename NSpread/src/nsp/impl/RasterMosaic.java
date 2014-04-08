@@ -140,11 +140,38 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		}
 	}
 
-	public void clearVisited(Collection<Patch> patches) {
+	public void clearVisitedPatches(Collection<Patch> patches) {
 		for (Patch p : patches) {
 			p.setVisited(false);
 		}
 	}
+	
+	public void clearVisitedPatches(Collection<Patch> patches, String species) {
+		for (Patch p : patches) {
+			p.getOccupant(species).setVisited(false);
+		}
+	}
+	
+	public void clearVisitedOccupancies(Collection<Occupancy> occupancies) {
+		for (Occupancy o : occupancies) {
+			o.setVisited(false);
+		}
+	}
+	
+	/**
+	 * Assigns whether a collection of occupancies (within Patches) should be tagged as visited
+	 * 
+	 * @param patches - The patches to be tagged
+	 * @param species - The species of interest
+	 * @param visited - indicates whether the Occupancies should be marked as visited or not visited
+	 */
+	
+	public void clearVisited(Collection<Patch> patches, String species){
+		for (Patch p: patches){
+			p.getOccupant(species).setVisited(false);
+		}
+	}
+
 
 	/**
 	 * Generates a copy of the class instance.
@@ -192,6 +219,11 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 		outer: while (!pq.isEmpty()) {
 			Patch seed = pq.poll();
+			
+			if(seed.hasNoData()){
+				continue;
+			}
+			
 			Set<Patch> tile = getStrongRegion(seed, species, bounds);
 			for (Patch p : tile) {
 				int row = p.getID() / ncols;
@@ -205,6 +237,10 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			s.addAll(tile);
 		}
 		return s;
+	}
+	
+	public double getArea(Collection<Patch> patches){
+		return (double) patches.size() * cellsize*cellsize;
 	}
 
 	public Set<Patch> getBlock(int[] bounds) {
@@ -265,6 +301,11 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			}
 		}
 		return controlled;
+	}
+	
+	public Set<Patch> getFilledRegion(Patch patch, String species){
+		Set<Patch> region = getWeakRegion(patch, species);
+		return fill(region,species);
 	}
 
 	/**
@@ -452,17 +493,25 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			list.add(getPatch(id - 1));
 		}
 
+		// Bottom
+		if (row + 1 < bnds[2]) {
+			list.add(getPatch(id + ncols));
+		}
+		
 		// Right
-		if (column + 1 < bnds[2]) {
+		if (column + 1 < bnds[3]) {
 			list.add(getPatch(id + 1));
 		}
 
-		// Bottom
-		if (row + 1 < bnds[3]) {
-			list.add(getPatch(id + ncols));
-		}
-
 		return list;
+	}
+	
+	public Set<Patch> getStrongCore(Collection<Patch> patches, String species, double bufferSize){
+		return nibbleStrong(patches, species, (int) (bufferSize/cellsize));
+	}
+	
+	public Set<Patch> getWeakCore(Collection<Patch> patches, String species, double bufferSize){
+		return nibbleWeak(patches, species, (int) (bufferSize/cellsize));
 	}
 
 	public Set<Patch> getStrongRegion(Patch p, String species) {
@@ -483,6 +532,11 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 		while (!pq.isEmpty()) {
 			Patch pc = pq.poll();
+			
+			if(pc.hasNoData()){
+				continue;
+			}
+			
 			clearSet.add(pc);
 			if (!pc.isVisited()
 					&& pc.getOccupant(species).isInfested() == p.getOccupant(
@@ -493,7 +547,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			pc.setVisited(true);
 		}
 
-		clearVisited(clearSet);
+		clearVisitedPatches(clearSet);
 		return s;
 	}
 
@@ -569,6 +623,11 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 		while (!pq.isEmpty()) {
 			Patch pc = pq.poll();
+			
+			if(pc.hasNoData()){
+				continue;
+			}
+			
 			clearSet.add(pc);
 			if (!pc.isVisited()
 					&& pc.getOccupant(species).isInfested() == p.getOccupant(
@@ -579,7 +638,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			pc.setVisited(true);
 		}
 
-		clearVisited(clearSet);
+		clearVisitedPatches(clearSet);
 		return s;
 	}
 
@@ -596,6 +655,11 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 		while (!pq.isEmpty()) {
 			Patch pc = pq.poll();
+			
+			if(pc.hasNoData()){
+				continue;
+			}
+			
 			clearSet.add(pc);
 			if (!pc.isVisited()
 					&& pc.getOccupant(species).isInfested() == p.getOccupant(
@@ -606,7 +670,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			pc.setVisited(true);
 		}
 
-		clearVisited(clearSet);
+		clearVisitedPatches(clearSet);
 		return s;
 	}
 
@@ -679,15 +743,41 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		}
 		return output;
 	}
+	
+	public Set<Patch> nibbleStrong(Set<Patch> region, Set<Patch> edgeCells, String species) {
+		Set<Patch> output = new TreeSet<Patch>(region);
+		Iterator<Patch> it = region.iterator();
+		outer: while (it.hasNext()) {
+			Patch p = it.next();
+			Set<Patch> adjacent = getStrongAdjacent(p);
+			for (Patch inner : adjacent) {
+				if (edgeCells.contains(inner)) {
+					output.remove(p);
+					continue outer;
+				}
+			}
+		}
+		return output;
+	}
 
 	public Set<Patch> nibbleStrong(Collection<Patch> region, String species,
 			int depth) {
-		Set<Patch> output = new TreeSet<Patch>(region);
-		for (int i = 0; i < depth; i++) {
+		
+		if(depth<=0){return new TreeSet<Patch>(region);}
+		if(depth==1){return nibbleStrong(region,species);}
+		
+		Set<Patch> full = new TreeSet<Patch>(region);
+		Set<Patch> output = nibbleStrong(region, species);
+		
+		for (int i = 1; i < depth; i++) {
 			if (output.isEmpty()) {
 				return output;
 			}
-			output = nibbleStrong(output, species);
+			
+			Set<Patch> edges = new TreeSet<Patch>(region);
+			edges.removeAll(output);
+			output = nibbleStrong(full,edges, species);
+			
 		}
 		return output;
 	}
@@ -750,7 +840,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			pc.setVisited(true);
 		}
 
-		clearVisited(clearSet);
+		clearVisitedPatches(clearSet);
 		return s;
 	}
 
@@ -824,6 +914,12 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 	public void setCellsize(double cellsize) {
 		this.cellsize = cellsize;
+	}
+	
+	public void setControlled(Collection<Patch> patches, String species, String control){
+		for(Patch p:patches){
+			p.getOccupant(species).addControl(control);
+		}
 	}
 
 	/**
@@ -1249,6 +1345,19 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	public void setVisited(Collection<Patch> patches) {
 		for (Patch p : patches) {
 			p.setVisited(true);
+		}
+	}
+	
+	/**
+	 * Assigns whether a collection of occupancies (within Patches) should be tagged as visited
+	 * 
+	 * @param patches - The patches to be tagged
+	 * @param species - The species of interest
+	 */
+	
+	public void setVisited(Collection<Patch> patches, String species){
+		for (Patch p: patches){
+			p.getOccupant(species).setVisited(true);
 		}
 	}
 

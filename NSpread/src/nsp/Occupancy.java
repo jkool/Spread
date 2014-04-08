@@ -12,6 +12,7 @@ public class Occupancy implements Cloneable {
 	private String name = "";
 	private boolean infested = false;
 	private boolean wasInfested = false;
+	private boolean visited = false;
 	private long ageOfInfestation = 0;
 	private long cumulativeAgeOfInfestation = 0;
 	private int stageOfInfestation = 0;
@@ -132,6 +133,10 @@ public class Occupancy implements Cloneable {
 	public boolean isInfested() {
 		return infested;
 	}
+	
+	public boolean isVisited(){
+		return visited;
+	}
 
 	public void removeControl(String control) {
 		controls.remove(control);
@@ -182,6 +187,10 @@ public class Occupancy implements Cloneable {
 		if (stageOfInfestation > maxInfestation) {
 			maxInfestation = stageOfInfestation;
 		}
+	}
+	
+	public void setVisited(boolean visited){
+		this.visited=visited;
 	}
 
 	public boolean wasInfested() {

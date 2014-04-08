@@ -31,6 +31,23 @@ public interface Mosaic {
 	 */
 
 	public void clearVisited();
+	
+	/**
+	 * Assigns whether a collection of occupancies (within Patches) should have their visited status cleared
+	 * 
+	 * @param patches - The patches to be tagged
+	 * @param species - The species of interest
+	 */
+	
+	public void clearVisitedPatches(Collection<Patch> patches, String species);
+	
+	/**
+	 * Assigns whether a collection of occupancies should have their visited status cleared
+	 * 
+	 * @param patches - The patches to be tagged
+	 */
+	
+	public void clearVisitedOccupancies(Collection<Occupancy> occupancies);
 
 	/**
 	 * Generates a copy of the class instance.
@@ -38,6 +55,23 @@ public interface Mosaic {
 
 	public Mosaic clone();
 
+	/**
+	 * Retrieves the total area covered by the set of patches
+	 * @param patches
+	 * @return
+	 */
+	
+	public double getArea(Collection<Patch> patches);
+	
+	/**
+	 * Retrieves a region of infested patches, including all enclosed areas even if not infested.
+	 * 
+	 * @param patch
+	 * @param species
+	 * @return
+	 */
+	
+	public Set<Patch> getFilledRegion(Patch patch, String species);
 	
 	/**
 	 * Retrieves the infested Patches within the Mosaic
@@ -67,7 +101,7 @@ public interface Mosaic {
 	 * @return
 	 */
 	
-	public Map<Integer,Occupancy>getOccupied(String species);
+	public Map<Integer, Occupancy>getOccupied(String species);
 	
 	/**
 	 * Retrieves a map of keys and Patches capable of containing species whether or not they are occupied.
@@ -100,6 +134,18 @@ public interface Mosaic {
 	 */
 	
 	public List<String> getSpeciesList();
+
+	/**
+	 * Retrieves the inner buffered core of a collection of patches.  Exterior strongly-connected elements are
+	 * removed (i.e. diagonally connected elements are not trimmed).
+	 * 
+	 * @param patches - the collection of patches from which the core is to be extracted
+	 * @param species - the species that determine which occupancy to use
+	 * @param bufferSize - the size of the inner buffer to be removed.
+	 * @return
+	 */
+	
+	public Set<Patch> getStrongCore(Collection<Patch> patches, String species, double bufferSize);
 	
 	/**
 	 * Returns patches that are strongly connected to the region (i.e. entire edge)
@@ -110,6 +156,18 @@ public interface Mosaic {
 	 */
 	
 	public Set<Patch> getStrongRegion(Patch patch, String species);
+	
+	/**
+	 * Retrieves the inner buffered core of a collection of patches.  Exterior weakly-connected elements are
+	 * removed (i.e. diagonally connected elements are trimmed).
+	 * 
+	 * @param patches - the collection of patches from which the core is to be extracted
+	 * @param species - the species that determine which occupancy to use
+	 * @param bufferSize - the size of the inner buffer to be removed.
+	 * @return
+	 */
+	
+	public Set<Patch> getWeakCore(Collection<Patch> patches, String species, double bufferSize);
 	
 	/**
 	 * Returns patches that are weakly connected to the region (i.e. single vertex)
@@ -134,7 +192,18 @@ public interface Mosaic {
 	 */
 
 	public void setAgeMap(String ageMapPath, String species) throws IOException;
+	
+	/**
+	 * Sets occupancies (specified by species) within a collection of patches to be under a
+	 * specified form of control.
+	 * 
+	 * @param patches - The patches to be controlled
+	 * @param species - The species to be controlled
+	 * @param control - The control label to apply to the occupancies.
+	 */
 
+	public void setControlled(Collection<Patch> patches, String species, String control);
+	
 	/**
 	 * Sets a copy of the provided Disperser to all patches in the RasterMosaic.
 	 * 
@@ -183,6 +252,15 @@ public interface Mosaic {
 	 */
 	
 	public void setSpeciesList(List<String> speciesList);
+	
+	/**
+	 * Assigns whether a collection of occupancies (within Patches) should be tagged as visited
+	 * 
+	 * @param patches - The patches to be tagged
+	 * @param species - The species of interest
+	 */
+	
+	public void setVisited(Collection<Patch> patches, String species);
 	
 	/**
 	 * Performs teardown functions for the class

@@ -23,8 +23,6 @@ public class Process_GroundControl implements Process, Cloneable {
 
 	private long timeIncrement = 1;
 	private Table<Integer, Long, Integer> table = HashBasedTable.create();
-	private double cost = 0;
-	private double labour = 0;
 
 	public Process_GroundControl() {
 		table.put(1, 0l, 1);
@@ -62,20 +60,20 @@ public class Process_GroundControl implements Process, Cloneable {
 
 			// Can you hear me Major Tom? Can you hear me Major Tom?
 
-			if (patch.getOccupant(species).hasControl("GROUND")) {
+			if (patch.getOccupant(species).hasControl("GROUND CONTROL")) {
 				Set<Long> s = table.columnKeySet();
 				int stage = patch.getOccupant(species).getMaxInfestation();
 				ArrayList<Long> times = new ArrayList<Long>(s);
 				Collections.sort(times);
 				int nearest_idx = Collections.binarySearch(times,
-						patch.getOccupant(species).getControlTime("GROUND"));
+						patch.getOccupant(species).getControlTime("GROUND CONTROL"));
 				nearest_idx = nearest_idx < 0 ? -(nearest_idx + 1)
 						: nearest_idx;
 				nearest_idx = Math.min(times.size()-1,nearest_idx);
 				long nearest = times.get(nearest_idx);
 				patch.getOccupant(species).setStageOfInfestation(
 						table.get(stage, nearest));
-				patch.incrementControlTime("GROUND", timeIncrement);
+				patch.incrementControlTime("GROUND CONTROL", timeIncrement);
 
 				if (patch.getOccupant(species).getStageOfInfestation() == 0) {
 					patch.getOccupant(species).clearInfestation();

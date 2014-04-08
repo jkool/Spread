@@ -73,8 +73,7 @@ public class Process_Growth implements Process, Cloneable {
 
 			o.incrementInfestationTime(timeIncrement);
 
-			if (!patch.isMonitored()) { // TODO Maybe change this to
-										// isControlled()? ********************
+			if (o.getControls().isEmpty()||o.hasControl("CONTAINMENT CORE")) {
 
 				for (int j = 0; j < th.length; j++) {
 
