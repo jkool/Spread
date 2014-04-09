@@ -11,6 +11,7 @@ import nsp.Mosaic;
 import nsp.Occupancy;
 import nsp.Patch;
 import nsp.Process;
+import nsp.util.ManagementTypes;
 
 public class Process_Monitor implements Process, Cloneable {
 
@@ -57,11 +58,11 @@ public class Process_Monitor implements Process, Cloneable {
 					Set<Patch> monitored = ms.getFilledRegion(patch, species);
 					ms.setMonitored(monitored, true);
 					if(ms.getArea(monitored)<=containmentCutoff){
-						ms.setControlled(monitored, species, "GROUND CONTROL");
+						ms.setControlled(monitored, species, ManagementTypes.GROUND_CONTROL.displayName());
 					}
 					else{
-						ms.setControlled(monitored, species, "CONTAINMENT");
-						ms.setControlled(ms.getStrongCore(monitored, species, coreBufferSize), species, "CONTAINMENT CORE");
+						ms.setControlled(monitored, species, ManagementTypes.CONTAINMENT.displayName());
+						ms.setControlled(ms.getStrongCore(monitored, species, coreBufferSize), species, ManagementTypes.CONTAINMENT_CORE.displayName());
 					}
 					
 					ms.setVisited(monitored,species);

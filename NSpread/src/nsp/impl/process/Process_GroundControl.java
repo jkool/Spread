@@ -1,8 +1,10 @@
 package nsp.impl.process;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -10,6 +12,7 @@ import com.google.common.collect.Table;
 import nsp.Mosaic;
 import nsp.Patch;
 import nsp.Process;
+import nsp.util.ManagementTypes;
 
 /**
  * This is ground control to Major Tom. Commencing countdown, engines on...
@@ -22,6 +25,7 @@ import nsp.Process;
 public class Process_GroundControl implements Process, Cloneable {
 
 	private long timeIncrement = 1;
+	private Set<String> ignore = new TreeSet<String>();
 	private Table<Integer, Long, Integer> table = HashBasedTable.create();
 
 	public Process_GroundControl() {
@@ -57,23 +61,27 @@ public class Process_GroundControl implements Process, Cloneable {
 	private void process(Patch patch) {
 
 		for (String species : patch.getOccupants().keySet()) {
+			
+			if(ignore.contains(species)){
+				continue;
+			}
 
 			// Can you hear me Major Tom? Can you hear me Major Tom?
 
-			if (patch.getOccupant(species).hasControl("GROUND CONTROL")) {
+			if (patch.getOccupant(species).hasControl(ManagementTypes.GROUND_CONTROL.displayName())) {
 				Set<Long> s = table.columnKeySet();
 				int stage = patch.getOccupant(species).getMaxInfestation();
 				ArrayList<Long> times = new ArrayList<Long>(s);
 				Collections.sort(times);
 				int nearest_idx = Collections.binarySearch(times,
-						patch.getOccupant(species).getControlTime("GROUND CONTROL"));
+						patch.getOccupant(species).getControlTime(ManagementTypes.GROUND_CONTROL.displayName()));
 				nearest_idx = nearest_idx < 0 ? -(nearest_idx + 1)
 						: nearest_idx;
 				nearest_idx = Math.min(times.size()-1,nearest_idx);
 				long nearest = times.get(nearest_idx);
 				patch.getOccupant(species).setStageOfInfestation(
 						table.get(stage, nearest));
-				patch.incrementControlTime("GROUND CONTROL", timeIncrement);
+				patch.incrementControlTime(ManagementTypes.GROUND_CONTROL.displayName(), timeIncrement);
 
 				if (patch.getOccupant(species).getStageOfInfestation() == 0) {
 					patch.getOccupant(species).clearInfestation();
@@ -93,6 +101,22 @@ public class Process_GroundControl implements Process, Cloneable {
 
 	public void setControlTable(Table<Integer, Long, Integer> table) {
 		this.table = table;
+	}
+	
+	public void setIgnoreList(Collection<String> ignore){
+		this.ignore = new TreeSet<String>(ignore);
+	}
+	
+	public void addToIgnoreList(String species){
+		this.ignore.add(species);
+	}
+	
+	public void addToIgnoreList(Collection<String> species){
+		this.ignore.addAll(species);
+	}
+	
+	public void removeFromIgnoreList(String species){
+		this.ignore.remove(species);
 	}
 
 }

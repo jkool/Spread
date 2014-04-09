@@ -26,6 +26,8 @@ import nsp.impl.Disperser_Continuous2D;
 import nsp.impl.RasterMosaic;
 import nsp.impl.output.ExperimentWriter_Text;
 import nsp.impl.output.MosaicWriter_Raster;
+import nsp.impl.process.Process_Containment;
+import nsp.impl.process.Process_Costing;
 import nsp.impl.process.Process_Dispersal;
 import nsp.impl.process.Process_GroundControl;
 import nsp.impl.process.Process_Growth;
@@ -338,6 +340,8 @@ public class Spread {
 		// add additional steps interactively and switch order.
 
 		List<Process> processes = new ArrayList<Process>();
+		
+		// Adding growth
 
 		Process_Growth pg = new Process_Growth();
 
@@ -369,6 +373,8 @@ public class Spread {
 
 		processes.add(pg);
 
+		// Adding dispersal
+		
 		Process_Dispersal pd = new Process_Dispersal();
 
 		Map<String, Long> waitTimes = new TreeMap<String, Long>();
@@ -393,8 +399,42 @@ public class Spread {
 		pd.setWaitTimes(waitTimes);
 
 		processes.add(pd);
-		// processes.add(new Process_Monitor());
-		// processes.add(new Process_GroundControl());
+		
+		// Adding monitoring
+		
+		Process_Monitor pm = new Process_Monitor();
+		pm.setContainmentCutoff(Double.parseDouble(properties.getProperty("Containment_Cutoff","500000")));
+		pm.setCoreBufferSize(Double.parseDouble(properties.getProperty("Containment_Cutoff","750")));
+		
+		processes.add(pm);
+		
+		// Adding ground control actions
+		
+		Process_GroundControl pgc = new Process_GroundControl();
+		pgc.addToIgnoreList(parseStringArray(properties.getProperty("Ground_Control_Ignore")));
+		
+		processes.add(pgc);
+		
+		// Adding containment actions
+		
+		Process_Containment pcc = new Process_Containment();
+		pcc.addToIgnoreList(parseStringArray(properties.getProperty("Containment_Ignore")));
+		
+		processes.add(pcc);
+		
+		// Adding cost accounting
+		
+		Process_Costing pcst = new Process_Costing();
+		
+		pcst.setContainmentCost(Double.parseDouble(properties.getProperty("Containment_Cost","7")));
+		pcst.setContainmentLabour(Double.parseDouble(properties.getProperty("Containment_Labour","1")));
+		pcst.setGroundControlCosts(parseNumericArray(properties.getProperty("Ground_Control_Cost","[1000,2000,4200]")));
+		pcst.setGroundControlLabour(parseNumericArray(properties.getProperty("Ground_Control_Cost","[14,24,56]")));
+		
+		processes.add(pcst);
+		
+		// Adding infestation step
+		
 		processes.add(new Process_Infestation());
 
 		// If the Run-type is Paired, then the arrays of distances and rates are
