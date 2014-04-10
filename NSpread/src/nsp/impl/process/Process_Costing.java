@@ -6,7 +6,7 @@ import java.util.Map;
 import nsp.Mosaic;
 import nsp.Patch;
 import nsp.Process;
-import nsp.util.ManagementTypes;
+import nsp.util.ControlType;
 
 public class Process_Costing implements Process, Cloneable {
 
@@ -31,25 +31,20 @@ public class Process_Costing implements Process, Cloneable {
 		if (patch.hasNoData()){return;}
 
 		for (String species : patch.getOccupants().keySet()) {
-			Map<String, Long> controls = patch.getOccupant(species)
+			Map<ControlType, Long> controls = patch.getOccupant(species)
 					.getControls();
-			if (controls.containsKey(ManagementTypes.CONTAINMENT_CORE
-					.displayName())) {
+			if (controls.containsKey(ControlType.CONTAINMENT_CORE)) {
 				continue;  // cost is effectively 0
 			} 
-			if (controls.containsKey(ManagementTypes.CONTAINMENT.displayName())) {
+			if (controls.containsKey(ControlType.CONTAINMENT)) {
 				patchCost = Math.max(patchCost, containment_cost);
 				patLabor = Math.max(patLabor, containment_labour);
 			}
-			if (controls.containsKey(ManagementTypes.GROUND_CONTROL
-					.displayName())) {
+			if (controls.containsKey(ControlType.GROUND_CONTROL)) {
 
-				int stage = controls.get(
-						ManagementTypes.GROUND_CONTROL.displayName())
-						.intValue();
-
-				patchCost=Math.max(patchCost, ground_control_costs[stage] );
-				patLabor= Math.max(patLabor, ground_control_labour[stage] );
+				int stage = patch.getOccupant(species).getStageOfInfestation();
+				patchCost=Math.max(patchCost, ground_control_costs[stage-1] );
+				patLabor= Math.max(patLabor, ground_control_labour[stage-1] );
 			}
 		}
 

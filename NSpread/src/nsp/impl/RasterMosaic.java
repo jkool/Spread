@@ -18,6 +18,7 @@ import nsp.Disperser;
 import nsp.Mosaic;
 import nsp.Occupancy;
 import nsp.Patch;
+import nsp.util.ControlType;
 import nsp.util.Raster;
 import nsp.util.RasterReader;
 
@@ -734,6 +735,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			Patch p = it.next();
 			Set<Patch> adjacent = getStrongAdjacent(p);
 			for (Patch inner : adjacent) {
+				if(inner.hasNoData()){continue;}
 				if (p.getOccupant(species).isInfested() != inner.getOccupant(
 						species).isInfested()) {
 					output.remove(p);
@@ -751,6 +753,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			Patch p = it.next();
 			Set<Patch> adjacent = getStrongAdjacent(p);
 			for (Patch inner : adjacent) {
+				if(inner.hasNoData()){continue;}
 				if (edgeCells.contains(inner)) {
 					output.remove(p);
 					continue outer;
@@ -789,6 +792,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			Patch p = it.next();
 			Set<Patch> adjacent = getWeakAdjacent(p);
 			for (Patch inner : adjacent) {
+				if(inner.hasNoData()){continue;}
 				if (p.getOccupant(species).isInfested() != inner.getOccupant(
 						species).isInfested()) {
 					output.remove(p);
@@ -916,7 +920,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		this.cellsize = cellsize;
 	}
 	
-	public void setControlled(Collection<Patch> patches, String species, String control){
+	public void setControlled(Collection<Patch> patches, String species, ControlType control){
 		for(Patch p:patches){
 			p.getOccupant(species).addControl(control);
 		}
@@ -1074,10 +1078,10 @@ public class RasterMosaic implements Mosaic, Cloneable {
 					continue;
 				}
 				patches.get(key).getOccupant(species)
-						.addControl("Ground control");
-				patches.get(key).getOccupant(species).addControl("Containment");
+						.addControl(ControlType.GROUND_CONTROL);
+				patches.get(key).getOccupant(species).addControl(ControlType.CONTAINMENT);
 				patches.get(key).getOccupant(species)
-						.addControl("Containment core");
+						.addControl(ControlType.CONTAINMENT_CORE);
 			}
 			return;
 		}
@@ -1088,7 +1092,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 					continue;
 				}
 				patches.get(key).getOccupant(species)
-						.addControl("Ground control");
+						.addControl(ControlType.GROUND_CONTROL);
 			}
 			return;
 		}
@@ -1098,7 +1102,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 				if (patches.get(key).hasNoData()) {
 					continue;
 				}
-				patches.get(key).getOccupant(species).addControl("Containment");
+				patches.get(key).getOccupant(species).addControl(ControlType.CONTAINMENT);
 			}
 			return;
 		}
@@ -1109,7 +1113,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 					continue;
 				}
 				patches.get(key).getOccupant(species)
-						.addControl("Containment core");
+						.addControl(ControlType.CONTAINMENT_CORE);
 			}
 			return;
 		}
@@ -1172,15 +1176,15 @@ public class RasterMosaic implements Mosaic, Cloneable {
 					p.setMonitored(true);
 					switch ((int) val) {
 					case 1: {
-						p.getOccupant(species).addControl("GROUND");
+						p.getOccupant(species).addControl(ControlType.GROUND_CONTROL);
 						break;
 					}
 					case 2: {
-						p.getOccupant(species).addControl("CONTAINMENT");
+						p.getOccupant(species).addControl(ControlType.CONTAINMENT);
 						break;
 					}
 					case 3: {
-						p.getOccupant(species).addControl("CORE");
+						p.getOccupant(species).addControl(ControlType.CONTAINMENT_CORE);
 						break;
 					}
 					}

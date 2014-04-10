@@ -12,7 +12,7 @@ import com.google.common.collect.Table;
 import nsp.Mosaic;
 import nsp.Patch;
 import nsp.Process;
-import nsp.util.ManagementTypes;
+import nsp.util.ControlType;
 
 /**
  * This is ground control to Major Tom. Commencing countdown, engines on...
@@ -68,23 +68,24 @@ public class Process_GroundControl implements Process, Cloneable {
 
 			// Can you hear me Major Tom? Can you hear me Major Tom?
 
-			if (patch.getOccupant(species).hasControl(ManagementTypes.GROUND_CONTROL.displayName())) {
+			if (patch.getOccupant(species).hasControl(ControlType.GROUND_CONTROL)) {
 				Set<Long> s = table.columnKeySet();
 				int stage = patch.getOccupant(species).getMaxInfestation();
 				ArrayList<Long> times = new ArrayList<Long>(s);
 				Collections.sort(times);
 				int nearest_idx = Collections.binarySearch(times,
-						patch.getOccupant(species).getControlTime(ManagementTypes.GROUND_CONTROL.displayName()));
+						patch.getOccupant(species).getControlTime(ControlType.GROUND_CONTROL));
 				nearest_idx = nearest_idx < 0 ? -(nearest_idx + 1)
 						: nearest_idx;
 				nearest_idx = Math.min(times.size()-1,nearest_idx);
 				long nearest = times.get(nearest_idx);
 				patch.getOccupant(species).setStageOfInfestation(
 						table.get(stage, nearest));
-				patch.incrementControlTime(ManagementTypes.GROUND_CONTROL.displayName(), timeIncrement);
+				patch.incrementControlTime(ControlType.GROUND_CONTROL, timeIncrement);
 
 				if (patch.getOccupant(species).getStageOfInfestation() == 0) {
 					patch.getOccupant(species).clearInfestation();
+					patch.getOccupant(species).removeControl(ControlType.GROUND_CONTROL);
 				}
 			}
 		}

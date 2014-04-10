@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,7 +12,6 @@ import nsp.Patch;
 import nsp.impl.RasterMosaic;
 import nsp.impl.process.Process_Costing;
 import nsp.impl.process.Process_Monitor;
-import nsp.util.ManagementTypes;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +22,6 @@ public class Process_CostingTest {
 	Process_Monitor pm = new Process_Monitor();
 	Process_Costing pc = new Process_Costing();
 	String species = "Test_1";
-	Map<String,String> dict = new HashMap<String,String>();
 
 	@Before
 	public void setUp() throws Exception {
@@ -43,9 +40,6 @@ public class Process_CostingTest {
 		
 		pm.setPDiscovery(p_discovery);
 		pm.setCoreBufferSize(2);
-		dict.put("Containment", "2");
-		dict.put("Ground Control", "1");
-		dict.put("Containment Core", "3");
 		
 		}
 

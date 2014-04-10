@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import nsp.Patch;
 import nsp.impl.RasterMosaic;
 import nsp.impl.process.Process_Monitor;
-import nsp.util.ManagementTypes;
+import nsp.util.ControlType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,18 +55,18 @@ public class Process_MonitorTest {
 		pm.process(rm);
 		
 		assertTrue(rm.getPatch(0).getOccupant(species).getControls().isEmpty());
-		assertTrue(rm.getPatch(7).getOccupant(species).getControls().containsKey(ManagementTypes.CONTAINMENT.displayName()));
-		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ManagementTypes.GROUND_CONTROL.displayName()));
-		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ManagementTypes.CONTAINMENT_CORE.displayName()));
-		assertTrue(rm.getPatch(10).getOccupant(species).getControls().containsKey(ManagementTypes.CONTAINMENT.displayName()));
-		assertTrue(!rm.getPatch(10).getOccupant(species).getControls().containsKey(ManagementTypes.GROUND_CONTROL.displayName()));
-		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ManagementTypes.CONTAINMENT_CORE.displayName()));
-		assertTrue(rm.getPatch(105).getOccupant(species).getControls().containsKey(ManagementTypes.GROUND_CONTROL.displayName()));
-		assertTrue(!rm.getPatch(105).getOccupant(species).getControls().containsKey(ManagementTypes.CONTAINMENT.displayName()));
-		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ManagementTypes.CONTAINMENT_CORE.displayName()));
-		assertTrue(!rm.getPatch(60).getOccupant(species).getControls().containsKey(ManagementTypes.GROUND_CONTROL.displayName()));
-		assertTrue(rm.getPatch(60).getOccupant(species).getControls().containsKey(ManagementTypes.CONTAINMENT.displayName()));
-		assertTrue(rm.getPatch(60).getOccupant(species).getControls().containsKey(ManagementTypes.CONTAINMENT_CORE.displayName()));
+		assertTrue(rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT));
+		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.GROUND_CONTROL));
+		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT_CORE));
+		assertTrue(rm.getPatch(10).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT));
+		assertTrue(!rm.getPatch(10).getOccupant(species).getControls().containsKey(ControlType.GROUND_CONTROL));
+		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT_CORE));
+		assertTrue(rm.getPatch(105).getOccupant(species).getControls().containsKey(ControlType.GROUND_CONTROL));
+		assertTrue(!rm.getPatch(105).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT));
+		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT_CORE));
+		assertTrue(!rm.getPatch(60).getOccupant(species).getControls().containsKey(ControlType.GROUND_CONTROL));
+		assertTrue(rm.getPatch(60).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT));
+		assertTrue(rm.getPatch(60).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT_CORE));
 			
 	}
 }

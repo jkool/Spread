@@ -9,7 +9,7 @@ import nsp.Mosaic;
 import nsp.Occupancy;
 import nsp.Patch;
 import nsp.Process;
-import nsp.util.ManagementTypes;
+import nsp.util.ControlType;
 
 /**
  * Performs operations on a Mosaic pertaining to growth. Chiefly, increments the
@@ -74,7 +74,7 @@ public class Process_Growth implements Process, Cloneable {
 
 			o.incrementInfestationTime(timeIncrement);
 
-			if (o.getControls().isEmpty()||o.hasControl(ManagementTypes.CONTAINMENT_CORE.displayName())) {
+			if (o.getControls().isEmpty()||o.hasControl(ControlType.CONTAINMENT_CORE)) {
 
 				for (int j = 0; j < th.length; j++) {
 

@@ -16,8 +16,10 @@ import nsp.Mosaic;
 import nsp.MosaicWriter;
 import nsp.Occupancy;
 import nsp.impl.RasterMosaic;
+import nsp.impl.process.Process_Costing;
 import nsp.util.RasterWriter;
 import nsp.util.Stats;
+import nsp.Process;
 
 /**
  * Used to write Experiment-level output to output files, including number of
@@ -93,8 +95,9 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 				StringBuilder sb = new StringBuilder();
 				sb.append("OID,Distance,Rate,Replicate,");
 
-				sb.append("N_infested,K_no,K_Allocation,K_quantity,K_histo,K_standard,Chance_agreement,Quantity_agreement,Allocation_agreement, Allocation_disagreement,Quantity_disagreement");
-
+				//sb.append("N_infested,K_no,K_Allocation,K_quantity,K_histo,K_standard,Chance_agreement,Quantity_agreement,Allocation_agreement, Allocation_disagreement,Quantity_disagreement");
+				sb.append("N_infested,Cost,Labour,K_no,K_Allocation,K_quantity,K_histo,K_standard,Chance_agreement,Quantity_agreement,Allocation_agreement, Allocation_disagreement,Quantity_disagreement");
+				
 				if (stats.isBinary()) {
 					sb.append(",Pierce_Skill,Figure_of_merit");
 				}
@@ -120,6 +123,17 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 	public void write(Experiment exp) {
 
 		Mosaic mosaic = exp.getMosaic();
+		List<Process> plist = exp.getProcesses();
+		int idx = -1;
+		for(int i = 0; i < plist.size(); i++){
+			if(plist.get(i) instanceof Process_Costing){
+				idx = i;
+				break;
+			}
+		}
+		
+		Process_Costing pcst = (Process_Costing) plist.get(idx);
+		
 		List<String> speciesList = mosaic.getSpeciesList();
 
 		for (int i = 0; i < speciesList.size(); i++) {
@@ -146,6 +160,8 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 
 			stats.pontiusStats(cf);
 			sb.append(stats.getNInfested() + ",");
+			sb.append(pcst.getCost() + ",");
+			sb.append(pcst.getLabour() + ",");
 			sb.append(stats.getKno() + ",");
 			sb.append(stats.getKallocation() + ",");
 			sb.append(stats.getKquantity() + ",");

@@ -1,9 +1,11 @@
 package nsp.impl.process;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import cern.jet.random.Uniform;
@@ -11,7 +13,7 @@ import nsp.Mosaic;
 import nsp.Occupancy;
 import nsp.Patch;
 import nsp.Process;
-import nsp.util.ManagementTypes;
+import nsp.util.ControlType;
 
 public class Process_Monitor implements Process, Cloneable {
 
@@ -58,11 +60,11 @@ public class Process_Monitor implements Process, Cloneable {
 					Set<Patch> monitored = ms.getFilledRegion(patch, species);
 					ms.setMonitored(monitored, true);
 					if(ms.getArea(monitored)<=containmentCutoff){
-						ms.setControlled(monitored, species, ManagementTypes.GROUND_CONTROL.displayName());
+						ms.setControlled(monitored, species, ControlType.GROUND_CONTROL);
 					}
 					else{
-						ms.setControlled(monitored, species, ManagementTypes.CONTAINMENT.displayName());
-						ms.setControlled(ms.getStrongCore(monitored, species, coreBufferSize), species, ManagementTypes.CONTAINMENT_CORE.displayName());
+						ms.setControlled(monitored, species, ControlType.CONTAINMENT);
+						ms.setControlled(ms.getStrongCore(monitored, species, coreBufferSize), species, ControlType.CONTAINMENT_CORE);
 					}
 					
 					ms.setVisited(monitored,species);
@@ -77,7 +79,20 @@ public class Process_Monitor implements Process, Cloneable {
 
 	@Override
 	public Process_Monitor clone() {
-		return new Process_Monitor();
+		Process_Monitor clone = new Process_Monitor();
+		Map<String, double[]> cp_discovery = new TreeMap<String, double[]>();
+		Iterator<String> it = p_discovery.keySet().iterator();
+		while(it.hasNext()){
+			String species = it.next();
+			cp_discovery.put(species, Arrays.copyOf(p_discovery.get(species), p_discovery.get(species).length));
+		}
+		clone.setPDiscovery(cp_discovery);
+		clone.containmentCutoff=containmentCutoff;
+		clone.coreBufferSize=coreBufferSize;
+		clone.frequency=frequency;
+		clone.ms=ms;
+		clone.visited=visited;
+		return clone;
 	}
 
 	public void setPDiscovery(Map<String, double[]> p_discovery) {

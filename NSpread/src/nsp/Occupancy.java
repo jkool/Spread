@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import nsp.util.ControlType;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class Occupancy implements Cloneable {
@@ -20,7 +22,7 @@ public class Occupancy implements Cloneable {
 	private double habitatSuitability = 1d;
 	private Disperser disperser;
 	private List<Coordinate> propagules = new ArrayList<Coordinate>();
-	private Map<String, Long> controls = new TreeMap<String, Long>();
+	private Map<ControlType, Long> controls = new TreeMap<ControlType, Long>();
 	private boolean NODATA = false;
 
 	public Occupancy() {
@@ -30,7 +32,7 @@ public class Occupancy implements Cloneable {
 		this.name = name;
 	}
 
-	public void addControl(String control) {
+	public void addControl(ControlType control) {
 		if (!controls.containsKey(control)) {
 			controls.put(control, 0l);
 		}
@@ -60,7 +62,7 @@ public class Occupancy implements Cloneable {
 		for (Coordinate c : propagules) {
 			propagules_c.add((Coordinate) c.clone());
 		}
-		for (String s : controls.keySet()) {
+		for (ControlType s : controls.keySet()) {
 			occ.controls.put(s, controls.get(s).longValue());
 		}
 		occ.propagules = propagules_c;
@@ -79,11 +81,11 @@ public class Occupancy implements Cloneable {
 		return ageOfInfestation;
 	}
 
-	public Map<String, Long> getControls() {
+	public Map<ControlType, Long> getControls() {
 		return controls;
 	}
 
-	public long getControlTime(String control) {
+	public long getControlTime(ControlType control) {
 		return controls.get(control);
 	}
 
@@ -115,7 +117,7 @@ public class Occupancy implements Cloneable {
 		return stageOfInfestation;
 	}
 
-	public boolean hasControl(String control) {
+	public boolean hasControl(ControlType control) {
 		return controls.containsKey(control);
 	}
 
@@ -138,7 +140,7 @@ public class Occupancy implements Cloneable {
 		return visited;
 	}
 
-	public void removeControl(String control) {
+	public void removeControl(ControlType control) {
 		controls.remove(control);
 	}
 
@@ -146,7 +148,7 @@ public class Occupancy implements Cloneable {
 		this.ageOfInfestation = ageOfInfestation;
 	}
 
-	public void setControlTime(String control, long controlTime) {
+	public void setControlTime(ControlType control, long controlTime) {
 		controls.put(control, controlTime);
 	}
 

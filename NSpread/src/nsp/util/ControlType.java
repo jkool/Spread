@@ -1,10 +1,10 @@
 package nsp.util;
 
-public enum ManagementTypes { GROUND_CONTROL("Ground Control"), CONTAINMENT("Containment"), CONTAINMENT_CORE("Containment Core");
+public enum ControlType { GROUND_CONTROL("Ground Control"), CONTAINMENT("Containment"), CONTAINMENT_CORE("Containment Core");
 
 private String displayName;
 
-ManagementTypes(String displayName) {
+ControlType(String displayName) {
     this.displayName = displayName;
 }
 

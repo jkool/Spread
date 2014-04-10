@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import nsp.Mosaic;
 import nsp.Patch;
 import nsp.Process;
-import nsp.util.ManagementTypes;
+import nsp.util.ControlType;
 
 public class Process_Containment implements Process, Cloneable{
 	
@@ -30,11 +30,11 @@ public class Process_Containment implements Process, Cloneable{
 
 			// I'm gonna break my rusty cage... and run!
 
-			if (patch.getOccupant(species).hasControl(ManagementTypes.CONTAINMENT_CORE.displayName())) {
+			if (patch.getOccupant(species).hasControl(ControlType.CONTAINMENT_CORE)) {
 				continue;
 			}
 			
-			if (patch.getOccupant(species).hasControl(ManagementTypes.CONTAINMENT.displayName())) {
+			if (patch.getOccupant(species).hasControl(ControlType.CONTAINMENT)) {
 				
 				patch.getOccupant(species).setStageOfInfestation(0);
 				patch.getOccupant(species).clearInfestation();

@@ -405,7 +405,23 @@ public class Spread {
 		Process_Monitor pm = new Process_Monitor();
 		pm.setContainmentCutoff(Double.parseDouble(properties.getProperty("Containment_Cutoff","500000")));
 		pm.setCoreBufferSize(Double.parseDouble(properties.getProperty("Containment_Cutoff","750")));
+		List<double[]> p_discovery = parseMultiNumericArray(properties.getProperty("p_Detection"));
+		Map<String, double[]> detectionMap = new TreeMap<String,double[]>();
 		
+		if(p_discovery.size()!=speciesList.size()){
+			System.out.println("Detection probabilities array size ("+p_discovery.size()+") does not match the number of species ("+speciesList.size()+")");
+			System.exit(-1);
+		}
+		
+		for(int i =0; i < speciesList.size(); i++){
+			if(age_stage.get(i).length!=p_discovery.get(i).length-1){
+				System.out.println("Discovery probabilities must match the number of age thresholds plus 1.  Species " + i  + " stage thresholds :" + age_stage.get(i).length  + ", p_detection:" + p_discovery.get(i).length);
+				System.exit(-1);
+			}
+			detectionMap.put(speciesList.get(i), p_discovery.get(i));
+		}
+		
+		pm.setPDiscovery(detectionMap);
 		processes.add(pm);
 		
 		// Adding ground control actions
@@ -628,6 +644,10 @@ public class Spread {
 	private List<String> parseStringArray(String string) {
 
 		List<String> list = new ArrayList<String>();
+		
+		if(string==null){
+			return list;
+		}
 
 		if (string.startsWith("file:")) {
 			String filestring = string.substring(string.indexOf("file:") + 5);
@@ -722,8 +742,8 @@ public class Spread {
 			try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 				String ln = br.readLine();
 				while (ln != null) {
-					da.add(Double.parseDouble(ln));
-					br.readLine();
+					da.addAll(arr2list(parseNumericArray(ln)));
+					ln = br.readLine();
 				}
 			} catch (FileNotFoundException e) {
 				System.out.println("File entry "
@@ -740,6 +760,7 @@ public class Spread {
 			for (int i = 0; i < da.size(); i++) {
 				values[i] = da.get(i).doubleValue();
 			}
+			return values;
 		}
 
 		// parse brace brackets for {start,stop, number of items}
@@ -855,5 +876,13 @@ public class Spread {
 
 		bw.flush();
 		bw.close();
+	}
+	
+	private List<Double> arr2list(double[] da){
+		ArrayList<Double> list = new ArrayList<Double>();
+		for(double d:da){
+			list.add(d);
+		}
+		return list;
 	}
 }

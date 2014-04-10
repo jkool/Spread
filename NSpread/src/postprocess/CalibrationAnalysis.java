@@ -45,7 +45,7 @@ public class CalibrationAnalysis {
 			Properties props = new Properties();
 			props.put(
 					"columnTypes",
-					"Int,Double,Double,Int,Int,Double,Double,Double,Double,Double,Double,Double,Double,Double,Double,Double");
+					"Int,Double,Double,Int,Int,Double,Double,Double,Double,Double,Double,Double,Double,Double,Double,Double,Double,Double");
 
 			Class.forName("org.relique.jdbc.csv.CsvDriver");
 

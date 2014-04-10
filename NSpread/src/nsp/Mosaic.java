@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nsp.util.ControlType;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -202,7 +204,7 @@ public interface Mosaic {
 	 * @param control - The control label to apply to the occupancies.
 	 */
 
-	public void setControlled(Collection<Patch> patches, String species, String control);
+	public void setControlled(Collection<Patch> patches, String species, ControlType control);
 	
 	/**
 	 * Sets a copy of the provided Disperser to all patches in the RasterMosaic.
