@@ -57,6 +57,8 @@ public interface Mosaic {
 
 	public Mosaic clone();
 
+	Set<Patch> fill(Collection<Patch> region, String species);
+	
 	/**
 	 * Retrieves the total area covered by the set of patches
 	 * @param patches
@@ -189,6 +191,8 @@ public interface Mosaic {
 
 	public void infest(String species, List<Coordinate> propagules);
 
+	public void removeControl(Collection<Patch> patches, String species, ControlType control);
+	
 	/**
 	 * Sets the age information using a path.
 	 */
@@ -204,7 +208,7 @@ public interface Mosaic {
 	 * @param control - The control label to apply to the occupancies.
 	 */
 
-	public void setControlled(Collection<Patch> patches, String species, ControlType control);
+	public void setControl(Collection<Patch> patches, String species, ControlType control);
 	
 	/**
 	 * Sets a copy of the provided Disperser to all patches in the RasterMosaic.

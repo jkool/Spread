@@ -17,7 +17,7 @@ public class Occupancy implements Cloneable {
 	private boolean visited = false;
 	private long ageOfInfestation = 0;
 	private long cumulativeAgeOfInfestation = 0;
-	private int stageOfInfestation = 0;
+	private int stageOfInfestation = -1;
 	private int maxInfestation = 0;
 	private double habitatSuitability = 1d;
 	private Disperser disperser;
@@ -186,6 +186,7 @@ public class Occupancy implements Cloneable {
 
 	public void setStageOfInfestation(int stageOfInfestation) {
 		this.stageOfInfestation = stageOfInfestation;
+
 		if (stageOfInfestation > maxInfestation) {
 			maxInfestation = stageOfInfestation;
 		}

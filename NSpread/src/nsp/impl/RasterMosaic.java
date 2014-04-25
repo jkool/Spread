@@ -815,6 +815,12 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		return output;
 	}
 
+	public void removeControl(Collection<Patch> patches, String species, ControlType control){
+		for(Patch p:patches){
+			p.getOccupant(species).removeControl(control);
+		}
+	}
+	
 	public Set<Patch> searchInfestation(Patch p, String species) {
 		Set<Patch> s = new TreeSet<Patch>();
 
@@ -920,7 +926,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		this.cellsize = cellsize;
 	}
 	
-	public void setControlled(Collection<Patch> patches, String species, ControlType control){
+	public void setControl(Collection<Patch> patches, String species, ControlType control){
 		for(Patch p:patches){
 			p.getOccupant(species).addControl(control);
 		}

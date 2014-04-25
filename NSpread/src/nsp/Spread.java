@@ -545,6 +545,9 @@ public class Spread {
 					e.setExperimentWriter(ew);
 
 					e.run();
+					
+					pcst.resetCost();
+					pcst.resetLabour();
 
 				}
 			}
@@ -622,6 +625,9 @@ public class Spread {
 						e.setExperimentWriter(ew);
 
 						e.run();
+						
+						pcst.resetCost();
+						pcst.resetLabour();
 					}
 				}
 			}

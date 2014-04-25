@@ -57,19 +57,23 @@ public class Process_Monitor implements Process, Cloneable {
 
 				if (p < p_discovery.get(species)[stage - 1]) {
 					patch.setMonitored(true);
-					Set<Patch> monitored = ms.getFilledRegion(patch, species);
-					ms.setMonitored(monitored, true);
-					if(ms.getArea(monitored)<=containmentCutoff){
-						ms.setControlled(monitored, species, ControlType.GROUND_CONTROL);
+					Set<Patch> region = ms.getWeakRegion(patch, species);
+					Set<Patch> filled = ms.fill(region, species);
+							
+					if(ms.getArea(filled)<=containmentCutoff){
+						ms.setMonitored(region, true);
+						ms.setControl(region, species, ControlType.GROUND_CONTROL);
 					}
 					else{
-						ms.setControlled(monitored, species, ControlType.CONTAINMENT);
-						ms.setControlled(ms.getStrongCore(monitored, species, coreBufferSize), species, ControlType.CONTAINMENT_CORE);
+						ms.setMonitored(filled, true);
+						ms.setControl(filled, species, ControlType.CONTAINMENT);
+						ms.setControl(ms.getStrongCore(filled, species, coreBufferSize), species, ControlType.CONTAINMENT_CORE);
+						ms.removeControl(filled, species, ControlType.GROUND_CONTROL);						
 					}
 					
-					ms.setVisited(monitored,species);
+					ms.setVisited(filled,species);
 					
-					for(Patch v:monitored){
+					for(Patch v:filled){
 						visited.add(v.getOccupant(species));
 					}
 				}

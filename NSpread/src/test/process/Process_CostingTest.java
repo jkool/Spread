@@ -12,12 +12,13 @@ import nsp.Patch;
 import nsp.impl.RasterMosaic;
 import nsp.impl.process.Process_Costing;
 import nsp.impl.process.Process_Monitor;
+import nsp.util.ControlType;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class Process_CostingTest {
-	
+
 	RasterMosaic rm = new RasterMosaic();
 	Process_Monitor pm = new Process_Monitor();
 	Process_Costing pc = new Process_Costing();
@@ -28,37 +29,58 @@ public class Process_CostingTest {
 		List<String> speciesList = new ArrayList<String>();
 		speciesList.add("Test_1");
 		rm.setSpeciesList(speciesList);
-		
+
 		try {
-			rm.setPresenceMap("./resource files/patchtest.txt",species);
+			rm.setPresenceMap("./resource files/patchtest.txt", species);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		Map<String, double[]> p_discovery = new TreeMap<String, double[]>();
-		p_discovery.put(species, new double[]{1,1,1});
-		
+		p_discovery.put(species, new double[] { 1, 1, 1 });
+
 		pm.setPDiscovery(p_discovery);
 		pm.setCoreBufferSize(2);
-		
-		}
+
+	}
 
 	@Test
 	public void test() {
 		Map<Integer, Patch> patches = rm.getPatches();
-		
-		for(Integer key: patches.keySet()){
-			if(patches.get(key).hasNoData()){
+
+		for (Integer key : patches.keySet()) {
+			if (patches.get(key).hasNoData()) {
 				continue;
 			}
-			assertEquals(0,patches.get(key).getOccupant(species).getControls().size());
+			assertEquals(0, patches.get(key).getOccupant(species).getControls()
+					.size());
 		}
-		
+
 		pm.process(rm);
 		pc.process(rm);
-		
-		assertEquals(27870, pc.getCost(),1E-16);
-		assertEquals(391, pc.getLabour(),1E-16);
-			
+
+		/*Map<Integer, Patch> patchlist = rm.getPatches();
+
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 20; j++) {
+				
+				Patch pp = patchlist.get((i * 20) + j);
+				if(pp.hasNoData()){System.out.print("NaN "); continue;}
+				ArrayList<ControlType> alist = new ArrayList<ControlType>(
+						pp.getOccupant("Test_1")
+								.getControls().keySet());
+				if (alist.size() == 0) {
+					System.out.print("0");
+				} else {
+					System.out.print(alist.get(0).ordinal() + 1);
+				}
+				System.out.print(" ");
+			}
+			System.out.println();
+		}*/
+
+	 assertEquals(26870, pc.getCost(),1E-16);
+	 assertEquals(377, pc.getLabour(),1E-16);
+
 	}
 }

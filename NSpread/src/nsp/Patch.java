@@ -176,9 +176,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		Iterator<String> it = occupants.keySet().iterator();
 		while (it.hasNext()) {
 			Occupancy occ = occupants.get(it.next());
-			if (!occ.getControls().containsKey(control)) {
-				occ.getControls().put(control, 1l);
-			} else {
+			if(occ.hasControl(control)){
 				occ.getControls().put(control,
 						occ.getControls().get(control) + increment);
 			}

@@ -86,6 +86,7 @@ public class Process_GroundControl implements Process, Cloneable {
 				if (patch.getOccupant(species).getStageOfInfestation() == 0) {
 					patch.getOccupant(species).clearInfestation();
 					patch.getOccupant(species).removeControl(ControlType.GROUND_CONTROL);
+					patch.getOccupant(species).setStageOfInfestation(-99);
 				}
 			}
 		}
