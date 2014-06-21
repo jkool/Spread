@@ -140,6 +140,11 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			patches.get(key).setVisited(false);
 		}
 	}
+	
+	/**
+	 * Resets a collection of patches to being unvisited.
+	 * @param patches
+	 */
 
 	public void clearVisitedPatches(Collection<Patch> patches) {
 		for (Patch p : patches) {
@@ -147,11 +152,19 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		}
 	}
 	
+	/**
+	 * Resets a collection of Occupancies to being unvisited (accessed as patches with species key).
+	 */
+	
 	public void clearVisitedPatches(Collection<Patch> patches, String species) {
 		for (Patch p : patches) {
 			p.getOccupant(species).setVisited(false);
 		}
 	}
+	
+	/**
+	 * Resets a collection of Occupancies to being unvisited.
+	 */
 	
 	public void clearVisitedOccupancies(Collection<Occupancy> occupancies) {
 		for (Occupancy o : occupancies) {
@@ -208,6 +221,10 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 		return rm;
 	}
+	
+	/**
+	 * Fills a collection of patches associated with a given species.
+	 */
 
 	public Set<Patch> fill(Collection<Patch> region, String species) {
 
@@ -240,6 +257,10 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		return s;
 	}
 	
+	/**
+	 * Retrieves the area associated with a collection of patches.
+	 */
+	
 	public double getArea(Collection<Patch> patches){
 		return (double) patches.size() * cellsize*cellsize;
 	}
@@ -253,6 +274,12 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		}
 		return s;
 	}
+	
+	/**
+	 * Retrieves the bounding coordinates for a collection of Patches.
+	 * @param patches
+	 * @return
+	 */
 
 	public int[] getBounds(Collection<Patch> patches) {
 		if (patches.size() == 0) {

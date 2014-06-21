@@ -26,6 +26,7 @@ import nsp.impl.Disperser_Continuous2D;
 import nsp.impl.RasterMosaic;
 import nsp.impl.output.ExperimentWriter_Text;
 import nsp.impl.output.MosaicWriter_Raster;
+import nsp.impl.output.StatsWriter_Text;
 import nsp.impl.process.Process_Containment;
 import nsp.impl.process.Process_Costing;
 import nsp.impl.process.Process_Dispersal;
@@ -130,16 +131,21 @@ public class Spread {
 		String age = properties.getProperty("Age_File");
 		String habitat = properties.getProperty("Habitat_File");
 		String ref = properties.getProperty("Reference_File");
+		String mgt = properties.getProperty("Management_File");
+		int mgt_frq = Integer.parseInt(properties.getProperty("Management_Frequency","1"));
 
 		List<String> presenceList = parseStringArray(presence);
 		List<String> ageList = parseStringArray(age);
 		List<String> habitatList = parseStringArray(habitat);
 		List<String> referenceList = parseStringArray(ref);
+		List<String> mgtList = parseStringArray(mgt);
 
 		if (speciesList.size() != presenceList.size()
 				|| speciesList.size() != ageList.size()
 				|| speciesList.size() != habitatList.size()
-				|| speciesList.size() != referenceList.size()) {
+				|| speciesList.size() != referenceList.size()
+			    || speciesList.size() != mgtList.size()
+				) {
 			System.out
 					.println("Species, presence, age, habitat and reference file lists must all be the same size:");
 			System.out.println("Species list size : " + speciesList.size()
@@ -154,6 +160,9 @@ public class Spread {
 			System.out.println("Reference file list size : "
 					+ referenceList.size() + " "
 					+ Arrays.toString(referenceList.toArray()));
+			System.out.println("Management file list size : "
+					+ mgtList.size() + " "
+					+ Arrays.toString(mgtList.toArray()));
 			System.exit(-1);
 		}
 
@@ -163,6 +172,7 @@ public class Spread {
 				mosaic.setPresenceMap(presenceList.get(i), speciesList.get(i));
 				mosaic.setAgeMap(ageList.get(i), speciesList.get(i));
 				mosaic.setHabitatMap(habitatList.get(i), speciesList.get(i));
+				mosaic.setManagementMap(mgtList.get(i), speciesList.get(i));
 			} catch (IOException e) {
 				System.out.println(e);
 				System.exit(-1);
@@ -202,6 +212,7 @@ public class Spread {
 		mosaicWriter = new MosaicWriter_Raster();
 		mosaicWriter.setFolder(outputFolder);
 		ExperimentWriter_Text ew = new ExperimentWriter_Text();
+		StatsWriter_Text sw = new StatsWriter_Text();
 		ew.setReferenceMosaic(reference);
 
 		if (properties.containsKey("Overwrite_Output")) {
@@ -311,10 +322,23 @@ public class Spread {
 
 		String distString = properties.getProperty("Distances");
 		String rateString = properties.getProperty("Rates");
-
+		
+		List<double[]> kernels;
+		
+		if(properties.containsKey("Direction_kernel")){
+			kernels = parseMultiNumericArray(properties.getProperty("Direction_Kernel"));
+		}
+		else{
+			kernels = new ArrayList<double[]>();
+			double[] k = new double[]{1,1,1,1,1,1,1,1};
+			for(int i = 0; i < speciesList.size(); i++){
+				kernels.add(k);
+			}
+		}
+		
 		List<double[]> distances = parseMultiNumericArray(distString);
 		List<double[]> rates = parseMultiNumericArray(rateString);
-
+		
 		if (distances.size() != speciesList.size()
 				|| rates.size() != speciesList.size()) {
 			System.out
@@ -371,8 +395,6 @@ public class Spread {
 
 		pg.setThresholds(thresholds);
 
-		processes.add(pg);
-
 		// Adding dispersal
 		
 		Process_Dispersal pd = new Process_Dispersal();
@@ -397,14 +419,13 @@ public class Spread {
 		}
 
 		pd.setWaitTimes(waitTimes);
-
-		processes.add(pd);
 		
 		// Adding monitoring
 		
 		Process_Monitor pm = new Process_Monitor();
 		pm.setContainmentCutoff(Double.parseDouble(properties.getProperty("Containment_Cutoff","500000")));
 		pm.setCoreBufferSize(Double.parseDouble(properties.getProperty("Containment_Cutoff","750")));
+		pm.setCheckFrequency(mgt_frq);
 		List<double[]> p_discovery = parseMultiNumericArray(properties.getProperty("p_Detection"));
 		Map<String, double[]> detectionMap = new TreeMap<String,double[]>();
 		
@@ -422,36 +443,41 @@ public class Spread {
 		}
 		
 		pm.setPDiscovery(detectionMap);
-		processes.add(pm);
 		
 		// Adding ground control actions
 		
 		Process_GroundControl pgc = new Process_GroundControl();
+		pgc.setCheckFrequency(mgt_frq);
 		pgc.addToIgnoreList(parseStringArray(properties.getProperty("Ground_Control_Ignore")));
-		
-		processes.add(pgc);
 		
 		// Adding containment actions
 		
 		Process_Containment pcc = new Process_Containment();
+		pcc.setCheckFrequency(mgt_frq);
 		pcc.addToIgnoreList(parseStringArray(properties.getProperty("Containment_Ignore")));
-		
-		processes.add(pcc);
 		
 		// Adding cost accounting
 		
 		Process_Costing pcst = new Process_Costing();
+		pcst.setCheckFrequency(mgt_frq);
 		
 		pcst.setContainmentCost(Double.parseDouble(properties.getProperty("Containment_Cost","7")));
 		pcst.setContainmentLabour(Double.parseDouble(properties.getProperty("Containment_Labour","1")));
 		pcst.setGroundControlCosts(parseNumericArray(properties.getProperty("Ground_Control_Cost","[1000,2000,4200]")));
-		pcst.setGroundControlLabour(parseNumericArray(properties.getProperty("Ground_Control_Cost","[14,24,56]")));
+		pcst.setGroundControlLabour(parseNumericArray(properties.getProperty("Ground_Control_Labour","[14,24,56]")));
 		
+		processes.add(pgc);
+		processes.add(pcc);
 		processes.add(pcst);
+		processes.add(pg);
+		processes.add(pd);
+		processes.add(pm);
 		
 		// Adding infestation step
 		
 		processes.add(new Process_Infestation());
+		
+		boolean writeTrace = Boolean.parseBoolean(properties.getProperty("Write_Trace_Files","false"));
 
 		// If the Run-type is Paired, then the arrays of distances and rates are
 		// run as a paired set, therefore there is only one loop.
@@ -494,8 +520,8 @@ public class Spread {
 					if (properties.containsKey("Direction_Kernel")) {
 						RandomGenerator_Kernel rk = new RandomGenerator_Kernel();
 						rk.setRotate(true);
-						rk.setWeights(parseNumericArray(properties
-								.getProperty("Direction_Kernel")));
+						
+						rk.setWeights(kernels.get(j));
 						angleGenerator = rk;
 					}
 
@@ -515,7 +541,36 @@ public class Spread {
 						System.out.println("\t\tReplicate " + (n + 1) + " of "
 								+ reps);
 					}
+					
 					Experiment e = new Experiment();
+					
+					double[] dist_vec = new double[speciesList.size()];
+					double[] rate_vec = new double[speciesList.size()];
+
+					for (int j = 0; j < speciesList.size(); j++) {
+						dist_vec[j] = distances.get(j)[i];
+						rate_vec[j] = rates.get(j)[i];
+					}
+					
+					if(writeTrace){
+						sw = new StatsWriter_Text();
+						sw.setOutputFolder(outputFolder);
+						sw.setDistances(dist_vec);
+						sw.setRates(rate_vec);
+						sw.setReplicate(n);
+						String sw_output = properties.getProperty("Trace_Base_Name","TraceFile") + "_" + n;
+						sw.setOutputFile(sw_output);
+						try {
+							sw.open(new HashSet<String>(speciesList));
+							sw.setRunID(i*distances.get(0).length +n);
+						} catch (IOException e1) {
+							System.out.println("Could not write statistics to trace file " + outputFolder + "/" + sw_output + ".  Skipping.");
+							continue;
+						}
+						e.setStatsWriter(sw);
+						e.writeTraceFile(writeTrace);
+					}
+					
 					e.setMosaic(mosaic.clone());
 					e.setStartTime(startTime);
 					e.setTimeIncrement(timeIncrement);
@@ -524,18 +579,12 @@ public class Spread {
 					e.setOutputWriter(mosaicWriter);
 					e.setProcesses(processes);
 					e.writeEachTimeStep(writeEachTimeStep);
+					
+					
 
 					int id = (i * reps) + n;
 
 					e.setIdentifier(id + "_" + n);
-
-					double[] dist_vec = new double[speciesList.size()];
-					double[] rate_vec = new double[speciesList.size()];
-
-					for (int j = 0; j < speciesList.size(); j++) {
-						dist_vec[j] = distances.get(j)[i];
-						rate_vec[j] = rates.get(j)[i];
-					}
 
 					ew.setDistances(dist_vec);
 					ew.setRates(rate_vec);
@@ -550,6 +599,9 @@ public class Spread {
 					pcst.resetLabour();
 
 				}
+			}
+			if(writeTrace){
+				sw.close();
 			}
 			ew.close();
 		}
@@ -595,7 +647,36 @@ public class Spread {
 							System.out.println("\t\tReplicate " + (n + 1)
 									+ " of " + reps);
 						}
+						
 						Experiment e = new Experiment();
+						
+						double[] dist_vec = new double[speciesList.size()];
+						double[] rate_vec = new double[speciesList.size()];
+
+						for (int k = 0; k < speciesList.size(); k++) {
+							dist_vec[k] = distances.get(k)[i];
+							rate_vec[k] = rates.get(k)[i];
+						}
+						
+						if(writeTrace){
+							sw = new StatsWriter_Text();
+							sw.setOutputFolder(outputFolder);
+							sw.setDistances(dist_vec);
+							sw.setRates(rate_vec);
+							sw.setReplicate(n);
+							String sw_output = properties.getProperty("Trace_Base_Name","TraceFile") + "_" + n;
+							sw.setOutputFile(sw_output);
+							try {
+								sw.open(new HashSet<String>(speciesList));
+								sw.setRunID(i*distances.get(0).length + j*(rates.get(0).length)+n);
+							} catch (IOException e1) {
+								System.out.println("Could not write statistics to trace file " + outputFolder + "/" + sw_output + ".  Skipping.");
+								continue;
+							}
+							e.setStatsWriter(sw);
+							e.writeTraceFile(writeTrace);
+						}
+						
 						e.setMosaic(mosaic.clone());
 						e.setStartTime(startTime);
 						e.setTimeIncrement(timeIncrement);
@@ -609,14 +690,6 @@ public class Spread {
 
 						e.setIdentifier(id + "_" + n);
 
-						double[] dist_vec = new double[speciesList.size()];
-						double[] rate_vec = new double[speciesList.size()];
-
-						for (int k = 0; k < speciesList.size(); k++) {
-							dist_vec[k] = distances.get(k)[i];
-							rate_vec[k] = rates.get(k)[i];
-						}
-
 						ew.setDistances(dist_vec);
 						ew.setRates(rate_vec);
 						ew.setReplicate(n);
@@ -628,10 +701,15 @@ public class Spread {
 						
 						pcst.resetCost();
 						pcst.resetLabour();
+						
+						if(writeTrace){
+							sw.close();
+						}
+						
 					}
 				}
 			}
-
+			
 			ew.close();
 
 			// Post-process calibration results

@@ -31,7 +31,7 @@ public class CalibrationAnalysis {
 
 	public void go() {
 
-		System.out.println("\nRunning calibration analysis...\t");
+		System.out.println("\nRunning calibration analysis...\n");
 		
 		Iterator<String> it = speciesList.iterator();
 		while(it.hasNext()){
@@ -91,7 +91,7 @@ public class CalibrationAnalysis {
 
 			Map<Double, Map<Double, Integer>> map = process(resampleSet, repct);
 
-			writeToFile(map, outputFolder + "/" + species + "_" + removeExtension(outputFile) + ".csv");
+			writeToFile(map, outputFolder + "/" + species + "_" + removeExtension(outputFile) + ".csv",species);
 
 			// Close resources and notify that replicate is complete.
 
@@ -184,11 +184,11 @@ public class CalibrationAnalysis {
 	 */
 
 	private void writeToFile(Map<Double, Map<Double, Integer>> map,
-			String outputFile) {
+			String outputFile, String species) {
 
 		if (map.size() == 0) {
 			System.out
-					.println("\n\nWARNING:  No Experiments match the required calibration criteria.  Calibration file was not written.\n");
+					.println("WARNING:  No Experiments match the required calibration criteria for species "+ species +".  Calibration file was not written.");
 		}
 
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile))) {

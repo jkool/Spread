@@ -160,8 +160,8 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 
 			stats.pontiusStats(cf);
 			sb.append(stats.getNInfested() + ",");
-			sb.append(pcst.getCost() + ",");
-			sb.append(pcst.getLabour() + ",");
+			sb.append(pcst.getCostTotal() + ",");
+			sb.append(pcst.getLabourTotal() + ",");
 			sb.append(stats.getKno() + ",");
 			sb.append(stats.getKallocation() + ",");
 			sb.append(stats.getKquantity() + ",");

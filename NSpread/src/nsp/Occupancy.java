@@ -18,7 +18,7 @@ public class Occupancy implements Cloneable {
 	private long ageOfInfestation = 0;
 	private long cumulativeAgeOfInfestation = 0;
 	private int stageOfInfestation = -1;
-	private int maxInfestation = 0;
+	private int maxInfestation = -99;
 	private double habitatSuitability = 1d;
 	private Disperser disperser;
 	private List<Coordinate> propagules = new ArrayList<Coordinate>();
@@ -33,7 +33,7 @@ public class Occupancy implements Cloneable {
 	}
 
 	public void addControl(ControlType control) {
-		if (!controls.containsKey(control)) {
+		if (infested&!controls.containsKey(control)) {
 			controls.put(control, 0l);
 		}
 	}

@@ -25,6 +25,10 @@ public class MosaicWriter_Raster_IsMonitored extends MosaicWriter_Raster {
 	protected double getVal(RasterMosaic rm, int key, String species) {
 		Patch p = rm.getPatches().get(key);
 		if(!p.hasOccupant(species) || p.getOccupant(species).hasNoData()){return super.nodata;}
-		else{return rm.getPatches().get(key).isMonitored()?1:0;}
+		else{
+			if(p.isMonitored()){
+				System.out.print("");
+			}
+			return p.isMonitored()?1:0;}
 	}
 }

@@ -79,8 +79,8 @@ public class Process_CostingTest {
 			System.out.println();
 		}*/
 
-	 assertEquals(26870, pc.getCost(),1E-16);
-	 assertEquals(377, pc.getLabour(),1E-16);
+	 assertEquals(26870, pc.getCostTotal(),1E-16);
+	 assertEquals(377, pc.getLabourTotal(),1E-16);
 
 	}
 }

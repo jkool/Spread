@@ -9,6 +9,7 @@ import java.util.Set;
 import nsp.impl.output.MosaicWriter_Raster;
 import nsp.impl.output.MosaicWriter_Raster_IsMonitored;
 import nsp.impl.output.MosaicWriter_Raster_Stage;
+import nsp.impl.output.StatsWriter_Text;
 
 /**
  * This class is used to apply Processes to a Mosaic over time. Time is handled
@@ -23,6 +24,7 @@ public class Experiment implements Cloneable {
 	private MosaicWriter mw = new MosaicWriter_Raster();
 	private MosaicWriter ms = new MosaicWriter_Raster_Stage();
 	private MosaicWriter mm = new MosaicWriter_Raster_IsMonitored();
+	private StatsWriter sw = new StatsWriter_Text();
 	private ExperimentWriter ew;
 	private List<Process> processes = new ArrayList<Process>();
 	private List<Set<Integer>> record = new ArrayList<Set<Integer>>();
@@ -32,6 +34,7 @@ public class Experiment implements Cloneable {
 	private long timeIncrement = 1;
 	private String identifier = "";
 	private boolean writeEachTimeStep = false;
+	private boolean writeTraceFile = false;
 
 	/**
 	 * Returns a clone/copy of the instance
@@ -49,6 +52,7 @@ public class Experiment implements Cloneable {
 		// passing a reference.
 		ex.setMonitoredWriter(mm);// May need to consider cloning instead of
 		// passing a reference.
+		ex.setStatsWriter(sw);
 		return ex;
 	}
 
@@ -67,6 +71,7 @@ public class Experiment implements Cloneable {
 
 		for (long t = startTime; t < endTime; t += timeIncrement) {
 			time = t;
+			///////////////////////////////////////////////////////////////////////
 			step();
 		}
 
@@ -94,10 +99,11 @@ public class Experiment implements Cloneable {
 				mw.setName("cover" + "_" + identifier + "_" + species + "_t"
 						+ nf.format(time));
 				mw.write(mosaic, species);
-
-				// TODO Add other writers here?
-				// **********************************************************
 			}
+		}
+		
+		if(writeTraceFile){
+			sw.write(this);
 		}
 
 		record.add(mosaic.getPatches().keySet());
@@ -267,7 +273,7 @@ public class Experiment implements Cloneable {
 	}
 
 	/**
-	 * Sets the OutputWrier associated with the Experiment
+	 * Sets the OutputWriter associated with the Experiment
 	 * 
 	 * @param ow
 	 */
@@ -277,7 +283,7 @@ public class Experiment implements Cloneable {
 	}
 
 	/**
-	 * Sets the OutputWrier associated with the Experiment
+	 * Sets the OutputWriter associated with the Experiment
 	 * 
 	 * @param ow
 	 */
@@ -287,13 +293,23 @@ public class Experiment implements Cloneable {
 	}
 
 	/**
-	 * Sets the OutputWrier associated with the Experiment
+	 * Sets the OutputWriter associated with the Experiment
 	 * 
 	 * @param ow
 	 */
 
 	public void setMonitoredWriter(MosaicWriter om) {
 		this.mm = om;
+	}
+	
+	/**
+	 * Sets the OutputWrier associated with the Experiment
+	 * 
+	 * @param ow
+	 */
+
+	public void setStatsWriter(StatsWriter sw) {
+		this.sw = sw;
 	}
 
 	/**
@@ -347,8 +363,8 @@ public class Experiment implements Cloneable {
 	public void setExperimentWriter(ExperimentWriter ew) {
 		this.ew = ew;
 	}
-
-	public void writeState(String name) {
-
+	
+	public void writeTraceFile(boolean writeTraceFile){
+		this.writeTraceFile = writeTraceFile;
 	}
 }

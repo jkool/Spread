@@ -21,10 +21,21 @@ public class Process_Monitor implements Process, Cloneable {
 	private Mosaic ms;
 	private double containmentCutoff = 8;
 	private double coreBufferSize = 3;
-	private long frequency = 0;
+	private long counter = 0;
+	private long timeIncrement = 1;
+	private long chkFrq = 1;
 	private Set<Occupancy> visited = new HashSet<Occupancy>();
 
 	public void process(Mosaic mosaic) {
+		
+		counter+=timeIncrement;
+		
+		if(counter<chkFrq){
+			return;
+		}
+		
+		counter = 0;
+		
 		this.ms=mosaic;
 		
 		for (Integer key : mosaic.getPatches().keySet()) {
@@ -60,11 +71,20 @@ public class Process_Monitor implements Process, Cloneable {
 					Set<Patch> region = ms.getWeakRegion(patch, species);
 					Set<Patch> filled = ms.fill(region, species);
 							
-					if(ms.getArea(filled)<=containmentCutoff){
+					//if(ms.getArea(filled)<=containmentCutoff){
+					//	ms.setMonitored(region, true);
+					//	ms.setControl(region, species, ControlType.GROUND_CONTROL);
+
+					Set<Patch> controlled = getControlled(region,species,ControlType.CONTAINMENT);
+
+					if(filled.size()-controlled.size()<=containmentCutoff){
 						ms.setMonitored(region, true);
-						ms.setControl(region, species, ControlType.GROUND_CONTROL);
+						region.removeAll(controlled);
+						ms.setControl(region,species,ControlType.GROUND_CONTROL);
 					}
+				
 					else{
+						
 						ms.setMonitored(filled, true);
 						ms.setControl(filled, species, ControlType.CONTAINMENT);
 						ms.setControl(ms.getStrongCore(filled, species, coreBufferSize), species, ControlType.CONTAINMENT_CORE);
@@ -93,7 +113,8 @@ public class Process_Monitor implements Process, Cloneable {
 		clone.setPDiscovery(cp_discovery);
 		clone.containmentCutoff=containmentCutoff;
 		clone.coreBufferSize=coreBufferSize;
-		clone.frequency=frequency;
+		clone.timeIncrement=timeIncrement;
+		clone.counter=counter;
 		clone.ms=ms;
 		clone.visited=visited;
 		return clone;
@@ -103,8 +124,8 @@ public class Process_Monitor implements Process, Cloneable {
 		this.p_discovery = p_discovery;
 	}
 	
-	public void setFrequency(long frequency){
-		this.frequency=frequency;
+	public void setTimeIncrement(long timeIncrement){
+		this.timeIncrement=timeIncrement;
 	}
 	
 	public void setCoreBufferSize(double coreBufferSize){
@@ -113,5 +134,19 @@ public class Process_Monitor implements Process, Cloneable {
 	
 	public void setContainmentCutoff(double containmentCutoff){
 		this.containmentCutoff=containmentCutoff;
-	}	
+	}
+	
+	private Set<Patch> getControlled(Set<Patch> patches, String species, ControlType control){
+		Set<Patch> controlled = new TreeSet<Patch>();
+		for(Patch p:patches){
+			if(p.getOccupant(species).hasControl(control)){
+				controlled.add(p);
+			}
+		}
+		return controlled;
+	}
+	
+	public void setCheckFrequency(long checkFrequency){
+		this.chkFrq=checkFrequency;
+	}
 }
