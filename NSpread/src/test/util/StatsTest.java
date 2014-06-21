@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import nsp.util.Stats;
-import nsp.Occupancy;
+import nsp.Occupant;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,12 +22,12 @@ public class StatsTest {
 
 	@Test
 	public void testConfusionMatrix(){
-		Map<Integer,Occupancy> truth = new TreeMap<Integer,Occupancy>();
-		Map<Integer,Occupancy> estimate = new TreeMap<Integer,Occupancy>();
-		Occupancy infested = new Occupancy("Test");
+		Map<Integer,Occupant> truth = new TreeMap<Integer,Occupant>();
+		Map<Integer,Occupant> estimate = new TreeMap<Integer,Occupant>();
+		Occupant infested = new Occupant("Test");
 		infested.setInfested(true);
 		
-		Occupancy not_infested = new Occupancy("Test");
+		Occupant not_infested = new Occupant("Test");
 		not_infested.setInfested(false);
 		
 		estimate.put(0, not_infested);

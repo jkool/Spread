@@ -3,7 +3,7 @@ package nsp.impl.process;
 import java.util.Iterator;
 
 import nsp.Mosaic;
-import nsp.Occupancy;
+import nsp.Occupant;
 import nsp.Process;
 
 /**
@@ -39,7 +39,7 @@ public class Process_Infestation implements Process, Cloneable {
 			Iterator<String> it = mosaic.getPatch(key).getOccupants().keySet()
 					.iterator();
 			while (it.hasNext()) {
-				Occupancy o = mosaic.getPatch(key).getOccupant(it.next());
+				Occupant o = mosaic.getPatch(key).getOccupant(it.next());
 
 				if (o.isInfested()) {
 					mosaic.infest(o.getName(), o.getPropagules());

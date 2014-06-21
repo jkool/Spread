@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import nsp.Mosaic;
-import nsp.Occupancy;
+import nsp.Occupant;
 import nsp.Patch;
 import nsp.Process;
 
@@ -56,7 +56,7 @@ public class Process_Dispersal implements Process, Cloneable {
 		Iterator<String> it = patch.getOccupants().keySet().iterator();
 		while (it.hasNext()) {
 			String species = it.next();
-			Occupancy o = patch.getOccupant(species);
+			Occupant o = patch.getOccupant(species);
 			if (o.isInfested() && o.getAgeOfInfestation() >= waitTimes.get(species)) {
 				o.disperse();
 			}

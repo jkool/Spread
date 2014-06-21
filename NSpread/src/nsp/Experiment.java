@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import nsp.impl.output.MosaicWriter_Raster;
-import nsp.impl.output.MosaicWriter_Raster_IsMonitored;
+import nsp.impl.output.MosaicWriter_Raster_WasMonitored;
 import nsp.impl.output.MosaicWriter_Raster_Stage;
 import nsp.impl.output.StatsWriter_Text;
 
@@ -23,7 +23,7 @@ public class Experiment implements Cloneable {
 	private Mosaic mosaic;
 	private MosaicWriter mw = new MosaicWriter_Raster();
 	private MosaicWriter ms = new MosaicWriter_Raster_Stage();
-	private MosaicWriter mm = new MosaicWriter_Raster_IsMonitored();
+	private MosaicWriter mm = new MosaicWriter_Raster_WasMonitored();
 	private StatsWriter sw = new StatsWriter_Text();
 	private ExperimentWriter ew;
 	private List<Process> processes = new ArrayList<Process>();

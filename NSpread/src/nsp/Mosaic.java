@@ -49,7 +49,7 @@ public interface Mosaic {
 	 * @param patches - The patches to be tagged
 	 */
 	
-	public void clearVisitedOccupancies(Collection<Occupancy> occupancies);
+	public void clearVisitedOccupancies(Collection<Occupant> occupancies);
 
 	/**
 	 * Generates a copy of the class instance.
@@ -105,7 +105,7 @@ public interface Mosaic {
 	 * @return
 	 */
 	
-	public Map<Integer, Occupancy>getOccupied(String species);
+	public Map<Integer, Occupant>getOccupied(String species);
 	
 	/**
 	 * Retrieves a map of keys and Patches capable of containing species whether or not they are occupied.
@@ -113,7 +113,7 @@ public interface Mosaic {
 	 * @return
 	 */
 	
-	public Map<Integer,Occupancy>getOccupancies(String species);
+	public Map<Integer,Occupant>getOccupancies(String species);
 	
 	/**
 	 * Retrieves a single Patch object using its key.

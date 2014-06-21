@@ -1,14 +1,29 @@
 package nsp.util;
 
-public enum ControlType { GROUND_CONTROL("Ground Control"), CONTAINMENT("Containment"), CONTAINMENT_CORE("Containment Core");
+/**
+ * Note, the ordering is important as it used by the Occupant class to determine
+ * the maximum control applied (which is in turn used by Patch)
+ * 
+ * @author Johnathan Kool
+ * 
+ */
 
-private String displayName;
+public enum ControlType {
+	NONE("None"), GROUND_CONTROL("Ground Control"), CONTAINMENT("Containment"), CONTAINMENT_CORE(
+			"Containment Core");
 
-ControlType(String displayName) {
-    this.displayName = displayName;
-}
+	private String displayName;
 
-public String displayName() { return displayName; }
+	ControlType(String displayName) {
+		this.displayName = displayName;
+	}
 
-@Override public String toString() { return displayName; }
+	public String displayName() {
+		return displayName;
+	}
+
+	@Override
+	public String toString() {
+		return displayName;
+	}
 }

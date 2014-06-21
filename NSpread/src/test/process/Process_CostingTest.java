@@ -12,7 +12,6 @@ import nsp.Patch;
 import nsp.impl.RasterMosaic;
 import nsp.impl.process.Process_Costing;
 import nsp.impl.process.Process_Monitor;
-import nsp.util.ControlType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -79,8 +78,8 @@ public class Process_CostingTest {
 			System.out.println();
 		}*/
 
-	 assertEquals(26870, pc.getCostTotal(),1E-16);
-	 assertEquals(377, pc.getLabourTotal(),1E-16);
+	 assertEquals(26590, pc.getCostTotal(),1E-16);
+	 assertEquals(373, pc.getLabourTotal(),1E-16);
 
 	}
 }

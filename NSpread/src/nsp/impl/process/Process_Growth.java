@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import nsp.Mosaic;
-import nsp.Occupancy;
+import nsp.Occupant;
 import nsp.Patch;
 import nsp.Process;
 import nsp.util.ControlType;
@@ -70,7 +70,7 @@ public class Process_Growth implements Process, Cloneable {
 			long[] th = Arrays.copyOf(thresholds.get(species),
 					thresholds.get(species).length + 1);
 			th[th.length - 1] = Long.MAX_VALUE;
-			Occupancy o = patch.getOccupant(species);
+			Occupant o = patch.getOccupant(species);
 
 			o.incrementInfestationTime(timeIncrement);
 

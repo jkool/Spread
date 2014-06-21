@@ -8,7 +8,7 @@ import nsp.impl.RasterMosaic;
  * 
  */
 
-public class MosaicWriter_Raster_IsMonitored extends MosaicWriter_Raster {
+public class MosaicWriter_Raster_WasMonitored extends MosaicWriter_Raster {
 
 	/**
 	 * Retrieves a value from the Raster Mosaic based on the key value provided.
@@ -24,11 +24,10 @@ public class MosaicWriter_Raster_IsMonitored extends MosaicWriter_Raster {
 	@Override
 	protected double getVal(RasterMosaic rm, int key, String species) {
 		Patch p = rm.getPatches().get(key);
-		if(!p.hasOccupant(species) || p.getOccupant(species).hasNoData()){return super.nodata;}
-		else{
-			if(p.isMonitored()){
-				System.out.print("");
-			}
-			return p.isMonitored()?1:0;}
+		if (!p.hasOccupant(species) || p.getOccupant(species).hasNoData()) {
+			return super.nodata;
+		} else {
+			return p.getOccupant(species).getMaxControl();
+		}
 	}
 }

@@ -9,7 +9,7 @@ import nsp.util.ControlType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-public class Occupancy implements Cloneable {
+public class Occupant implements Cloneable {
 
 	private String name = "";
 	private boolean infested = false;
@@ -23,18 +23,26 @@ public class Occupancy implements Cloneable {
 	private Disperser disperser;
 	private List<Coordinate> propagules = new ArrayList<Coordinate>();
 	private Map<ControlType, Long> controls = new TreeMap<ControlType, Long>();
+	private ControlType maxControl = ControlType.NONE;
+	private boolean wasControlled = false;
 	private boolean NODATA = false;
 
-	public Occupancy() {
+	public Occupant() {
 	}
 
-	public Occupancy(String name) {
+	public Occupant(String name) {
 		this.name = name;
 	}
 
 	public void addControl(ControlType control) {
 		if (infested&!controls.containsKey(control)) {
 			controls.put(control, 0l);
+			if(control!=ControlType.NONE){
+				wasControlled=true;
+			}
+			if(control.ordinal()>maxControl.ordinal()){
+				maxControl=control;
+			}
 		}
 	}
 
@@ -49,14 +57,16 @@ public class Occupancy implements Cloneable {
 	}
 
 	@Override
-	public Occupancy clone() {
-		Occupancy occ = new Occupancy();
+	public Occupant clone() {
+		Occupant occ = new Occupant();
 		occ.ageOfInfestation = ageOfInfestation;
 		occ.habitatSuitability = habitatSuitability;
 		occ.disperser = disperser.clone();
 		occ.infested = infested;
 		occ.stageOfInfestation = stageOfInfestation;
 		occ.maxInfestation = maxInfestation;
+		occ.maxControl=maxControl;
+		occ.wasControlled=wasControlled;
 		occ.name = name;
 		List<Coordinate> propagules_c = new ArrayList<Coordinate>();
 		for (Coordinate c : propagules) {
@@ -105,6 +115,10 @@ public class Occupancy implements Cloneable {
 		return maxInfestation;
 	}
 
+	public int getMaxControl(){
+		return maxControl.ordinal();
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -130,6 +144,15 @@ public class Occupancy implements Cloneable {
 			ageOfInfestation += increment;
 			cumulativeAgeOfInfestation += increment;
 		}
+	}
+	
+	public boolean isControlled(){
+		for(ControlType control:controls.keySet()){
+			if(control!=ControlType.NONE){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean isInfested() {
@@ -198,6 +221,10 @@ public class Occupancy implements Cloneable {
 
 	public boolean wasInfested() {
 		return wasInfested;
+	}
+	
+	public boolean wasControlled(){
+		return wasControlled;
 	}
 
 }

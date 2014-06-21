@@ -24,17 +24,18 @@ public class Patch implements Cloneable, Comparable<Patch> {
 
 	private boolean visited = false;
 	private boolean monitored = false;
+	private boolean wasMonitored = false;
 	private Geometry geom;
-	private Map<String, Occupancy> occupants = new TreeMap<String, Occupancy>();
+	private Map<String, Occupant> occupants = new TreeMap<String, Occupant>();
 
 	private boolean nodata = false;
 
-	public void addOccupant(Occupancy occupant) {
+	public void addOccupant(Occupant occupant) {
 		occupants.put(occupant.getName(), occupant);
 	}
 
 	public void addOccupant(String key) {
-		Occupancy occupant = new Occupancy();
+		Occupant occupant = new Occupant();
 		occupant.setName(key);
 		occupants.put(key, occupant);
 	}
@@ -53,7 +54,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		patch.visited = visited;
 		patch.monitored = monitored;
 		patch.id = id;
-		Map<String, Occupancy> ocopy = new TreeMap<String, Occupancy>();
+		Map<String, Occupant> ocopy = new TreeMap<String, Occupant>();
 		for (String o : occupants.keySet()) {
 			ocopy.put(o, occupants.get(o).clone());
 		}
@@ -136,11 +137,11 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		return maxInfestations;
 	}
 
-	public Occupancy getOccupant(String key) {
+	public Occupant getOccupant(String key) {
 		return occupants.get(key);
 	}
 
-	public Map<String, Occupancy> getOccupants() {
+	public Map<String, Occupant> getOccupants() {
 		return occupants;
 	}
 
@@ -168,14 +169,42 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		return nodata;
 	}
 
-	public boolean hasOccupant(String key) {
-		return occupants.containsKey(key);
+	public boolean hasOccupant(String species) {
+		return occupants.containsKey(species);
+	}
+	
+	public boolean isInfestedBy(String species){
+		Occupant o = occupants.get(species);
+		return o.isInfested();
+	}
+	
+	public boolean isControlled(){
+		for(Occupant o:occupants.values()){
+			if (o.isControlled()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean wasControlled(){
+		for(Occupant o:occupants.values()){
+			if (o.wasControlled()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean wasInfestedBy(String species){
+		Occupant o = occupants.get(species);
+		return o.wasInfested();
 	}
 
 	public void incrementControlTime(ControlType control, long increment) {
 		Iterator<String> it = occupants.keySet().iterator();
 		while (it.hasNext()) {
-			Occupancy occ = occupants.get(it.next());
+			Occupant occ = occupants.get(it.next());
 			if(occ.hasControl(control)){
 				occ.getControls().put(control,
 						occ.getControls().get(control) + increment);
@@ -228,6 +257,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 
 	public void setMonitored(boolean monitored) {
 		this.monitored = monitored;
+		if(monitored){wasMonitored=true;}
 	}
 
 	public void setNoData(boolean nodata) {
@@ -268,5 +298,9 @@ public class Patch implements Cloneable, Comparable<Patch> {
 
 	public String toString() {
 		return Integer.toString(id);
+	}
+	
+	public boolean wasMonitored(){
+		return wasMonitored;
 	}
 }

@@ -3,7 +3,7 @@ package nsp.util;
 import java.util.Iterator;
 import java.util.Map;
 
-import nsp.Occupancy;
+import nsp.Occupant;
 
 public class Stats {
 
@@ -167,8 +167,8 @@ public class Stats {
 		
 	}
 
-	public int[][] makeConfusionMatrix(Map<Integer, Occupancy> reference,
-			Map<Integer, Occupancy> comparison) {
+	public int[][] makeConfusionMatrix(Map<Integer, Occupant> reference,
+			Map<Integer, Occupant> comparison) {
 		if (reference == null) {
 			throw new IllegalArgumentException("Reference patches are null");
 		}

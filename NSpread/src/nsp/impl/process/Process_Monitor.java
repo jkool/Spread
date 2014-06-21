@@ -10,7 +10,7 @@ import java.util.TreeSet;
 
 import cern.jet.random.Uniform;
 import nsp.Mosaic;
-import nsp.Occupancy;
+import nsp.Occupant;
 import nsp.Patch;
 import nsp.Process;
 import nsp.util.ControlType;
@@ -24,7 +24,7 @@ public class Process_Monitor implements Process, Cloneable {
 	private long counter = 0;
 	private long timeIncrement = 1;
 	private long chkFrq = 1;
-	private Set<Occupancy> visited = new HashSet<Occupancy>();
+	private Set<Occupant> visited = new HashSet<Occupant>();
 
 	public void process(Mosaic mosaic) {
 		
@@ -56,7 +56,7 @@ public class Process_Monitor implements Process, Cloneable {
 		while (it.hasNext()) {
 			
 			String species = it.next();
-			Occupancy o = patch.getOccupant(species);
+			Occupant o = patch.getOccupant(species);
 			
 			if(o.isVisited()){
 				continue;

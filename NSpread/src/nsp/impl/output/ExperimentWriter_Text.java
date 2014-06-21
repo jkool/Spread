@@ -14,7 +14,7 @@ import nsp.Experiment;
 import nsp.ExperimentWriter;
 import nsp.Mosaic;
 import nsp.MosaicWriter;
-import nsp.Occupancy;
+import nsp.Occupant;
 import nsp.impl.RasterMosaic;
 import nsp.impl.process.Process_Costing;
 import nsp.util.RasterWriter;
@@ -42,7 +42,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 	private int id = -1;
 	private MosaicWriter mw = new MosaicWriter_Raster();
 	private MosaicWriter ms = new MosaicWriter_Raster_Stage();
-	private MosaicWriter mm = new MosaicWriter_Raster_IsMonitored();
+	private MosaicWriter mm = new MosaicWriter_Raster_WasMonitored();
 	private boolean writeCoverMaps = true;
 	private boolean writeFrequencyMap = true;
 	private boolean writeStageMaps = true;
@@ -221,7 +221,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 
 			if (writeFrequencyMap) {
 				tally.put(species, new TreeMap<Integer, Long>());
-				Map<Integer, Occupancy> occupancies = mosaic
+				Map<Integer, Occupant> occupancies = mosaic
 						.getOccupancies(species);
 				for (Integer key : occupancies.keySet()) {
 					if (occupancies.get(key).hasNoData()) {

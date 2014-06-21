@@ -3,7 +3,7 @@ package nsp.impl.process;
 import java.util.Iterator;
 
 import nsp.Mosaic;
-import nsp.Occupancy;
+import nsp.Occupant;
 import nsp.Patch;
 import nsp.Process;
 
@@ -52,7 +52,7 @@ public class Process_ManageAge implements Process, Cloneable {
 
 		Iterator<String> it = patch.getOccupants().keySet().iterator();
 		while (it.hasNext()) {
-			Occupancy o = patch.getOccupant(it.next());
+			Occupant o = patch.getOccupant(it.next());
 
 			if (o.getAgeOfInfestation() >= ageThreshold.longValue()) {
 				o.setInfested(false);
