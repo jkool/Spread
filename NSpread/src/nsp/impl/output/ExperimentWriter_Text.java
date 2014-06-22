@@ -54,6 +54,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 	/**
 	 * Close down the output resources.
 	 */
+	@Override
 	public void close() {
 
 		Iterator<String> it = bw_map.keySet().iterator();
@@ -83,6 +84,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 	 * @throws IOException
 	 */
 
+	@Override
 	public void open(Set<String> speciesList) throws IOException {
 		Iterator<String> it = speciesList.iterator();
 
@@ -112,6 +114,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 		mm.setFolder(outputFolder);
 	}
 
+
 	/**
 	 * Writes an experiment to output - i.e. a single line in the output table
 	 * and/or raster output.
@@ -120,6 +123,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 	 *            - The experiment whose attributes are to be written to output.
 	 */
 
+	@Override
 	public void write(Experiment exp) {
 
 		Mosaic mosaic = exp.getMosaic();
@@ -153,8 +157,8 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 
 			// calculate the confusion matrix
 			int[][] cf = stats.makeConfusionMatrix(
-					reference.getOccupancies(species),
-					mosaic.getOccupancies(species));
+					reference.getOccupants(species),
+					mosaic.getOccupants(species));
 
 			// generate statistics
 
@@ -222,7 +226,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 			if (writeFrequencyMap) {
 				tally.put(species, new TreeMap<Integer, Long>());
 				Map<Integer, Occupant> occupancies = mosaic
-						.getOccupancies(species);
+						.getOccupants(species);
 				for (Integer key : occupancies.keySet()) {
 					if (occupancies.get(key).hasNoData()) {
 						tally.get(species).put(key, nodata);
@@ -241,6 +245,10 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 
 		}
 		n_expts++;
+	}
+
+	public void writeFrequencyMap(boolean writeFrequencyMap) {
+		this.writeFrequencyMap = writeFrequencyMap;
 	}
 
 	/**
@@ -278,7 +286,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 			}
 		}
 	}
-
+	
 	// Getters and setters
 
 	public String getOutputFile() {
@@ -288,7 +296,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 	public String getOutputFolder() {
 		return outputFolder;
 	}
-
+	
 	public void setDistances(double[] distances) {
 		this.distances = distances;
 	}
@@ -325,7 +333,4 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 		this.writeTableHeader = writeTableHeader;
 	}
 
-	public void writeFrequencyMap(boolean writeFrequencyMap) {
-		this.writeFrequencyMap = writeFrequencyMap;
-	}
 }

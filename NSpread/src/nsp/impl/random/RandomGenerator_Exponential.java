@@ -46,6 +46,16 @@ public class RandomGenerator_Exponential implements RandomGenerator, Cloneable {
 	}
 
 	/**
+	 * Returns the lambda value (rate) of the distribution.
+	 * 
+	 * @return - the lambda value (rate) of the distribution
+	 */
+
+	public double getLambda() {
+		return lambda;
+	}
+
+	/**
 	 * Returns the next pseudo-random value from the generator.
 	 */
 
@@ -55,16 +65,6 @@ public class RandomGenerator_Exponential implements RandomGenerator, Cloneable {
 			return 0;
 		}
 		return Exponential.staticNextDouble(lambda);
-	}
-
-	/**
-	 * Returns the lambda value (rate) of the distribution.
-	 * 
-	 * @return - the lambda value (rate) of the distribution
-	 */
-
-	public double getLambda() {
-		return lambda;
 	}
 
 	/**

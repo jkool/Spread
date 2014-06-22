@@ -9,6 +9,13 @@ import nsp.util.ControlType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+/**
+ * Represents the occupation of a Patch object by a single species.  The class 
+ * represents the potential for a species to inhabit the patch (i.e. it is a container).  
+ * The current implementation is such that if an Occupant is in place, then it is also 
+ * filled, but other implementations may operate such that it might not necessarily be.
+ */
+
 public class Occupant implements Cloneable {
 
 	private String name = "";
@@ -17,7 +24,7 @@ public class Occupant implements Cloneable {
 	private boolean visited = false;
 	private long ageOfInfestation = 0;
 	private long cumulativeAgeOfInfestation = 0;
-	private int stageOfInfestation = -1;
+	private int stageOfInfestation = 0;
 	private int maxInfestation = -99;
 	private double habitatSuitability = 1d;
 	private Disperser disperser;
@@ -34,6 +41,11 @@ public class Occupant implements Cloneable {
 		this.name = name;
 	}
 
+	/**
+	 * Applies a management control to the Occupant.
+	 * @param control
+	 */
+	
 	public void addControl(ControlType control) {
 		if (infested&!controls.containsKey(control)) {
 			controls.put(control, 0l);
@@ -45,17 +57,29 @@ public class Occupant implements Cloneable {
 			}
 		}
 	}
+	
+	/**
+	 * Clears the Occupant
+	 */
 
 	public void clearInfestation() {
 		this.infested = false;
 		this.stageOfInfestation = 0;
 		this.maxInfestation = 0;
 	}
+	
+	/**
+	 * Removes propagules associated with the Occupant.
+	 */
 
 	public void clearPropagules() {
 		propagules = new ArrayList<Coordinate>();
 	}
 
+	/**
+	 * Returns a copy of the instance of the class.
+	 */
+	
 	@Override
 	public Occupant clone() {
 		Occupant occ = new Occupant();
@@ -79,6 +103,10 @@ public class Occupant implements Cloneable {
 		return occ;
 	}
 
+	/**
+	 * Performs dispersal operations associated with the Occupant.
+	 */
+	
 	public void disperse() {
 		try {
 			propagules = disperser.disperse();
@@ -86,58 +114,134 @@ public class Occupant implements Cloneable {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Returns the length of time the Occupant has been in place.
+	 * @return
+	 */
 
 	public long getAgeOfInfestation() {
 		return ageOfInfestation;
 	}
+	
+	/**
+	 * Returns the Map (as in Java Map) of ControlTypes associated with the occupant,
+	 * with values indicating the length of time the control has been in place.
+	 * @return
+	 */
 
 	public Map<ControlType, Long> getControls() {
 		return controls;
 	}
+	
+	/**
+	 * Returns the length of time a given control has been in place.
+	 * @param control
+	 * @return
+	 */
 
 	public long getControlTime(ControlType control) {
 		return controls.get(control);
 	}
+	
+	/**
+	 * Returns the cumulative time that the Occupant has been in place -
+	 * e.g. if cleared and then reinfested.
+	 * @return
+	 */
 
 	public long getCumulativeAgeOfInfestation() {
 		return cumulativeAgeOfInfestation;
 	}
+	
+	/**
+	 * Retrieves the Disperser object associated with the Occupant.
+	 * @return
+	 */
 
 	public Disperser getDisperser() {
 		return disperser;
 	}
 
+	/**
+	 * Returns the species-specific habitat suitability for this Occupancy.
+	 * @return
+	 */
+	
 	public double getHabitatSuitability() {
 		return habitatSuitability;
 	}
-
-	public int getMaxInfestation() {
-		return maxInfestation;
-	}
+	
+	/**
+	 * Return the maximum control level applied to this Occupant.
+	 * @return
+	 */
 
 	public int getMaxControl(){
 		return maxControl.ordinal();
 	}
+
+	/**
+	 * Return the maximum infestation level associated with this Occupant.
+	 * @return
+	 */
+	
+	public int getMaxInfestation() {
+		return maxInfestation;
+	}
+	
+	/**
+	 * Get the species name of this Occupant.
+	 * @return
+	 */
 	
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Returns a List of Coordinate locations for propagules
+	 * produced by this Occupant.
+	 * @return
+	 */
+	
 	public List<Coordinate> getPropagules() {
 		return propagules;
 	}
+	
+	/**
+	 * Retrieve the current stage of infestation of this Occupant.
+	 * @return
+	 */
 
 	public int getStageOfInfestation() {
 		return stageOfInfestation;
 	}
 
+	/**
+	 * Indicates whether this Occupant is currently subject to 
+	 * the given ControlType.
+	 * @param control
+	 * @return
+	 */
+	
 	public boolean hasControl(ControlType control) {
 		return controls.containsKey(control);
 	}
+	
+	/**
+	 * Indicates whether this Occupant is a (species-specific) NoData element.
+	 * @return
+	 */
 
 	public boolean hasNoData() {
 		return NODATA;
 	}
+	
+	/**
+	 * Increments the infestation time of this Occupant
+	 * @param increment
+	 */
 
 	public void incrementInfestationTime(long increment) {
 		if (infested) {
@@ -145,6 +249,12 @@ public class Occupant implements Cloneable {
 			cumulativeAgeOfInfestation += increment;
 		}
 	}
+	
+	/**
+	 * Indicates whether this Occupant is currently subject to 
+	 * any ControlType
+	 * @return
+	 */
 	
 	public boolean isControlled(){
 		for(ControlType control:controls.keySet()){
@@ -154,35 +264,77 @@ public class Occupant implements Cloneable {
 		}
 		return false;
 	}
+	
+	/**
+	 * Indicates whether this Occupant is infested
+	 * @return
+	 */
 
 	public boolean isInfested() {
 		return infested;
 	}
 	
+	/**
+	 * Indicates if this Occupant has been visited as part of
+	 * a process chain.
+	 * @return
+	 */
+	
 	public boolean isVisited(){
 		return visited;
 	}
 
+	/**
+	 * Removes a ControlType from the Occupant.
+	 * @param control
+	 */
+	
 	public void removeControl(ControlType control) {
 		controls.remove(control);
 	}
+	
+	/**
+	 * Explicitly sets the infestation age of the Occupant.
+	 * @param ageOfInfestation
+	 */
 
 	public void setAgeOfInfestation(long ageOfInfestation) {
 		this.ageOfInfestation = ageOfInfestation;
 	}
 
+	/**
+	 * Explicitly sets the control time of a given control.
+	 * @param control
+	 * @param controlTime
+	 */
+	
 	public void setControlTime(ControlType control, long controlTime) {
 		controls.put(control, controlTime);
 	}
 
+	/**
+	 * Sets the Disperser class associated with the Occupant.
+	 * @param disperser
+	 */
+	
 	public void setDisperser(Disperser disperser) {
 		this.disperser = disperser;
 	}
 
+	/**
+	 * Sets the habitat suitability of the Occupancy
+	 * @param habitatSuitability
+	 */
+	
 	public void setHabitatSuitability(double habitatSuitability) {
 		this.habitatSuitability = habitatSuitability;
 	}
 
+	/**
+	 * Sets whether the Occupant is present/infested.
+	 * @param infested
+	 */
+	
 	public void setInfested(boolean infested) {
 		this.infested = infested;
 
@@ -194,19 +346,40 @@ public class Occupant implements Cloneable {
 			this.stageOfInfestation = 0;
 		}
 	}
+	
+	/**
+	 * Sets the species name associated with the Occupant.
+	 * @param name
+	 */
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * Sets whether the Occupant is a (species-specific) NoData element.
+	 * @param noData
+	 */
+	
 	public void setNoData(boolean noData) {
 		this.NODATA = noData;
 	}
 
+	/**
+	 * Explicitly sets the coordinates of propagules produced by the
+	 * Occupant.
+	 * @param propagules
+	 */
+	
 	public void setPropagules(List<Coordinate> propagules) {
 		this.propagules = propagules;
 	}
 
+	/**
+	 * Sets the stage of infestation of the Occupant.
+	 * @param stageOfInfestation
+	 */
+	
 	public void setStageOfInfestation(int stageOfInfestation) {
 		this.stageOfInfestation = stageOfInfestation;
 
@@ -215,16 +388,32 @@ public class Occupant implements Cloneable {
 		}
 	}
 	
+	/**
+	 * Sets whether the Occupant was 'visited' in the process
+	 * of a chain operation.
+	 * @param visited
+	 */
+	
 	public void setVisited(boolean visited){
 		this.visited=visited;
 	}
 
-	public boolean wasInfested() {
-		return wasInfested;
-	}
+	/**
+	 * Sets whether the Occupant was ever controlled at some point in time.
+	 * @return
+	 */
 	
 	public boolean wasControlled(){
 		return wasControlled;
 	}
-
+	
+	
+	/**
+	 * Sets whether the Occupant was ever present at some point in time.
+	 * @return
+	 */
+	
+	public boolean wasInfested() {
+		return wasInfested;
+	}
 }

@@ -34,6 +34,7 @@ public class StatsWriter_Text implements StatsWriter {
 	/**
 	 * Close down the output resources.
 	 */
+	@Override
 	public void close() {
 
 		Iterator<String> it = bw_map.keySet().iterator();
@@ -52,12 +53,14 @@ public class StatsWriter_Text implements StatsWriter {
 		bw_map.clear();
 	}
 
+
 	/**
 	 * Sets up and opens the output files for writing
 	 * 
 	 * @throws IOException
 	 */
 
+	@Override
 	public void open(Set<String> speciesList) throws IOException {
 		Iterator<String> it = speciesList.iterator();
 
@@ -77,7 +80,7 @@ public class StatsWriter_Text implements StatsWriter {
 			}
 		}
 	}
-
+	
 	/**
 	 * Writes an experiment to output - i.e. a single line in the output table
 	 * and/or raster output.
@@ -86,6 +89,7 @@ public class StatsWriter_Text implements StatsWriter {
 	 *            - The experiment whose attributes are to be written to output.
 	 */
 
+	@Override
 	public void write(Experiment exp) {
 
 		Mosaic mosaic = exp.getMosaic();
@@ -115,20 +119,21 @@ public class StatsWriter_Text implements StatsWriter {
 
 			// generate statistics
 
-			//stats.pontiusStats(cf);
 			sb.append(mosaic.getNumberInfested(species) + ",");
-			sb.append(pcst.getCost(mosaic) + ",");//////////////////////////////////////////////////////////////////////
-			sb.append(pcst.getLabour(mosaic) + ",");////////////////////////////////////////////////////////////////////
+			sb.append(pcst.getCost(mosaic) + ",");
+			sb.append(pcst.getLabour(mosaic) + ",");
 			sb.append("\n");
 
 			try {
 				bw_map.get(species).write(sb.toString());
+				bw_map.get(species).flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	
 	// Getters and setters
 
 	public String getOutputFile() {
@@ -138,15 +143,17 @@ public class StatsWriter_Text implements StatsWriter {
 	public String getOutputFolder() {
 		return outputFolder;
 	}
-
+	
 	public void setDistances(double[] distances) {
 		this.distances = distances;
 	}
 
+	@Override
 	public void setOutputFile(String outputFile) {
 		this.outputFile = outputFile;
 	}
 
+	@Override
 	public void setOutputFolder(String outputFolder) {
 		this.outputFolder = outputFolder;
 	}
@@ -158,11 +165,11 @@ public class StatsWriter_Text implements StatsWriter {
 	public void setReplicate(Number replicate) {
 		this.replicate = replicate;
 	}
-	
+
 	public void setRunID(int runID){
 		this.runID=runID;
 	}
-
+	
 	public void setWriteTableHeader(boolean writeTableHeader) {
 		this.writeTableHeader = writeTableHeader;
 	}

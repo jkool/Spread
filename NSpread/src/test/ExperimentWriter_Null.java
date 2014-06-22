@@ -12,8 +12,11 @@ import nsp.ExperimentWriter;
 
 public class ExperimentWriter_Null implements ExperimentWriter {
 	
-	public void open(Set<String> speciesList) throws IOException{}
+	@Override
 	public void close(){}
+	@Override
+	public void open(Set<String> speciesList) throws IOException{}
+	@Override
 	public void write(Experiment exp){}
 
 }

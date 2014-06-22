@@ -21,41 +21,6 @@ public class MosaicWriter_Raster implements MosaicWriter {
 	protected int nodata = -9999;
 
 	/**
-	 * Retrieves a value from the Raster Mosaic based on the key value provided.
-	 * For a raster this is its row number * the total # of columns plus its
-	 * column number. For this class, the value retrieved indicates whether the
-	 * cell is infested or not (cover).
-	 * 
-	 * @param rm
-	 * @param key
-	 * @return
-	 */
-
-	protected double getVal(RasterMosaic rm, int key, String species){
-		if(rm.getPatches().get(key).hasNoData()){return nodata;}
-		else{return rm.getPatches().get(key).getOccupant(species).isInfested() ? 1 : 0;}
-	}
-
-	/**
-	 * Sets the name of the output file. The path is set separately by setPath
-	 */
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * Sets the path of the output file. The name of the file is set separately
-	 * by setName
-	 */
-
-	@Override
-	public void setFolder(String path) {
-		this.path = path;
-	}
-
-	/**
 	 * Writes the contents of the RasterMosaic to an ESRI format ASCII file
 	 * using RasterWriter
 	 */
@@ -80,6 +45,50 @@ public class MosaicWriter_Raster implements MosaicWriter {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Retrieves the last data processed as a Raster object
+	 * @return the last data processed as a Raster object
+	 */
+	
+	public Raster getCurrent(){
+		return current;
+	}
+
+	/**
+	 * Retrieves a value from the Raster Mosaic based on the key value provided.
+	 * For a raster this is its row number * the total # of columns plus its
+	 * column number. For this class, the value retrieved indicates whether the
+	 * cell is infested or not (cover).
+	 * 
+	 * @param rm
+	 * @param key
+	 * @return
+	 */
+
+	protected double getVal(RasterMosaic rm, int key, String species){
+		if(rm.getPatches().get(key).hasNoData()){return nodata;}
+		else{return rm.getPatches().get(key).getOccupant(species).isInfested() ? 1 : 0;}
+	}
+
+	/**
+	 * Sets the path of the output file. The name of the file is set separately
+	 * by setName
+	 */
+
+	@Override
+	public void setFolder(String path) {
+		this.path = path;
+	}
+
+	/**
+	 * Sets the name of the output file. The path is set separately by setPath
+	 */
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	/**
 	 * Sets whether the ESRI ASCII header should be added to the file or not.
@@ -92,12 +101,4 @@ public class MosaicWriter_Raster implements MosaicWriter {
 		this.writeHeader = writeHeader;
 	}
 	
-	/**
-	 * Retrieves the last data processed as a Raster object
-	 * @return the last data processed as a Raster object
-	 */
-	
-	public Raster getCurrent(){
-		return current;
-	}
 }

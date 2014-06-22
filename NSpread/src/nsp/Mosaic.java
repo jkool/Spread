@@ -35,6 +35,14 @@ public interface Mosaic {
 	public void clearVisited();
 	
 	/**
+	 * Assigns whether a collection of occupancies should have their visited status cleared
+	 * 
+	 * @param patches - The patches to be tagged
+	 */
+	
+	public void clearVisitedOccupancies(Collection<Occupant> occupancies);
+	
+	/**
 	 * Assigns whether a collection of occupancies (within Patches) should have their visited status cleared
 	 * 
 	 * @param patches - The patches to be tagged
@@ -42,14 +50,6 @@ public interface Mosaic {
 	 */
 	
 	public void clearVisitedPatches(Collection<Patch> patches, String species);
-	
-	/**
-	 * Assigns whether a collection of occupancies should have their visited status cleared
-	 * 
-	 * @param patches - The patches to be tagged
-	 */
-	
-	public void clearVisitedOccupancies(Collection<Occupant> occupancies);
 
 	/**
 	 * Generates a copy of the class instance.
@@ -99,6 +99,14 @@ public interface Mosaic {
 	public int getNumberInfested(String species);
 
 	/**
+	 * Retrieves a map of keys and Patches capable of containing species whether or not they are occupied.
+	 * @param species
+	 * @return
+	 */
+	
+	public Map<Integer,Occupant>getOccupants(String species);
+	
+	/**
 	 * Retrieves a map of keys corresponding to Patches occupied by the given species
 	 * 
 	 * @param species
@@ -106,14 +114,6 @@ public interface Mosaic {
 	 */
 	
 	public Map<Integer, Occupant>getOccupied(String species);
-	
-	/**
-	 * Retrieves a map of keys and Patches capable of containing species whether or not they are occupied.
-	 * @param species
-	 * @return
-	 */
-	
-	public Map<Integer,Occupant>getOccupancies(String species);
 	
 	/**
 	 * Retrieves a single Patch object using its key.
@@ -191,6 +191,13 @@ public interface Mosaic {
 
 	public void infest(String species, List<Coordinate> propagules);
 
+	/**
+	 * Removes a control associated with a given species from the Collection of patches.
+	 * @param patches - the Collection of Patches to be processed
+	 * @param species - the species associated with the control
+	 * @param control - the control type to be removed
+	 */
+	
 	public void removeControl(Collection<Patch> patches, String species, ControlType control);
 	
 	/**
@@ -249,6 +256,13 @@ public interface Mosaic {
 	 */
 	
 	public void setMonitored(Collection<Patch> patches, boolean isMonitored);
+	
+	/**
+	 * Sets the presence Map for a given species
+	 * @param presenceMapPath - the path location of the presence map
+	 * @param species - the species to associat with the map
+	 * @throws IOException
+	 */
 	
 	public void setPresenceMap(String presenceMapPath, String species) throws IOException;
 

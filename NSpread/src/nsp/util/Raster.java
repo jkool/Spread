@@ -3,17 +3,20 @@ package nsp.util;
 import java.util.Arrays;
 
 /**
+ * Class representing a Raster object.
  */
 
 public class Raster {
-
+	
 	protected double[][] data;
 	protected double xll;
 	protected double yll;
 	protected double cellsize;
 	protected int cols;
 	protected int rows;
+
 	protected String NDATA;
+
 	public static final String DEFAULT_NODATA = "-9999";
 
 	/**
@@ -98,13 +101,29 @@ public class Raster {
 		setData(data);
 	}
 
+	/**
+	 * Converts a column index value to its corresponding x coordinate
+	 * @param col - the index of the column value
+	 * @return
+	 */
+	
 	public int colToX(int col) {
 		return col + (int) xll;
 	}
+	
+	/**
+	 * Returns the cell size of the raster
+	 * @return
+	 */
 
 	public double getCellsize() {
 		return cellsize;
 	}
+	
+	/**
+	 * Returns the number of columns in the raster
+	 * @return
+	 */
 
 	public int getCols() {
 		return cols;
@@ -119,20 +138,50 @@ public class Raster {
 	public double[][] getData() {
 		return data;
 	}
-
+	
+	/**
+	 * Returns the NoData value being used by the raster
+	 * @return
+	 */
+	
 	public String getNDATA() {
 		return NDATA;
 	}
 
+	/**
+	 * Returns the number of rows in the raster
+	 * @return
+	 */
+	
 	public int getRows() {
 		return rows;
 	}
+	
+	/**
+	 * Returns an empty raster using the values of the parameters as currently set.
+	 * 
+	 * @param data
+	 * @param xll
+	 * @param yll
+	 * @param size
+	 * @return
+	 */
 	
 	public static Raster getTempRaster(double[][] data, double xll, double yll,
 			double size) {
 		return getTempRaster(data, xll, yll, size, DEFAULT_NODATA);
 	}
-
+	
+	/**
+	 * Retrieves an empty raster created using the provided parameters
+	 * @param data
+	 * @param xll
+	 * @param yll
+	 * @param size
+	 * @param ndata
+	 * @return
+	 */
+	
 	public static Raster getTempRaster(double[][] data, double xll, double yll,
 			double size, String ndata) {
 		Raster a = new Raster();
@@ -145,12 +194,24 @@ public class Raster {
 		a.cols = data[0].length;
 		return a;
 	}
+	
+	/**
+	 * Retrieves the value at the given pair of row and index values.
+	 * @param row
+	 * @param column
+	 * @return
+	 */
 
 	public double getValue(int row, int column) {
 		if (row < rows && column < cols && row >= 0 && column >= 0)
 			return data[row][column];
 		return Double.NaN;
 	}
+	
+	/**
+	 * Retrieves the leftmost position of the raster.
+	 * @return
+	 */
 
 	public double getXll() {
 		return xll;
@@ -210,6 +271,27 @@ public class Raster {
 			Arrays.fill(data[i], value);
 		}
 	}
+	
+	/**
+	 * Indicates whether the shape, position and cell size are consistent
+	 * with another raster
+	 * 
+	 * @param other - the comparison raster
+	 * @return
+	 */
+
+	public boolean isConsistent(Raster other){
+		if(this.rows==other.rows &&
+		   this.cols==other.cols	&&
+		   this.xll==other.xll &&
+		   this.yll==other.yll &&
+		   this.cellsize==other.cellsize){return true;}
+		return false;
+	}
+	
+	/**
+	 * Prints the raster to the console.
+	 */
 
 	public void print() {
 		System.out.println("Rows: " + rows + " cols: " + cols + " cellsize "
@@ -221,14 +303,30 @@ public class Raster {
 		}
 
 	}
+	
+	/**
+	 * Converts a row index to a y coordinate value.
+	 * @param row - the index of the row
+	 * @return
+	 */
 
 	public int rowToY(int row) {
 		return (int) yll - (row + 1 - rows);
 	}
+	
+	/**
+	 * Sets the cell size of the raster.
+	 * @param cellsize - the cell size of the raster
+	 */
 
 	public void setCellsize(double cellsize) {
 		this.cellsize = cellsize;
 	}
+	
+	/**
+	 * Sets the number of columns of the raster.
+	 * @param cols - the number of columns
+	 */
 
 	public void setCols(int cols) {
 		this.cols = cols;
@@ -263,11 +361,21 @@ public class Raster {
 			for (int j = 0; j < cols; j++)
 				this.data[i][j] = data[i][j];
 	}
+	
+	/**
+	 * Sets the NoData value.
+	 * @param nDATA
+	 */
 
 	public void setNDATA(String nDATA) {
 		NDATA = nDATA;
 	}
 
+	/**
+	 * Sets the number of rows of the raster
+	 * @param rows
+	 */
+	
 	public void setRows(int rows) {
 		this.rows = rows;
 	}
@@ -284,37 +392,65 @@ public class Raster {
 		initData();
 	}
 
+	/**
+	 * Sets the cell value for a given row and column.
+	 * @param row - the row index
+	 * @param column - the column index
+	 * @param value - the value to which the cell will be set
+	 */
+	
 	public void setValue(int row, int column, double value) {
 		if (row < rows && column < cols)
 			data[row][column] = value;
 	}
 
+	/**
+	 * Sets the leftmost position of the raster
+	 * @param xll
+	 */
+	
 	public void setXll(double xll) {
 		this.xll = xll;
 	}
+	
+	/**
+	 * Sets the cell value using an xy coordinate pair.
+	 * @param x - the x-coordinate value
+	 * @param y - the y-coordinate value
+	 * @param val - the value to which the cell will be set
+	 */
 
 	public void setXYValue(int x, int y, double val) {
 		setValue(yToRow(y), xToCol(x), val);
 	}
+	
+	/**
+	 * Sets the bottom-most position of the rater
+	 * @param yll
+	 */
 
 	public void setYll(double yll) {
 		this.yll = yll;
 	}
 
+	/**
+	 * Converts an x coordinate to a column index value.
+	 * 
+	 * @param x
+	 * @return
+	 */
+	
 	public int xToCol(int x) {
 		return x - (int) xll;
 	}
-
+	
+	/**
+	 * Converts a y coordinate to a row index value.
+	 * @param y
+	 * @return
+	 */
+	
 	public int yToRow(int y) {
 		return (rows - (y - (int) yll)) - 1;
-	}
-	
-	public boolean isConsistent(Raster other){
-		if(this.rows==other.rows &&
-		   this.cols==other.cols	&&
-		   this.xll==other.xll &&
-		   this.yll==other.yll &&
-		   this.cellsize==other.cellsize){return true;}
-		return false;
 	}
 }

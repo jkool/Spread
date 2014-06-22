@@ -10,6 +10,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import nsp.Mosaic;
+import nsp.Occupant;
 import nsp.Patch;
 import nsp.Process;
 import nsp.util.ControlType;
@@ -60,7 +61,32 @@ public class Process_GroundControl implements Process, Cloneable {
 		table.put(3, 6l, 1);
 		table.put(3, 7l, 0);
 	}
+	
+	public void addToIgnoreList(Collection<String> species){
+		this.ignore.addAll(species);
+	}
 
+	public void addToIgnoreList(String species){
+		this.ignore.add(species);
+	}
+
+	/**
+	 * Returns a copy of the current instance of this class.
+	 */
+	
+	@Override
+	public Process_GroundControl clone() {
+		Process_GroundControl pgc = new Process_GroundControl();
+		pgc.timeIncrement=timeIncrement;
+		pgc.counter=counter;
+		return pgc;
+	}
+
+	/**
+	 * Performs actions associated with ground control-based management for the entire Mosaic.
+	 */
+
+	@Override
 	public void process(Mosaic mosaic) {
 		
 		counter+=timeIncrement;
@@ -76,6 +102,10 @@ public class Process_GroundControl implements Process, Cloneable {
 		}
 	}
 
+	/**
+	 * Performs actions associated with ground control-based management for a single Patch.
+	 */
+	
 	private void process(Patch patch) {
 
 		for (String species : patch.getOccupants().keySet()) {
@@ -117,62 +147,75 @@ public class Process_GroundControl implements Process, Cloneable {
 				// Get the conditioned value for the nearest time
 				
 				long nearest = times.get(nearest_idx);
+				Occupant o = patch.getOccupant(species);
 				
 				// update stage of infestation
 				
-				patch.getOccupant(species).setStageOfInfestation(
+				o.setStageOfInfestation(
 						table.get(stage, nearest));
 				
 				// if the stage has reached 0, clear the infestation
 				
-				if (patch.getOccupant(species).getStageOfInfestation() == 0) {
-					patch.getOccupant(species).clearInfestation();
-					patch.getOccupant(species).removeControl(ControlType.GROUND_CONTROL);
+				if (o.getStageOfInfestation() == 0) {
+					o.clearInfestation();
+					o.removeControl(ControlType.GROUND_CONTROL);
 				}
 				
 				else{
-					patch.incrementControlTime(ControlType.GROUND_CONTROL, timeIncrement);
+					o.setControlTime(ControlType.GROUND_CONTROL, o.getControlTime(ControlType.GROUND_CONTROL)+chkFrq);
 				}
 			}
 		}
 	}
-
 	
-	
-	@Override
-	public Process_GroundControl clone() {
-		Process_GroundControl pgc = new Process_GroundControl();
-		pgc.timeIncrement=timeIncrement;
-		pgc.counter=counter;
-		return pgc;
-	}
-
-	public void setTimeIncrement(long timeIncrement) {
-		this.timeIncrement = timeIncrement;
-	}
-
-	public void setControlTable(Table<Integer, Long, Integer> table) {
-		this.table = table;
-	}
-	
-	public void setIgnoreList(Collection<String> ignore){
-		this.ignore = new TreeSet<String>(ignore);
-	}
-	
-	public void addToIgnoreList(String species){
-		this.ignore.add(species);
-	}
-	
-	public void addToIgnoreList(Collection<String> species){
-		this.ignore.addAll(species);
-	}
+	/**
+	 * Removes a species from the ignore list
+	 * 
+	 * @param species
+	 */
 	
 	public void removeFromIgnoreList(String species){
 		this.ignore.remove(species);
 	}
 	
+	/**
+	 * Sets the frequency with which ground control actions are taken.
+	 * 
+	 * @param checkFrequency
+	 */
+	
 	public void setCheckFrequency(long checkFrequency){
 		this.chkFrq=checkFrequency;
 	}
-
+	
+	/**
+	 * Sets the table of control values.  WARNING:  this is currently implemented in
+	 * a brittle manner, and there are many assumptions throughout the code based
+	 * on the built-in structure.  Caveat emptor.
+	 * 
+	 * @param table
+	 */
+	
+	public void setControlTable(Table<Integer, Long, Integer> table) {
+		this.table = table;
+	}
+	
+	/**
+	 * Sets the list of species to be ignored
+	 * @param ignore
+	 */
+	
+	public void setIgnoreList(Collection<String> ignore){
+		this.ignore = new TreeSet<String>(ignore);
+	}
+	
+	/**
+	 * Sets the associated time interval for each time step made by this class.
+	 * 
+	 * @param timeIncrement
+	 */
+	
+	public void setTimeIncrement(long timeIncrement) {
+		this.timeIncrement = timeIncrement;
+	}
 }

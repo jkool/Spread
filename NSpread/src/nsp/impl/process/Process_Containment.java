@@ -22,9 +22,38 @@ public class Process_Containment implements Process, Cloneable{
 	private Set<String> ignore = new TreeSet<String>();
 	
 	/**
+	 * Adds a collection of species to the ignore list.
+	 * @param species
+	 */
+	
+	public void addToIgnoreList(Collection<String> species){
+		this.ignore.addAll(species);
+	}
+	
+	/**
+	 * Adds a species to the ignore list.
+	 * @param species
+	 */
+	
+	public void addToIgnoreList(String species){
+		this.ignore.add(species);
+	}
+	
+	/**
+	 * Creates a cloned instance of this class.
+	 */
+	
+	@Override
+	public Process_Containment clone(){
+		Process_Containment clone = new Process_Containment();
+		return clone;
+	}
+	
+	/**
 	 * Processes the entire mosaic.
 	 */
 	
+	@Override
 	public void process(Mosaic mosaic) {
 		
 		counter+=timeIncrement;
@@ -68,21 +97,16 @@ public class Process_Containment implements Process, Cloneable{
 	}
 	
 	/**
-	 * Creates a cloned instance of this class.
+	 * Removes a species from the ignore list.
+	 * @param species
 	 */
 	
-	public Process_Containment clone(){
-		Process_Containment clone = new Process_Containment();
-		return clone;
+	public void removeFromIgnoreList(String species){
+		this.ignore.remove(species);
 	}
 	
-	/**
-	 * Sets the time increment over which containment actions will take place.
-	 * @param timeIncrement
-	 */
-	
-	public void setTimeIncrement(long timeIncrement) {
-		this.timeIncrement = timeIncrement;
+	public void setCheckFrequency(long checkFrequency){
+		this.chkFrq=checkFrequency;
 	}
 	
 	/**
@@ -95,33 +119,11 @@ public class Process_Containment implements Process, Cloneable{
 	}
 	
 	/**
-	 * Adds a species to the ignore list.
-	 * @param species
+	 * Sets the time increment over which containment actions will take place.
+	 * @param timeIncrement
 	 */
 	
-	public void addToIgnoreList(String species){
-		this.ignore.add(species);
-	}
-	
-	/**
-	 * Adds a collection of species to the ignore list.
-	 * @param species
-	 */
-	
-	public void addToIgnoreList(Collection<String> species){
-		this.ignore.addAll(species);
-	}
-	
-	/**
-	 * Removes a species from the ignore list.
-	 * @param species
-	 */
-	
-	public void removeFromIgnoreList(String species){
-		this.ignore.remove(species);
-	}
-	
-	public void setCheckFrequency(long checkFrequency){
-		this.chkFrq=checkFrequency;
+	public void setTimeIncrement(long timeIncrement) {
+		this.timeIncrement = timeIncrement;
 	}
 }

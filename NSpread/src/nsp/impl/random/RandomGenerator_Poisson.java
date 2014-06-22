@@ -44,15 +44,6 @@ public class RandomGenerator_Poisson implements RandomGenerator, Cloneable {
 	}
 
 	/**
-	 * Returns the next pseudo-random value from the generator.
-	 */
-
-	@Override
-	public Number getNext() {
-		return Poisson.staticNextInt(lambda);
-	}
-
-	/**
 	 * Returns the lambda value of the distribution.
 	 * 
 	 * @return - the lambda value of the distribution
@@ -60,6 +51,15 @@ public class RandomGenerator_Poisson implements RandomGenerator, Cloneable {
 
 	public double getLambda() {
 		return lambda;
+	}
+
+	/**
+	 * Returns the next pseudo-random value from the generator.
+	 */
+
+	@Override
+	public Number getNext() {
+		return Poisson.staticNextInt(lambda);
 	}
 
 	/**

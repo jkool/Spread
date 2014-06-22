@@ -9,12 +9,6 @@ package nsp;
 public interface MosaicWriter {
 
 	/**
-	 * Sets the name of the output file. The path is set separately by setPath
-	 */
-
-	public void setName(String name);
-
-	/**
 	 * Sets the path of the output file. The name of the file is set separately
 	 * by setName
 	 */
@@ -22,11 +16,10 @@ public interface MosaicWriter {
 	public void setFolder(String path);
 
 	/**
-	 * Writes the contents of the RasterMosaic to an ESRI format ASCII file
-	 * using RasterWriter
+	 * Sets the name of the output file. The path is set separately by setPath
 	 */
 
-	public void write(Mosaic mosaic, String species);
+	public void setName(String name);
 
 	/**
 	 * Sets whether the ESRI ASCII header should be added to the file or not.
@@ -35,4 +28,11 @@ public interface MosaicWriter {
 	 */
 
 	public void setWriteHeader(boolean writeHeader);
+
+	/**
+	 * Writes the contents of the RasterMosaic to an ESRI format ASCII file
+	 * using RasterWriter
+	 */
+
+	public void write(Mosaic mosaic, String species);
 }

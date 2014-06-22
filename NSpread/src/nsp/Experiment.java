@@ -57,62 +57,6 @@ public class Experiment implements Cloneable {
 	}
 
 	/**
-	 * Runs step() multiple times from startTime to endTime spaced by
-	 * timeIncrement.
-	 */
-
-	public void run() {
-
-		if (endTime < startTime) {
-			System.out
-					.println("WARNING:  Specified end time is before start time.");
-			return;
-		}
-
-		for (long t = startTime; t < endTime; t += timeIncrement) {
-			time = t;
-			///////////////////////////////////////////////////////////////////////
-			step();
-		}
-
-		ew.write(this);
-
-		System.gc();
-	}
-
-	/**
-	 * Performs a single pass through the Process List, applying them to the
-	 * Mosaic.
-	 */
-
-	public void step() {
-		for (Process proc : processes) {
-			proc.process(mosaic);
-		}
-
-		NumberFormat nf = NumberFormat.getInstance();
-		nf.setMinimumIntegerDigits(Long.toString(endTime).length());
-
-		for (String species : mosaic.getSpeciesList()) {
-
-			if (writeEachTimeStep) {
-				mw.setName("cover" + "_" + identifier + "_" + species + "_t"
-						+ nf.format(time));
-				mw.write(mosaic, species);
-			}
-		}
-		
-		if(writeTraceFile){
-			sw.write(this);
-		}
-
-		record.add(mosaic.getPatches().keySet());
-	}
-
-	// Getters and Setters
-	// ///////////////////////////////////////////////////////////////////
-
-	/**
 	 * Retrieves the end time of the Experiment (long value).
 	 * 
 	 * @return - the end time of the Experiment (long value)
@@ -133,6 +77,9 @@ public class Experiment implements Cloneable {
 		return identifier;
 	}
 
+	// Getters and Setters
+	// ///////////////////////////////////////////////////////////////////
+
 	/**
 	 * Retrieves the Mosaic associated with the Experiment.
 	 * 
@@ -141,6 +88,16 @@ public class Experiment implements Cloneable {
 
 	public Mosaic getMosaic() {
 		return mosaic;
+	}
+
+	/**
+	 * Returns the OutputWriter object being used by the Experiment
+	 * 
+	 * @return - the OutputWriter object being used by the Experiment
+	 */
+
+	public MosaicWriter getMosaicWriter() {
+		return mw;
 	}
 
 	/**
@@ -161,16 +118,6 @@ public class Experiment implements Cloneable {
 
 	public int getNInfested(String species) {
 		return mosaic.getNumberInfested(species);
-	}
-
-	/**
-	 * Returns the OutputWriter object being used by the Experiment
-	 * 
-	 * @return - the OutputWriter object being used by the Experiment
-	 */
-
-	public MosaicWriter getMosaicWriter() {
-		return mw;
 	}
 
 	/**
@@ -214,6 +161,30 @@ public class Experiment implements Cloneable {
 	}
 
 	/**
+	 * Runs step() multiple times from startTime to endTime spaced by
+	 * timeIncrement.
+	 */
+
+	public void run() {
+
+		if (endTime < startTime) {
+			System.out
+					.println("WARNING:  Specified end time is before start time.");
+			return;
+		}
+
+		for (long t = startTime; t < endTime; t += timeIncrement) {
+			time = t;
+			///////////////////////////////////////////////////////////////////////
+			step();
+		}
+
+		ew.write(this);
+
+		System.gc();
+	}
+
+	/**
 	 * Sets the Disperser object of the Experiment
 	 * 
 	 * @param d
@@ -252,6 +223,10 @@ public class Experiment implements Cloneable {
 		this.endTime = endTime;
 	}
 
+	public void setExperimentWriter(ExperimentWriter ew) {
+		this.ew = ew;
+	}
+
 	/**
 	 * Sets the identifier of the Experiment
 	 * 
@@ -260,6 +235,16 @@ public class Experiment implements Cloneable {
 
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
+	}
+
+	/**
+	 * Sets the OutputWriter associated with the Experiment
+	 * 
+	 * @param ow
+	 */
+
+	public void setMonitoredWriter(MosaicWriter om) {
+		this.mm = om;
 	}
 
 	/**
@@ -283,6 +268,16 @@ public class Experiment implements Cloneable {
 	}
 
 	/**
+	 * Sets the List of Processes to be used by the Experiment
+	 * 
+	 * @param processes
+	 */
+
+	public void setProcesses(List<Process> processes) {
+		this.processes = processes;
+	}
+	
+	/**
 	 * Sets the OutputWriter associated with the Experiment
 	 * 
 	 * @param ow
@@ -293,15 +288,15 @@ public class Experiment implements Cloneable {
 	}
 
 	/**
-	 * Sets the OutputWriter associated with the Experiment
+	 * Sets the start time of the Experiment (as a long value)
 	 * 
-	 * @param ow
+	 * @param startTime
 	 */
 
-	public void setMonitoredWriter(MosaicWriter om) {
-		this.mm = om;
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
 	}
-	
+
 	/**
 	 * Sets the OutputWrier associated with the Experiment
 	 * 
@@ -310,26 +305,6 @@ public class Experiment implements Cloneable {
 
 	public void setStatsWriter(StatsWriter sw) {
 		this.sw = sw;
-	}
-
-	/**
-	 * Sets the List of Processes to be used by the Experiment
-	 * 
-	 * @param processes
-	 */
-
-	public void setProcesses(List<Process> processes) {
-		this.processes = processes;
-	}
-
-	/**
-	 * Sets the start time of the Experiment (as a long value)
-	 * 
-	 * @param startTime
-	 */
-
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
 	}
 
 	/**
@@ -353,16 +328,46 @@ public class Experiment implements Cloneable {
 	}
 
 	/**
+	 * Performs a single pass through the Process List, applying them to the
+	 * Mosaic.
+	 */
+
+	public void step() {
+		for (Process proc : processes) {
+			proc.process(mosaic);
+		}
+
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMinimumIntegerDigits(Long.toString(endTime).length());
+
+		for (String species : mosaic.getSpeciesList()) {
+
+			if (writeEachTimeStep) {
+				mw.setName("cover" + "_" + identifier + "_" + species + "_t"
+						+ nf.format(time));
+				mw.write(mosaic, species);
+			}
+		}
+		
+		if(writeTraceFile){
+			sw.write(this);
+		}
+
+		record.add(mosaic.getPatches().keySet());
+	}
+
+	/**
 	 * Sets whether output should be written at each time step
 	 */
 
 	public void writeEachTimeStep(boolean writeEachTimeStep) {
 		this.writeEachTimeStep = writeEachTimeStep;
 	}
-
-	public void setExperimentWriter(ExperimentWriter ew) {
-		this.ew = ew;
-	}
+	
+	/**
+	 * Sets whether trace files should be written for this Experiment.
+	 * @param writeTraceFile
+	 */
 	
 	public void writeTraceFile(boolean writeTraceFile){
 		this.writeTraceFile = writeTraceFile;

@@ -23,6 +23,113 @@ public class Stats {
 	private double figureOfMerit;
 
 	/**
+	 * Generates a (2x2) confusion matrix from two logical vectors.
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+
+	public int[][] makeConfusionMatrix(boolean[] a, boolean[] b){
+		
+		if (a == null) {
+			throw new IllegalArgumentException("Reference patches are null");
+		}
+		if (b == null) {
+			throw new IllegalArgumentException("Observed patches are null");
+		}
+		if (a.length!=b.length) {
+			throw new IllegalArgumentException(
+					"Patch sets do not contain the same number of items.  Reference: "
+							+ a.length + ",Comparison: "
+							+ b.length);
+		}
+
+		int[][] c_matrix = new int[2][2];
+		for(int i = 0; i < a.length; i++){		
+				boolean comp_infested = a[i];
+				boolean ref_infested = b[i];
+			
+				if (comp_infested && ref_infested) {
+					c_matrix[0][0]++;
+					continue;
+				}
+				if (comp_infested && !ref_infested){
+					c_matrix[1][0]++;
+					continue;
+				}
+				if (!comp_infested && ref_infested) {
+					c_matrix[0][1]++;
+					continue;
+				}
+				if (!comp_infested	&& !ref_infested) {
+					c_matrix[1][1]++;
+					continue;
+				}
+		}
+
+		return c_matrix;	
+	}
+	
+	/**
+	 * Generates a (2x2) confusion matrix from two occupant Maps (as in Java Map).
+	 * @param a - the reference Map
+	 * @param b - the comparison Map
+	 * @return
+	 */
+
+	public int[][] makeConfusionMatrix(Map<Integer, Occupant> reference,
+			Map<Integer, Occupant> comparison) {
+		if (reference == null) {
+			throw new IllegalArgumentException("Reference patches are null");
+		}
+		if (comparison == null) {
+			throw new IllegalArgumentException("Observed patches are null");
+		}
+		if (reference.size() != comparison.size()) {
+			throw new IllegalArgumentException(
+					"Patch sets do not contain the same number of items.  Reference: "
+							+ reference.size() + ",Comparison: "
+							+ comparison.size());
+		}
+
+		// TODO Possibly change to more general form
+
+		int[][] c_matrix = new int[2][2];
+		Iterator<Integer> it = comparison.keySet().iterator();
+
+		while (it.hasNext()) {
+
+				int key = it.next();
+				
+				if(comparison.get(key).hasNoData()||reference.get(key).hasNoData()){
+					continue;
+				}
+				
+				boolean comp_infested = comparison.get(key).isInfested();
+				boolean ref_infested = reference.get(key).isInfested();
+			
+				if (!comp_infested && !ref_infested) {
+					c_matrix[0][0]++;
+					continue;
+				}
+				if (comp_infested && !ref_infested){
+					c_matrix[1][0]++;
+					continue;
+				}
+				if (!comp_infested && ref_infested) {
+					c_matrix[0][1]++;
+					continue;
+				}
+				if (comp_infested	&& ref_infested) {
+					c_matrix[1][1]++;
+					continue;
+				}
+		}
+
+		return c_matrix;
+	}
+
+	/**
 	 * Return statistics based on Pontius' Excel spreadsheet
 	 * 
 	 * @param matrix
@@ -123,160 +230,65 @@ public class Stats {
 		return da;
 	}
 	
-	public int[][] makeConfusionMatrix(boolean[] a, boolean[] b){
-		
-		if (a == null) {
-			throw new IllegalArgumentException("Reference patches are null");
-		}
-		if (b == null) {
-			throw new IllegalArgumentException("Observed patches are null");
-		}
-		if (a.length!=b.length) {
-			throw new IllegalArgumentException(
-					"Patch sets do not contain the same number of items.  Reference: "
-							+ a.length + ",Comparison: "
-							+ b.length);
-		}
-		
-		// TODO Possibly change to more general form
-
-		int[][] c_matrix = new int[2][2];
-		for(int i = 0; i < a.length; i++){		
-				boolean comp_infested = a[i];
-				boolean ref_infested = b[i];
-			
-				if (comp_infested && ref_infested) {
-					c_matrix[0][0]++;
-					continue;
-				}
-				if (comp_infested && !ref_infested){
-					c_matrix[1][0]++;
-					continue;
-				}
-				if (!comp_infested && ref_infested) {
-					c_matrix[0][1]++;
-					continue;
-				}
-				if (!comp_infested	&& !ref_infested) {
-					c_matrix[1][1]++;
-					continue;
-				}
-		}
-
-		return c_matrix;
-		
-	}
-
-	public int[][] makeConfusionMatrix(Map<Integer, Occupant> reference,
-			Map<Integer, Occupant> comparison) {
-		if (reference == null) {
-			throw new IllegalArgumentException("Reference patches are null");
-		}
-		if (comparison == null) {
-			throw new IllegalArgumentException("Observed patches are null");
-		}
-		if (reference.size() != comparison.size()) {
-			throw new IllegalArgumentException(
-					"Patch sets do not contain the same number of items.  Reference: "
-							+ reference.size() + ",Comparison: "
-							+ comparison.size());
-		}
-
-		// TODO Possibly change to more general form
-
-		int[][] c_matrix = new int[2][2];
-		Iterator<Integer> it = comparison.keySet().iterator();
-
-		while (it.hasNext()) {
-
-				int key = it.next();
-				
-				if(comparison.get(key).hasNoData()||reference.get(key).hasNoData()){
-					continue;
-				}
-				
-				boolean comp_infested = comparison.get(key).isInfested();
-				boolean ref_infested = reference.get(key).isInfested();
-			
-				if (!comp_infested && !ref_infested) {
-					c_matrix[0][0]++;
-					continue;
-				}
-				if (comp_infested && !ref_infested){
-					c_matrix[1][0]++;
-					continue;
-				}
-				if (!comp_infested && ref_infested) {
-					c_matrix[0][1]++;
-					continue;
-				}
-				if (comp_infested	&& ref_infested) {
-					c_matrix[1][1]++;
-					continue;
-				}
-		}
-
-		return c_matrix;
+	//Getters and setters
+	
+	public double getAllocationAgreement() {
+		return allocationAgreement;
 	}
 	
-	public int getNInfested(){
-		return n_infested;
+	public double getAllocationDisagreement() {
+		return allocationDisagreement;
+	}
+
+	public double getChanceAgreement() {
+		return chanceAgreement;
 	}
 	
-	public void setBinary(boolean binary){
-		this.binary=binary;
+	public double getFigureOfMerit() {
+		return figureOfMerit;
 	}
 	
-	public boolean isBinary(){
-		return binary;
+	public double getKallocation() {
+		return Kallocation;
+	}
+	
+	public double getKhisto() {
+		return Khisto;
 	}
 	
 	public double getKno() {
 		return Kno;
 	}
 
-	public double getKallocation() {
-		return Kallocation;
-	}
-
 	public double getKquantity() {
 		return Kquantity;
-	}
-
-	public double getKhisto() {
-		return Khisto;
 	}
 
 	public double getKstandard() {
 		return Kstandard;
 	}
 
-	public double getChanceAgreement() {
-		return chanceAgreement;
-	}
-
-	public double getQuantityAgreement() {
-		return quantityAgreement;
-	}
-
-	public double getAllocationAgreement() {
-		return allocationAgreement;
-	}
-
-	public double getAllocationDisagreement() {
-		return allocationDisagreement;
-	}
-
-	public double getQuantityDisagreement() {
-		return quantityDisagreement;
+	public int getNInfested(){
+		return n_infested;
 	}
 
 	public double getPierceSkill() {
 		return pierceSkill;
 	}
 
-	public double getFigureOfMerit() {
-		return figureOfMerit;
+	public double getQuantityAgreement() {
+		return quantityAgreement;
 	}
 
+	public double getQuantityDisagreement() {
+		return quantityDisagreement;
+	}
+
+	public boolean isBinary(){
+		return binary;
+	}
+
+	public void setBinary(boolean binary){
+		this.binary=binary;
+	}
 }

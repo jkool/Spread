@@ -47,13 +47,6 @@ import nsp.impl.random.RandomGenerator_Uniform;
 
 public class Spread {
 
-	private Mosaic mosaic;
-	private MosaicWriter mosaicWriter;
-	private static Properties properties = new Properties();
-	private boolean overwrite = false;
-	private boolean savePropertiesFile = true;
-	private boolean writeHeader = true;
-
 	public static void main(String[] args) {
 
 		// If no arguments are passed, then prompt the user with usage.
@@ -94,6 +87,263 @@ public class Spread {
 		m.start();
 		m.shutdown();
 	}
+	private Mosaic mosaic;
+	private MosaicWriter mosaicWriter;
+	private static Properties properties = new Properties();
+	private boolean overwrite = false;
+	private boolean savePropertiesFile = true;
+
+	private boolean writeHeader = true;
+
+	private List<Double> arr2list(double[] da){
+		ArrayList<Double> list = new ArrayList<Double>();
+		for(double d:da){
+			list.add(d);
+		}
+		return list;
+	}
+
+	/**
+	 * Checks whether a String is a number
+	 * 
+	 * @param str
+	 * @return
+	 */
+
+	private boolean isNumeric(String str) {
+		NumberFormat formatter = NumberFormat.getInstance();
+		ParsePosition pos = new ParsePosition(0);
+		formatter.parse(str, pos);
+		return str.length() == pos.getIndex();
+	}
+
+	private List<double[]> parseMultiNumericArray(String string) {
+		List<double[]> ma = new ArrayList<double[]>();
+		
+		if(string.contains(";")){
+			StringTokenizer stk = new StringTokenizer(string, ";");
+			while (stk.hasMoreTokens()) {
+				ma.addAll(parseMultiNumericArray(stk.nextToken()));
+			}
+		}
+
+		else if (string.startsWith("file:")) {
+			String filestring = string.substring(string.indexOf("file:") + 5);
+			if (filestring.length() == 5) {
+				System.out
+						.println("File tag used (file:) but no path was provided after the tag (empty string).  Please check the properties file and referenced files");
+			}
+			File f = new File(filestring);
+			try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+				String ln = br.readLine();
+				while (ln != null) {
+					ma.addAll(parseMultiNumericArray(ln));
+					ln = br.readLine();
+				}
+			} catch (FileNotFoundException e) {
+				System.out.println("File entry "
+						+ string.substring(string.indexOf("file:") + 5)
+						+ " could not be found.");
+				System.exit(-1);
+			} catch (IOException e) {
+				System.out.println("File entry "
+						+ string.substring(string.indexOf("file:") + 5)
+						+ " could not be read or accessed.");
+				System.exit(-1);
+			}
+		}
+		
+		else{ma.add(parseNumericArray(string));}
+
+		return ma;
+	}
+
+	/**
+	 * Parses a String to generate arrays. Brace brackets indicate {start, stop,
+	 * number of items}. Round brackets indicate (start,interval,number of
+	 * items). Square brackets are used to directly specify the array.
+	 * 
+	 * @param string
+	 * @return
+	 */
+
+	private double[] parseNumericArray(String string) {
+
+		double[] values;
+
+		if (string.startsWith("file:")) {
+			ArrayList<Double> da = new ArrayList<Double>();
+			String filestring = string.substring(string.indexOf("file:") + 5);
+			if (filestring.length() == 5) {
+				System.out
+						.println("File tag used (file:) but no path was provided after the tag (empty string).  Please check the properties file and referenced files");
+			}
+			File f = new File(filestring);
+			try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+				String ln = br.readLine();
+				while (ln != null) {
+					da.addAll(arr2list(parseNumericArray(ln)));
+					ln = br.readLine();
+				}
+			} catch (FileNotFoundException e) {
+				System.out.println("File entry "
+						+ string.substring(string.indexOf("file:") + 5)
+						+ " could not be found.");
+				System.exit(-1);
+			} catch (IOException e) {
+				System.out.println("File entry "
+						+ string.substring(string.indexOf("file:") + 5)
+						+ " could not be read or accessed.");
+				System.exit(-1);
+			}
+			values = new double[da.size()];
+			for (int i = 0; i < da.size(); i++) {
+				values[i] = da.get(i).doubleValue();
+			}
+			return values;
+		}
+
+		// parse brace brackets for {start,stop, number of items}
+
+		if (string.startsWith("{") && string.endsWith("}")) {
+			StringTokenizer stk = new StringTokenizer(string, "{,}");
+			if (stk.countTokens() != 3) {
+				throw new IllegalArgumentException(
+						"Incorrect parameter values "
+								+ string
+								+ ".  Brace bracket notation {} indicates a range using min,max and number of values and takes only 3 parameters.");
+			}
+			double min = Double.parseDouble(stk.nextToken());
+			double max = Double.parseDouble(stk.nextToken());
+
+			if (max <= min) {
+				throw new IllegalArgumentException(
+						"Maximum (2nd) value must be greater than the minimum (1st) value.");
+			}
+
+			int quantity = Integer.parseInt(stk.nextToken());
+			double interval = (max - min) / (quantity - 1);
+			values = new double[quantity];
+			values[0] = min;
+			values[quantity - 1] = max;
+			for (int i = 1; i < quantity - 1; i++) {
+				values[i] = min + i * interval;
+			}
+			return values;
+		}
+
+		// parse square brackets for directly specifying the array
+
+		else if (string.startsWith("[") && string.endsWith("]")) {
+			StringTokenizer stk = new StringTokenizer(string, "[,]");
+			values = new double[stk.countTokens()];
+			int ct = 0;
+			while (stk.hasMoreTokens()) {
+				values[ct] = Double.parseDouble(stk.nextToken());
+				ct++;
+			}
+			return values;
+		}
+
+		// parse round brackets for (start,interval,number of items)
+
+		else if (string.startsWith("(") && string.endsWith(")")) {
+			StringTokenizer stk = new StringTokenizer(string, "(,)");
+			if (stk.countTokens() != 3) {
+				throw new IllegalArgumentException(
+						"Incorrect parameter values "
+								+ string
+								+ ".  Round bracket notation () indicates a range using min,interval and number of values and takes only 3 parameters.");
+			}
+
+			double min = Double.parseDouble(stk.nextToken());
+			double interval = Double.parseDouble(stk.nextToken());
+			int quantity = Integer.parseInt(stk.nextToken());
+
+			values = new double[quantity];
+			for (int i = 0; i < quantity; i++) {
+				values[i] = i * interval + min;
+			}
+
+			return values;
+		}
+
+		// if a single value, wrap as an array
+
+		else if (isNumeric(string)) {
+			return new double[] { Double.parseDouble(string) };
+		}
+
+		else {
+			throw new IllegalArgumentException(
+					"Parameter array values "
+							+ string
+							+ " could not be parsed.  Please use a single number; a range: {min,max,number of values}; a range: (min,interval,number of values), or a comma separated list surrounded by square brackets []");
+		}
+	}
+
+	private List<String> parseStringArray(String string) {
+
+		List<String> list = new ArrayList<String>();
+		
+		if(string==null){
+			return list;
+		}
+
+		if (string.startsWith("file:")) {
+			String filestring = string.substring(string.indexOf("file:") + 5);
+			if (filestring.length() == 5) {
+				System.out
+						.println("File tag used (file:) but no path was provided after the tag (empty string).  Please check the properties file and referenced files");
+			}
+			File f = new File(filestring);
+			try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+				String ln = br.readLine();
+				while (ln != null) {
+					list.add(ln);
+					br.readLine();
+				}
+			} catch (FileNotFoundException e) {
+				System.out.println("File entry "
+						+ string.substring(string.indexOf("file:") + 5)
+						+ " could not be found.");
+				System.exit(-1);
+			} catch (IOException e) {
+				System.out.println("File entry "
+						+ string.substring(string.indexOf("file:") + 5)
+						+ " could not be read or accessed.");
+				System.exit(-1);
+			}
+		}
+
+		StringTokenizer stk = new StringTokenizer(string, "[,]");
+		while (stk.hasMoreTokens()) {
+			list.add(stk.nextToken());
+		}
+		return list;
+	}
+
+	/**
+	 * Saves the current Properties to a tab-delimited file
+	 * 
+	 * @param outputPath
+	 *            - THe path location where the file is to be written
+	 * @throws IOException
+	 */
+
+	private void savePropertiesFile(String outputPath) throws IOException {
+		BufferedWriter bw = new BufferedWriter(new FileWriter(outputPath));
+
+		String[] keys = properties.keySet().toArray(new String[0]);
+		Arrays.sort(keys);
+
+		for (String key : keys) {
+			bw.write(key + "\t" + properties.getProperty(key) + "\n");
+		}
+
+		bw.flush();
+		bw.close();
+	}
 
 	/**
 	 * Performs any necessary clean-up on the mosaic (e.g. closing files).
@@ -102,7 +352,7 @@ public class Spread {
 	public void shutdown() {
 		mosaic.shutdown();
 	}
-
+	
 	/**
 	 * Initializes required objects - e.g. the Mosaic, OutputWriters etc.
 	 */
@@ -463,9 +713,45 @@ public class Spread {
 		
 		pcst.setContainmentCost(Double.parseDouble(properties.getProperty("Containment_Cost","7")));
 		pcst.setContainmentLabour(Double.parseDouble(properties.getProperty("Containment_Labour","1")));
-		pcst.setGroundControlCosts(parseNumericArray(properties.getProperty("Ground_Control_Cost","[1000,2000,4200]")));
-		pcst.setGroundControlLabour(parseNumericArray(properties.getProperty("Ground_Control_Labour","[14,24,56]")));
+
+		List<double[]> gc_costs = parseMultiNumericArray(properties.getProperty("Ground_Control_Cost"));
+		List<double[]> gc_labour = parseMultiNumericArray(properties.getProperty("Ground_Control_Labour"));
+		//pcst.setGroundControlCosts(parseNumericArray(properties.getProperty("Ground_Control_Cost","[1000,2000,4200]")));
+		//pcst.setGroundControlLabour(parseNumericArray(properties.getProperty("Ground_Control_Labour","[14,24,56]")));
+
+		if(gc_costs.size()!=speciesList.size()){
+			System.out.println("Ground control cost size (" + gc_costs.size() + ") must match the number of species (" + speciesList.size() + ").  Exiting.");
+			System.exit(-1);
+		}
+
+		if(gc_labour.size()!=speciesList.size()){
+			System.out.println("Ground control labour cost size (" + gc_labour.size() + ") must match the number of species (" + speciesList.size() + ").  Exiting.");
+			System.exit(-1);
+		}
 		
+		Map<String, double[]> gc_CostMap = new TreeMap<String,double[]>();
+		
+		for(int i =0; i < speciesList.size(); i++){
+			if(gc_costs.get(i).length!=p_discovery.get(i).length){
+				System.out.println("Ground control cost array size for stage " + i + " ("+gc_costs.get(i).length+") must match the array size of p_Detection for stage " + i + " (" + p_discovery.get(i).length + ").  Exiting.");
+				System.exit(-1);
+			}
+			gc_CostMap.put(speciesList.get(i), gc_costs.get(i));
+		}
+		
+		Map<String, double[]> gc_LabourMap = new TreeMap<String,double[]>();
+		
+		for(int i =0; i < speciesList.size(); i++){
+			if(gc_labour.get(i).length!=p_discovery.get(i).length){
+				System.out.println("Ground control labour cost array size for stage " + i + " ("+gc_labour.get(i).length+") must match the array size of p_Detection for stage " + i + " (" + p_discovery.get(i).length + ").  Exiting.");
+				System.exit(-1);
+			}
+			gc_LabourMap.put(speciesList.get(i), gc_labour.get(i));
+		}
+		
+		pcst.setGroundControlCosts(gc_CostMap);
+		pcst.setGroundControlLabour(gc_LabourMap);
+				
 		processes.add(pgc);
 		processes.add(pcc);
 		processes.add(pcst);
@@ -558,7 +844,7 @@ public class Spread {
 						sw.setDistances(dist_vec);
 						sw.setRates(rate_vec);
 						sw.setReplicate(n);
-						String sw_output = properties.getProperty("Trace_Base_Name","TraceFile") + "_" + n;
+						String sw_output = properties.getProperty("Trace_Base_Name","TraceFile") + "_" + i + "_" + n;
 						sw.setOutputFile(sw_output);
 						try {
 							sw.open(new HashSet<String>(speciesList));
@@ -664,7 +950,7 @@ public class Spread {
 							sw.setDistances(dist_vec);
 							sw.setRates(rate_vec);
 							sw.setReplicate(n);
-							String sw_output = properties.getProperty("Trace_Base_Name","TraceFile") + "_" + n;
+							String sw_output = properties.getProperty("Trace_Base_Name","TraceFile") + "_" + i + "_" + j + "_" + n;
 							sw.setOutputFile(sw_output);
 							try {
 								sw.open(new HashSet<String>(speciesList));
@@ -723,250 +1009,5 @@ public class Spread {
 
 		System.out.println("\nComplete.");
 
-	}
-
-	private List<String> parseStringArray(String string) {
-
-		List<String> list = new ArrayList<String>();
-		
-		if(string==null){
-			return list;
-		}
-
-		if (string.startsWith("file:")) {
-			String filestring = string.substring(string.indexOf("file:") + 5);
-			if (filestring.length() == 5) {
-				System.out
-						.println("File tag used (file:) but no path was provided after the tag (empty string).  Please check the properties file and referenced files");
-			}
-			File f = new File(filestring);
-			try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-				String ln = br.readLine();
-				while (ln != null) {
-					list.add(ln);
-					br.readLine();
-				}
-			} catch (FileNotFoundException e) {
-				System.out.println("File entry "
-						+ string.substring(string.indexOf("file:") + 5)
-						+ " could not be found.");
-				System.exit(-1);
-			} catch (IOException e) {
-				System.out.println("File entry "
-						+ string.substring(string.indexOf("file:") + 5)
-						+ " could not be read or accessed.");
-				System.exit(-1);
-			}
-		}
-
-		StringTokenizer stk = new StringTokenizer(string, "[,]");
-		while (stk.hasMoreTokens()) {
-			list.add(stk.nextToken());
-		}
-		return list;
-	}
-
-	private List<double[]> parseMultiNumericArray(String string) {
-		List<double[]> ma = new ArrayList<double[]>();
-
-		if (string.startsWith("file:")) {
-			String filestring = string.substring(string.indexOf("file:") + 5);
-			if (filestring.length() == 5) {
-				System.out
-						.println("File tag used (file:) but no path was provided after the tag (empty string).  Please check the properties file and referenced files");
-			}
-			File f = new File(filestring);
-			try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-				String ln = br.readLine();
-				while (ln != null) {
-					ma.add(parseNumericArray(ln));
-					br.readLine();
-				}
-			} catch (FileNotFoundException e) {
-				System.out.println("File entry "
-						+ string.substring(string.indexOf("file:") + 5)
-						+ " could not be found.");
-				System.exit(-1);
-			} catch (IOException e) {
-				System.out.println("File entry "
-						+ string.substring(string.indexOf("file:") + 5)
-						+ " could not be read or accessed.");
-				System.exit(-1);
-			}
-		}
-
-		StringTokenizer stk = new StringTokenizer(string, ";");
-		while (stk.hasMoreTokens()) {
-			ma.add(parseNumericArray(stk.nextToken()));
-		}
-		return ma;
-	}
-
-	/**
-	 * Parses a String to generate arrays. Brace brackets indicate {start, stop,
-	 * number of items}. Round brackets indicate (start,interval,number of
-	 * items). Square brackets are used to directly specify the array.
-	 * 
-	 * @param string
-	 * @return
-	 */
-
-	private double[] parseNumericArray(String string) {
-
-		double[] values;
-
-		if (string.startsWith("file:")) {
-			ArrayList<Double> da = new ArrayList<Double>();
-			String filestring = string.substring(string.indexOf("file:") + 5);
-			if (filestring.length() == 5) {
-				System.out
-						.println("File tag used (file:) but no path was provided after the tag (empty string).  Please check the properties file and referenced files");
-			}
-			File f = new File(filestring);
-			try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-				String ln = br.readLine();
-				while (ln != null) {
-					da.addAll(arr2list(parseNumericArray(ln)));
-					ln = br.readLine();
-				}
-			} catch (FileNotFoundException e) {
-				System.out.println("File entry "
-						+ string.substring(string.indexOf("file:") + 5)
-						+ " could not be found.");
-				System.exit(-1);
-			} catch (IOException e) {
-				System.out.println("File entry "
-						+ string.substring(string.indexOf("file:") + 5)
-						+ " could not be read or accessed.");
-				System.exit(-1);
-			}
-			values = new double[da.size()];
-			for (int i = 0; i < da.size(); i++) {
-				values[i] = da.get(i).doubleValue();
-			}
-			return values;
-		}
-
-		// parse brace brackets for {start,stop, number of items}
-
-		if (string.startsWith("{") && string.endsWith("}")) {
-			StringTokenizer stk = new StringTokenizer(string, "{,}");
-			if (stk.countTokens() != 3) {
-				throw new IllegalArgumentException(
-						"Incorrect parameter values "
-								+ string
-								+ ".  Brace bracket notation {} indicates a range using min,max and number of values and takes only 3 parameters.");
-			}
-			double min = Double.parseDouble(stk.nextToken());
-			double max = Double.parseDouble(stk.nextToken());
-
-			if (max <= min) {
-				throw new IllegalArgumentException(
-						"Maximum (2nd) value must be greater than the minimum (1st) value.");
-			}
-
-			int quantity = Integer.parseInt(stk.nextToken());
-			double interval = (max - min) / (quantity - 1);
-			values = new double[quantity];
-			values[0] = min;
-			values[quantity - 1] = max;
-			for (int i = 1; i < quantity - 1; i++) {
-				values[i] = min + i * interval;
-			}
-			return values;
-		}
-
-		// parse square brackets for directly specifying the array
-
-		else if (string.startsWith("[") && string.endsWith("]")) {
-			StringTokenizer stk = new StringTokenizer(string, "[,]");
-			values = new double[stk.countTokens()];
-			int ct = 0;
-			while (stk.hasMoreTokens()) {
-				values[ct] = Double.parseDouble(stk.nextToken());
-				ct++;
-			}
-			return values;
-		}
-
-		// parse round brackets for (start,interval,number of items)
-
-		else if (string.startsWith("(") && string.endsWith(")")) {
-			StringTokenizer stk = new StringTokenizer(string, "(,)");
-			if (stk.countTokens() != 3) {
-				throw new IllegalArgumentException(
-						"Incorrect parameter values "
-								+ string
-								+ ".  Round bracket notation () indicates a range using min,interval and number of values and takes only 3 parameters.");
-			}
-
-			double min = Double.parseDouble(stk.nextToken());
-			double interval = Double.parseDouble(stk.nextToken());
-			int quantity = Integer.parseInt(stk.nextToken());
-
-			values = new double[quantity];
-			for (int i = 0; i < quantity; i++) {
-				values[i] = i * interval + min;
-			}
-
-			return values;
-		}
-
-		// if a single value, wrap as an array
-
-		else if (isNumeric(string)) {
-			return new double[] { Double.parseDouble(string) };
-		}
-
-		else {
-			throw new IllegalArgumentException(
-					"Parameter array values "
-							+ string
-							+ " could not be parsed.  Please use a single number; a range: {min,max,number of values}; a range: (min,interval,number of values), or a comma separated list surrounded by square brackets []");
-		}
-	}
-
-	/**
-	 * Checks whether a String is a number
-	 * 
-	 * @param str
-	 * @return
-	 */
-
-	private boolean isNumeric(String str) {
-		NumberFormat formatter = NumberFormat.getInstance();
-		ParsePosition pos = new ParsePosition(0);
-		formatter.parse(str, pos);
-		return str.length() == pos.getIndex();
-	}
-
-	/**
-	 * Saves the current Properties to a tab-delimited file
-	 * 
-	 * @param outputPath
-	 *            - THe path location where the file is to be written
-	 * @throws IOException
-	 */
-
-	private void savePropertiesFile(String outputPath) throws IOException {
-		BufferedWriter bw = new BufferedWriter(new FileWriter(outputPath));
-
-		String[] keys = properties.keySet().toArray(new String[0]);
-		Arrays.sort(keys);
-
-		for (String key : keys) {
-			bw.write(key + "\t" + properties.getProperty(key) + "\n");
-		}
-
-		bw.flush();
-		bw.close();
-	}
-	
-	private List<Double> arr2list(double[] da){
-		ArrayList<Double> list = new ArrayList<Double>();
-		for(double d:da){
-			list.add(d);
-		}
-		return list;
 	}
 }

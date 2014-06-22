@@ -14,6 +14,10 @@ import java.util.Properties;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Generates a calibration analysis file comparing simulated output to reference values. 
+ */
+
 public class CalibrationAnalysis {
 
 	private String outputFolder = "C:/Temp/Spread_Output";
@@ -27,6 +31,7 @@ public class CalibrationAnalysis {
 	private double errorCutoff = 0.03d;
 	private double performanceCriterion = .8d;
 	private String outputFile = "calibration.csv";
+
 	private List<String> speciesList;
 
 	public void go() {
@@ -66,7 +71,7 @@ public class CalibrationAnalysis {
 			int nrows = numset.getInt(1);
 			numset.close();
 
-			int trimrows = (int) ((double) nrows * percentile);
+			int trimrows = (int) (nrows * percentile);
 
 			ResultSet repset = stmt.executeQuery("SELECT DISTINCT "
 					+ resampleField + " FROM " + trimtable);
@@ -109,6 +114,14 @@ public class CalibrationAnalysis {
 		}
 		}
 	}
+	
+	/**
+	 * Processes a single result set.
+	 * @param resampleSet - a set of query results
+	 * @param repct - the number of replicates
+	 * @return
+	 * @throws SQLException
+	 */
 
 	private Map<Double, Map<Double, Integer>> process(ResultSet resampleSet,
 			int repct) throws SQLException {
@@ -140,7 +153,7 @@ public class CalibrationAnalysis {
 
 		// Trim map down using requiredReplicates
 
-		int requiredReplicates = (int) (performanceCriterion * (double) repct);
+		int requiredReplicates = (int) (performanceCriterion * repct);
 
 		// First iterate over resampleIDs
 
@@ -172,7 +185,7 @@ public class CalibrationAnalysis {
 		}
 		return map;
 	}
-
+	
 	/**
 	 * Writes a two field map to csv
 	 * 
@@ -209,97 +222,106 @@ public class CalibrationAnalysis {
 			e.printStackTrace();
 		}
 	}
-
+	
 	// Getters and setters
-	// /////////////////////////////////////////////////////////////////////////////////
-
-	public String getOutputFolder() {
-		return outputFolder;
-	}
-
-	public void setOutputFolder(String outputFolder) {
-		this.outputFolder = outputFolder;
-	}
-
-	public String getTable() {
-		return table;
-	}
-
-	public void setStatsTable(String table) {
-		this.table = table;
-	}
-
-	public String getResampleField() {
-		return resampleField;
-	}
-
-	public void setResampleField(String resampleField) {
-		this.resampleField = resampleField;
-	}
 
 	public String getCriterionField() {
 		return criterionField;
 	}
 
-	public void setCriterionField(String criterionField) {
-		this.criterionField = criterionField;
-	}
-
-	public String getErrorType() {
-		return errorType;
-	}
-
-	public void setErrorType(String errorType) {
-		this.errorType = errorType;
-	}
-
-	public String getSpreadRateField() {
-		return spreadRateField;
-	}
-
-	public void setSpreadRateField(String spreadRateField) {
-		this.spreadRateField = spreadRateField;
-	}
-
-	public String getSpreadDistanceField() {
-		return spreadDistanceField;
-	}
-
-	public void setSpreadDistanceField(String spreadDistanceField) {
-		this.spreadDistanceField = spreadDistanceField;
-	}
-
-	public double getPercentile() {
-		return percentile;
-	}
-
-	public void setPercentile(double percentile) {
-		this.percentile = percentile;
-	}
-
 	public double getErrorCutoff() {
 		return errorCutoff;
 	}
-
-	public void setErrorCutoff(double errorCutoff) {
-		this.errorCutoff = errorCutoff;
-	}
-
-	public double getPerformanceCriterion() {
-		return performanceCriterion;
-	}
-
-	public void setPerformanceCriterion(double performanceCriterion) {
-		this.performanceCriterion = performanceCriterion;
+	
+	public String getErrorType() {
+		return errorType;
 	}
 
 	public String getOutputFile() {
 		return outputFile;
 	}
 
+	public String getOutputFolder() {
+		return outputFolder;
+	}
+
+	public double getPercentile() {
+		return percentile;
+	}
+
+	public double getPerformanceCriterion() {
+		return performanceCriterion;
+	}
+
+	public String getResampleField() {
+		return resampleField;
+	}
+
+	public String getSpreadDistanceField() {
+		return spreadDistanceField;
+	}
+
+	public String getSpreadRateField() {
+		return spreadRateField;
+	}
+
+	public String getTable() {
+		return table;
+	}
+	
+	public void setCriterionField(String criterionField) {
+		this.criterionField = criterionField;
+	}
+
+	public void setErrorCutoff(double errorCutoff) {
+		this.errorCutoff = errorCutoff;
+	}
+
+	public void setErrorType(String errorType) {
+		this.errorType = errorType;
+	}
+
 	public void setOutputFile(String outputFile) {
 		this.outputFile = outputFile;
 	}
+
+	public void setOutputFolder(String outputFolder) {
+		this.outputFolder = outputFolder;
+	}
+
+	public void setPercentile(double percentile) {
+		this.percentile = percentile;
+	}
+
+	public void setPerformanceCriterion(double performanceCriterion) {
+		this.performanceCriterion = performanceCriterion;
+	}
+
+	public void setResampleField(String resampleField) {
+		this.resampleField = resampleField;
+	}
+
+	public void setSpeciesList(List<String> speciesList){
+		this.speciesList = speciesList;
+	}
+
+	public void setSpreadDistanceField(String spreadDistanceField) {
+		this.spreadDistanceField = spreadDistanceField;
+	}
+
+	public void setSpreadRateField(String spreadRateField) {
+		this.spreadRateField = spreadRateField;
+	}
+	
+	public void setStatsTable(String table) {
+		this.table = table;
+	}
+	
+	/**
+	 * Removes the file extension from a String
+	 * @param s
+	 * @return
+	 */
 	
 	private static String removeExtension(String s) {
 
@@ -320,9 +342,5 @@ public class CalibrationAnalysis {
 	        return filename;
 
 	    return filename.substring(0, extensionIndex);
-	}
-	
-	public void setSpeciesList(List<String> speciesList){
-		this.speciesList = speciesList;
 	}
 }
