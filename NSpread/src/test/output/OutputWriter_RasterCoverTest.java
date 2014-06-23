@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import nsp.impl.RasterMosaic;
-import nsp.impl.output.MosaicWriter_Raster;
-import nsp.util.Raster;
-import nsp.util.RasterReader;
+import spread.impl.RasterMosaic;
+import spread.impl.output.MosaicWriter_Raster;
+import spread.util.Raster;
+import spread.util.RasterReader;
 
 import org.junit.Before;
 import org.junit.Test;

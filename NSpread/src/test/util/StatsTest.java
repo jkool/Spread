@@ -5,11 +5,12 @@ import static org.junit.Assert.*;
 import java.util.Map;
 import java.util.TreeMap;
 
-import nsp.util.Stats;
-import nsp.Occupant;
+import spread.util.Stats;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import spread.Occupant;
 
 public class StatsTest {
 

@@ -2,7 +2,7 @@ package test.random;
 
 //import static org.junit.Assert.*;
 
-import nsp.impl.random.RandomGenerator_Kernel;
+import spread.impl.random.RandomGenerator_Kernel;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -8,21 +8,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import nsp.Experiment;
-import nsp.MosaicWriter;
-import nsp.Process;
-import nsp.RandomGenerator;
-import nsp.impl.Disperser_Continuous2D;
-import nsp.impl.RasterMosaic;
-import nsp.impl.output.MosaicWriter_Raster;
-import nsp.impl.process.Process_Dispersal;
-import nsp.impl.process.Process_Growth;
-import nsp.impl.process.Process_Infestation;
-import nsp.impl.process.Process_ManageAge;
-import nsp.impl.random.RandomGenerator_Determined;
+import spread.impl.Disperser_Continuous2D;
+import spread.impl.RasterMosaic;
+import spread.impl.output.MosaicWriter_Raster;
+import spread.impl.process.Process_Dispersal;
+import spread.impl.process.Process_Growth;
+import spread.impl.process.Process_Infestation;
+import spread.impl.process.Process_ManageAge;
+import spread.impl.random.RandomGenerator_Determined;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import spread.Experiment;
+import spread.MosaicWriter;
+import spread.Process;
+import spread.RandomGenerator;
 
 public class ExperimentTest {
 

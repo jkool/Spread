@@ -14,15 +14,16 @@ import java.util.TreeSet;
 
 import junit.framework.Assert;
 
-import nsp.Disperser;
-import nsp.Patch;
-import nsp.RandomGenerator;
-import nsp.impl.Disperser_Continuous2D;
-import nsp.impl.RasterMosaic;
-import nsp.impl.random.RandomGenerator_Determined;
+import spread.impl.Disperser_Continuous2D;
+import spread.impl.RasterMosaic;
+import spread.impl.random.RandomGenerator_Determined;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import spread.Disperser;
+import spread.Patch;
+import spread.RandomGenerator;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
