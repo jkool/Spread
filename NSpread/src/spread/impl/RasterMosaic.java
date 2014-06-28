@@ -521,7 +521,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	 */
 
 	public int getNumberUndetected(String species) {
-		return getUninfested(species).size();
+		return getUndetected(species).size();
 	}
 
 	/**
@@ -839,7 +839,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		Map<Integer, Patch> uninfested = new TreeMap<Integer, Patch>();
 		for (Integer patch_key : patches.keySet()) {
 			Patch p = patches.get(patch_key);
-			if (p.hasOccupant(species) && p.getOccupant(species).isInfested()) {
+			if (p.hasOccupant(species) && !p.getOccupant(species).isInfested()) {
 				uninfested.put(patch_key, patches.get(patch_key));
 			}
 		}

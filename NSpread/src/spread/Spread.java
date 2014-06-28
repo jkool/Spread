@@ -34,7 +34,6 @@ import spread.impl.process.Process_GroundControl;
 import spread.impl.process.Process_Growth;
 import spread.impl.process.Process_Infestation;
 import spread.impl.process.Process_Monitor;
-import spread.impl.random.RandomGenerator_Determined;
 import spread.impl.random.RandomGenerator_Exponential;
 import spread.impl.random.RandomGenerator_Kernel;
 import spread.impl.random.RandomGenerator_Poisson;
@@ -909,6 +908,8 @@ public class Spread {
 						Disperser_Continuous2D dc2 = new Disperser_Continuous2D();
 						RandomGenerator_Exponential distanceGenerator = new RandomGenerator_Exponential();
 						distanceGenerator.setLambda(1 / distances.get(k)[i]);
+						//RandomGenerator_Determined distanceGenerator = new RandomGenerator_Determined();
+						//distanceGenerator.setValue(1 / distances.get(k)[i]);
 						RandomGenerator angleGenerator = new RandomGenerator_Uniform();
 
 						if (properties.containsKey("Direction_Kernel")) {

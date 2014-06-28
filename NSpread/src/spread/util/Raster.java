@@ -1,6 +1,14 @@
 package spread.util;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.StringTokenizer;
+
+import javax.activation.UnsupportedDataTypeException;
 
 /**
  * Class representing a Raster object.
@@ -17,8 +25,8 @@ public class Raster {
 
 	protected String NDATA;
 
-	public static final String DEFAULT_NODATA = "-9999";
-
+	public static final String DEFAULT_NODATA = "-9999";	
+	
 	/**
 	 * Creates an empty raster
 	 */
@@ -99,6 +107,63 @@ public class Raster {
 	public Raster(int[][] data, double cellsize, double xll, double yll) {
 		this(cellsize, xll, yll);
 		setData(data);
+	}
+
+	/**
+	 * Loads an ASCII raster from a file
+	 * 
+	 * @param rasterFile - the File object to be loaded
+	 */
+	
+	public Raster(File rasterFile){
+		readFile(rasterFile);
+	}
+	
+	/**
+	 * Loads an ASCII raster from a file
+	 * 
+	 */
+	
+	public Raster(String file){
+		readFile(new File(file));
+	}
+	
+	
+	/**
+	 * Parses a header line from an ASCII raster file - used since order cannot
+	 * be guaranteed.
+	 * @param headerLine
+	 * @return
+	 */
+	
+	private String parseHeaderLine(String headerLine){
+			StringTokenizer stk = new StringTokenizer(headerLine,"= \t\n\r\f");
+			String key = stk.nextToken();
+			if(key.equalsIgnoreCase("nrows")){
+				rows = Integer.parseInt(stk.nextToken());
+				return "nrows";
+			}
+			if(key.equalsIgnoreCase("ncols")){
+				cols = Integer.parseInt(stk.nextToken());
+				return "ncols";
+			}
+			if(key.equalsIgnoreCase("xllcorner")){
+				xll = Double.parseDouble(stk.nextToken());
+				return "xll";
+			}
+			if(key.equalsIgnoreCase("yllcorner")){
+				yll = Double.parseDouble(stk.nextToken());
+				return "yll";
+			}
+			if(key.equalsIgnoreCase("cellsize")){
+				cellsize = Double.parseDouble(stk.nextToken());
+				return "cellsize";
+			}
+			if(key.equalsIgnoreCase("nodata_value")){
+				NDATA = stk.nextToken();
+				return "nodata";
+			}
+			return "";
 	}
 
 	/**
@@ -287,6 +352,64 @@ public class Raster {
 		   this.yll==other.yll &&
 		   this.cellsize==other.cellsize){return true;}
 		return false;
+	}
+	
+	public void readFile(File rasterFile){
+		boolean hasRows = false;
+		boolean hasCols = false;
+		boolean hasLLX = false;
+		boolean hasLLY = false;
+		boolean hasCellsize = false;
+		
+		try (BufferedReader br = new BufferedReader(new FileReader(rasterFile))){
+			for(int i = 0; i < 6; i++){
+				String var = parseHeaderLine(br.readLine());
+				if(var.equalsIgnoreCase("nrows")){hasRows=true;};
+				if(var.equalsIgnoreCase("ncols")){hasCols=true;};
+				if(var.equalsIgnoreCase("xll")){hasLLX=true;};
+				if(var.equalsIgnoreCase("yll")){hasLLY=true;};
+				if(var.equalsIgnoreCase("cellsize")){hasCellsize=true;};
+			}
+			
+			if(!(hasRows && hasCols && hasLLX && hasLLY && hasCellsize)){
+				throw new UnsupportedDataTypeException("Raster file " + rasterFile.getName() + " does not contain appropriate header information.");
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try (BufferedReader br = new BufferedReader(new FileReader(rasterFile))){
+			
+			data = new double[rows][cols];
+			int rowct = 0;
+			
+			String ln = br.readLine();
+			while(ln!=null){
+				if(ln.toLowerCase().contains("nrows")){ln = br.readLine(); continue;}
+				if(ln.toLowerCase().contains("ncols")){ln = br.readLine(); continue;}
+				if(ln.toLowerCase().contains("xll")){ln = br.readLine(); continue;}
+				if(ln.toLowerCase().contains("yll")){ln = br.readLine(); continue;}
+				if(ln.toLowerCase().contains("cellsize")){ln = br.readLine(); continue;}
+				if(ln.toLowerCase().contains("nodata")){ln = br.readLine(); continue;}
+				
+				StringTokenizer stk = new StringTokenizer(ln);
+				int colct = 0;
+				while(stk.hasMoreTokens()){
+					data[rowct][colct] = Double.parseDouble(stk.nextToken());
+					colct++;
+				}
+				
+				ln = br.readLine();
+				rowct++;
+			}
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
 	}
 	
 	/**

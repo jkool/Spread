@@ -10,7 +10,6 @@ import spread.impl.output.MosaicWriter_Raster;
 import spread.impl.output.MosaicWriter_Raster_WasMonitored;
 import spread.impl.output.MosaicWriter_Raster_Stage;
 import spread.impl.output.StatsWriter_Text;
-import spread.util.ControlType;
 
 /**
  * This class is used to apply Processes to a Mosaic over time. Time is handled
