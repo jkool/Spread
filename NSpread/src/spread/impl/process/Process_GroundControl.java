@@ -114,6 +114,11 @@ public class Process_GroundControl implements Process, Cloneable {
 			if(ignore.contains(species)){
 				continue;
 			}
+			
+			if(!patch.isInfestedBy(species)){
+				patch.getOccupant(species).removeControl(ControlType.GROUND_CONTROL);
+				continue;
+			}
 
 			// Can you hear me Major Tom? Can you hear me Major Tom?
 

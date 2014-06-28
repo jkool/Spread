@@ -47,7 +47,7 @@ public class Occupant implements Cloneable {
 	 */
 	
 	public void addControl(ControlType control) {
-		if (infested&!controls.containsKey(control)) {
+		if (!controls.containsKey(control)) {
 			controls.put(control, 0l);
 			if(control!=ControlType.NONE){
 				wasControlled=true;

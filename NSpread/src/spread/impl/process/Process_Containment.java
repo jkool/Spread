@@ -92,7 +92,6 @@ public class Process_Containment implements Process, Cloneable{
 			if (patch.getOccupant(species).hasControl(ControlType.CONTAINMENT)) {
 				patch.getOccupant(species).setStageOfInfestation(0);
 				patch.getOccupant(species).clearInfestation();
-			
 			}
 		}
 	}

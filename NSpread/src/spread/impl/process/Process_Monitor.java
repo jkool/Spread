@@ -106,6 +106,10 @@ public class Process_Monitor implements Process, Cloneable {
 				continue;
 			}
 			
+			if(!o.isInfested()&& o.hasControl(ControlType.GROUND_CONTROL)){
+				o.removeControl(ControlType.GROUND_CONTROL);
+			}
+			
 			// If the patch is infested, apply a random number to determine whether it was detected
 			
 			if (o.isInfested()) {

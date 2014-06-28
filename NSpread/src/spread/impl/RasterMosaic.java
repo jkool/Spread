@@ -221,7 +221,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		block.removeAll(region);
 		PriorityQueue<Patch> pq = new PriorityQueue<Patch>(block);
 
-		outer: while (!pq.isEmpty()) {
+		while (!pq.isEmpty()) {
 			Patch seed = pq.poll();
 
 			if (seed.hasNoData()) {
@@ -229,16 +229,29 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			}
 
 			Set<Patch> tile = getStrongRegion(seed, species, bounds);
+			boolean anytouch = false;
+
 			for (Patch p : tile) {
 				int row = p.getID() / ncols;
 				int col = p.getID() % ncols;
+
+				// Do any patches touch the edge?
+
 				if (row == bounds[0] || row == bounds[2] || col == bounds[1]
 						|| col == bounds[3]) {
-					pq.removeAll(tile);
-					continue outer;
+					anytouch = true;
+					break;
 				}
 			}
-			s.addAll(tile);
+
+			if (!anytouch) {
+				s.addAll(tile);
+			}
+
+			// regardless, clear the tile to avoid re-processing
+
+			pq.removeAll(tile);
+
 		}
 		return s;
 	}
@@ -289,7 +302,6 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		return bnds;
 	}
 
-
 	// Getters and Setters ////////////////////////////////////////////////////
 
 	/**
@@ -301,7 +313,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	public double getCellsize() {
 		return cellsize;
 	}
-	
+
 	/**
 	 * Retrieves the controlled cells from the RasterMosaic as a map of keys and
 	 * Patches.
@@ -314,6 +326,27 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		Map<Integer, Patch> controlled = new TreeMap<Integer, Patch>();
 		for (Integer key : patches.keySet()) {
 			if (patches.get(key).getOccupant(species).getControls().size() > 0) {
+				controlled.put(key, patches.get(key));
+			}
+		}
+		return controlled;
+	}
+
+	/**
+	 * Retrieves the controlled cells from the RasterMosaic as a map of keys and
+	 * Patches.
+	 * 
+	 * @return - the controlled cells from the RasterMosaic as a map of keys and
+	 *         Patches.
+	 */
+
+	public Map<Integer, Patch> getControlled(String species, ControlType control) {
+		Map<Integer, Patch> controlled = new TreeMap<Integer, Patch>();
+		for (Integer key : patches.keySet()) {
+			if (patches.get(key).getOccupant(species) == null) {
+				continue;
+			}
+			if (patches.get(key).getOccupant(species).hasControl(control)) {
 				controlled.put(key, patches.get(key));
 			}
 		}
@@ -360,7 +393,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		Map<Integer, Patch> infested = new TreeMap<Integer, Patch>();
 		for (Integer patch_key : patches.keySet()) {
 			Patch p = patches.get(patch_key);
-			if(p.hasOccupant(species)&&p.getOccupant(species).isInfested()){
+			if (p.hasOccupant(species) && p.getOccupant(species).isInfested()) {
 				infested.put(patch_key, patches.get(patch_key));
 			}
 		}
@@ -400,27 +433,30 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		}
 		return monitored;
 	}
-	
+
 	/**
 	 * Returns the number of columns in the raster
+	 * 
 	 * @return
 	 */
 
 	public int getNcols() {
 		return ncols;
 	}
-	
+
 	/**
 	 * Returns the number of rows in the raster
+	 * 
 	 * @return
 	 */
 
 	public int getNrows() {
 		return nrows;
 	}
-	
+
 	/**
-	 * Returns the number of patches under management control for a given species
+	 * Returns the number of patches under management control for a given
+	 * species
 	 * 
 	 * @param species
 	 * @return
@@ -440,30 +476,79 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	public int getNumberInfested() {
 		return getInfested().size();
 	}
-	
+
 	/**
-	 * Retrieves the number of infested patches in the RasterMosaic for a given species.
+	 * Retrieves the number of infested patches in the RasterMosaic for a given
+	 * species.
 	 * 
-	 * @return - the number of infested patches in the RasterMosaic for a given species.
-	 */	
+	 * @return - the number of infested patches in the RasterMosaic for a given
+	 *         species.
+	 */
 
 	@Override
 	public int getNumberInfested(String species) {
 		return getInfested(species).size();
 	}
-	
+
 	/**
 	 * Retrieves the total number of Patches being monitored in the Mosaic.
+	 * 
 	 * @return
 	 */
 
 	public int getNumberMonitored() {
 		return getMonitored().size();
 	}
-	
+
 	/**
-	 * Retrieves a Map (as in Java Map) of patch ids and Occupants of a given species type.
-	 * Akin to retrieving 'available spaces'
+	 * Retrieves the number of infested but undetected patches in the
+	 * RasterMosaic
+	 * 
+	 * @return - the number of infested and undetected patches in the
+	 *         RasterMosaic
+	 */
+
+	public int getNumberUndetected() {
+		return getUninfested().size();
+	}
+
+	/**
+	 * Retrieves the number of infested but undetected patches in the
+	 * RasterMosaic for a given species.
+	 * 
+	 * @return - the number of infested but undetected patches in the
+	 *         RasterMosaic for a given species.
+	 */
+
+	public int getNumberUndetected(String species) {
+		return getUninfested(species).size();
+	}
+
+	/**
+	 * Retrieves the number of uninfested patches in the RasterMosaic
+	 * 
+	 * @return - the number of uninfested patches in the RasterMosaic
+	 */
+
+	public int getNumberUninfested() {
+		return getUninfested().size();
+	}
+
+	/**
+	 * Retrieves the number of uninfested patches in the RasterMosaic for a
+	 * given species.
+	 * 
+	 * @return - the number of uninfested patches in the RasterMosaic for a
+	 *         given species.
+	 */
+
+	public int getNumberUninfested(String species) {
+		return getUninfested(species).size();
+	}
+
+	/**
+	 * Retrieves a Map (as in Java Map) of patch ids and Occupants of a given
+	 * species type. Akin to retrieving 'available spaces'
 	 */
 
 	@Override
@@ -477,12 +562,13 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		}
 		return occupancies;
 	}
-	
+
 	/**
-	 * Retrieves a Map (as in Java Map) of patch ids and Occupants of a given species type that
-	 * are actually inhabited.  Akin to retrieving 'actually occupied'.  Although there *is* a
-	 * difference between this and getOccupants - they could probably be mreged as the code currently
-	 * guarantees that only spaces containing an occupant exist.
+	 * Retrieves a Map (as in Java Map) of patch ids and Occupants of a given
+	 * species type that are actually inhabited. Akin to retrieving 'actually
+	 * occupied'. Although there *is* a difference between this and getOccupants
+	 * - they could probably be mreged as the code currently guarantees that
+	 * only spaces containing an occupant exist.
 	 * 
 	 */
 
@@ -522,13 +608,13 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	}
 
 	/**
-	 * Retrieves a Map (as in Java Map) of patch ids and associated Patches based
-	 * on a Collection of patch id values.
-	 *  
+	 * Retrieves a Map (as in Java Map) of patch ids and associated Patches
+	 * based on a Collection of patch id values.
+	 * 
 	 * @param indices
 	 * @return
 	 */
-	
+
 	public Map<Integer, Patch> getPatches(Collection<Integer> indices) {
 		Map<Integer, Patch> map = new TreeMap<Integer, Patch>();
 		for (int i : indices) {
@@ -541,16 +627,18 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	/**
 	 * Retrieves the total area of a Collection of patches.
 	 * 
-	 * @param patches - the Collection of patches.
+	 * @param patches
+	 *            - the Collection of patches.
 	 * @return
 	 */
-	
+
 	public double getRegionArea(Collection<Patch> patches) {
 		return patches.size() * cellsize * cellsize;
 	}
-	
+
 	/**
-	 * Retrieves the List of species that can potentially exist within the Mosaic.
+	 * Retrieves the List of species that can potentially exist within the
+	 * Mosaic.
 	 */
 
 	@Override
@@ -559,23 +647,27 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	}
 
 	/**
-	 * Retrieves a set of patches that are strongly connected to the provided patch
-	 * i.e. sharing an edge (in cardinal directions).
+	 * Retrieves a set of patches that are strongly connected to the provided
+	 * patch i.e. sharing an edge (in cardinal directions).
 	 * 
-	 * @param p - The patch to be examined for linkages.
+	 * @param p
+	 *            - The patch to be examined for linkages.
 	 * @return
 	 */
-	
+
 	public Set<Patch> getStrongAdjacent(Patch p) {
 		return getStrongAdjacent(p, new int[] { 0, 0, nrows - 1, ncols - 1 });
 	}
-	
+
 	/**
-	 * Retrieves a set of patches that are strongly connected to the provided patch
-	 * i.e. sharing an edge (in cardinal directions) within a bounded area.
+	 * Retrieves a set of patches that are strongly connected to the provided
+	 * patch i.e. sharing an edge (in cardinal directions) within a bounded
+	 * area.
 	 * 
-	 * @param p  - The patch to be examined for linkages.
-	 * @param bnds - the bounding coordinates (minrow,mincol,maxrow,maxcol)
+	 * @param p
+	 *            - The patch to be examined for linkages.
+	 * @param bnds
+	 *            - the bounding coordinates (minrow,mincol,maxrow,maxcol)
 	 * @return
 	 */
 
@@ -596,12 +688,12 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		}
 
 		// Bottom
-		if (row + 1 < bnds[2]) {
+		if (row + 1 <= bnds[2]) {
 			list.add(getPatch(id + ncols));
 		}
 
 		// Right
-		if (column + 1 < bnds[3]) {
+		if (column + 1 <= bnds[3]) {
 			list.add(getPatch(id + 1));
 		}
 
@@ -612,13 +704,13 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	 * Retrieves an internal core of values that are strongly connected to one
 	 * another - i.e. sharing an edge (in cardinal directions).
 	 */
-	
+
 	@Override
 	public Set<Patch> getStrongCore(Collection<Patch> patches, String species,
 			double bufferSize) {
 		return nibbleStrong(patches, species, (int) (bufferSize / cellsize));
 	}
-	
+
 	/**
 	 * Retrieves a region (Patch collection) of strongly connected Patches
 	 * associated with a given Patch.
@@ -634,12 +726,13 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	 * Retrieves a region (Patch collection) of strongly connected Patches
 	 * associated with a given Patch, bounded by an extent box.
 	 * 
-	 * @param p - the 
+	 * @param p
+	 *            - the
 	 * @param species
 	 * @param bnds
 	 * @return
 	 */
-	
+
 	public Set<Patch> getStrongRegion(Patch p, String species, int[] bnds) {
 		Set<Patch> s = new TreeSet<Patch>();
 
@@ -671,6 +764,95 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		clearVisitedPatches(clearSet);
 		return s;
 	}
+
+	/**
+	 * Retrieves infested but undetected cells (any occupied) from the
+	 * RasterMosaic as a map of keys and Patches.
+	 * 
+	 * @return - the undetected cells from the RasterMosaic as a map of keys and
+	 *         Patches.
+	 */
+
+	public Map<Integer, Patch> getUndetected() {
+		Map<Integer, Patch> undetected = new TreeMap<Integer, Patch>();
+		outer: for (Integer patch_key : patches.keySet()) {
+			Patch p = patches.get(patch_key);
+			Iterator<String> it = p.getOccupants().keySet().iterator();
+			if (p.getOccupant(it.next()).isInfested() && !p.isControlled()) {
+				undetected.put(patch_key, patches.get(patch_key));
+				continue outer;
+			}
+		}
+		return undetected;
+	}
+
+	/**
+	 * Retrieves infested but undetected cells (occupancy type specified by key)
+	 * from the RasterMosaic as a map of keys and Patches.
+	 * 
+	 * @return - the undetected cells from the RasterMosaic as a map of keys and
+	 *         Patches.
+	 */
+
+	public Map<Integer, Patch> getUndetected(String species) {
+		Map<Integer, Patch> undetected = new TreeMap<Integer, Patch>();
+		for (Integer patch_key : patches.keySet()) {
+			Patch p = patches.get(patch_key);
+			if (p.hasOccupant(species) && p.getOccupant(species).isInfested()
+					&& !p.getOccupant(species).isControlled()) {
+				undetected.put(patch_key, patches.get(patch_key));
+			}
+		}
+		return undetected;
+	}
+
+	/**
+	 * Retrieves uninfested cells (any occupied) from the RasterMosaic as a map
+	 * of keys and Patches.
+	 * 
+	 * @return - the undetected cells from the RasterMosaic as a map of keys and
+	 *         Patches.
+	 */
+
+	public Map<Integer, Patch> getUninfested() {
+		Map<Integer, Patch> uninfested = new TreeMap<Integer, Patch>();
+		outer: for (Integer patch_key : patches.keySet()) {
+			Patch p = patches.get(patch_key);
+			Iterator<String> it = p.getOccupants().keySet().iterator();
+			if (!p.getOccupant(it.next()).isInfested()) {
+				uninfested.put(patch_key, patches.get(patch_key));
+				continue outer;
+			}
+		}
+		return uninfested;
+	}
+
+	/**
+	 * Retrieves infested but undetected cells (occupancy type specified by key)
+	 * from the RasterMosaic as a map of keys and Patches.
+	 * 
+	 * @return - the undetected cells from the RasterMosaic as a map of keys and
+	 *         Patches.
+	 */
+
+	public Map<Integer, Patch> getUninfested(String species) {
+		Map<Integer, Patch> uninfested = new TreeMap<Integer, Patch>();
+		for (Integer patch_key : patches.keySet()) {
+			Patch p = patches.get(patch_key);
+			if (p.hasOccupant(species) && p.getOccupant(species).isInfested()) {
+				uninfested.put(patch_key, patches.get(patch_key));
+			}
+		}
+		return uninfested;
+	}
+
+	/**
+	 * Retrieves cells adjacent to the designated patch including diagonals
+	 * 
+	 * @param p
+	 * @return
+	 */
+
 
 	public Set<Patch> getWeakAdjacent(Patch p) {
 		return getWeakAdjacent(p, new int[] { 0, 0, nrows - 1, ncols - 1 });
@@ -735,7 +917,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	 * Retrieves an internal core of values that are weakly connected to one
 	 * another - i.e. sharing a point intersection (diagonal links allowed).
 	 */
-	
+
 	@Override
 	public Set<Patch> getWeakCore(Collection<Patch> patches, String species,
 			double bufferSize) {
@@ -746,7 +928,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	 * Retrieves a region (Patch collection) of strongly connected Patches
 	 * associated with a given Patch.
 	 */
-	
+
 	@Override
 	public Set<Patch> getWeakRegion(Patch p, String species) {
 		Set<Patch> s = new TreeSet<Patch>();
@@ -779,13 +961,15 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		clearVisitedPatches(clearSet);
 		return s;
 	}
-	
+
 	/**
 	 * Retrieves a region (Patch collection) of strongly connected Patches
 	 * associated with a given Patch, bounded by an extent box.
+	 * 
 	 * @param p
 	 * @param species
-	 * @param bnds -the extent box (mincol,minrow,maxcol,maxrow)
+	 * @param bnds
+	 *            -the extent box (mincol,minrow,maxcol,maxrow)
 	 * @return
 	 */
 
@@ -847,13 +1031,29 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 			Patch patch = patches.get(key);
 
+			// If the patch has No Data, continue
+
 			if (patch.hasNoData()) {
 				continue;
 			}
 
-			if (Uniform.staticNextDouble() < patch.getOccupant(species)
-					.getHabitatSuitability()
-					&& !patch.getOccupant(species).isInfested()) {
+			// If the patch is under control, continue (cannot receive
+			// propagules). We handle here as opposed to during the
+			// dispersal process because otherwise we'd need to assume
+			// a raster framework there to do the intersections rather
+			// than working with dispersal coordinates.
+
+			Occupant o = patch.getOccupant(species);
+
+			if (o.hasControl(ControlType.GROUND_CONTROL)
+					|| (o.hasControl(ControlType.CONTAINMENT) && !o
+							.hasControl(ControlType.CONTAINMENT_CORE))) {
+				continue;
+			}
+
+			if (!patch.getOccupant(species).isInfested()
+					&& Uniform.staticNextDouble() < patch.getOccupant(species)
+							.getHabitatSuitability()) {
 				patch.getOccupant(species).setInfested(true);
 				patch.getOccupant(species).setAgeOfInfestation(0);
 			}
@@ -884,8 +1084,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 				if (inner.hasNoData()) {
 					continue;
 				}
-				if (p.getOccupant(species).isInfested() != inner.getOccupant(
-						species).isInfested()) {
+				if (!region.containsAll(adjacent)) {
 					output.remove(p);
 					continue outer;
 				}
@@ -895,14 +1094,16 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	}
 
 	/**
-	 * Eliminates strongly-connected (sharing an edge in cardinal directions) exterior 
-	 * cells from a region (Collection of Patches)
+	 * Eliminates strongly-connected (sharing an edge in cardinal directions)
+	 * exterior cells from a region (Collection of Patches)
+	 * 
 	 * @param region
 	 * @param species
-	 * @param depth - the depth to which exterior cells should be removed.
+	 * @param depth
+	 *            - the depth to which exterior cells should be removed.
 	 * @return
 	 */
-	
+
 	public Set<Patch> nibbleStrong(Collection<Patch> region, String species,
 			int depth) {
 
@@ -928,10 +1129,11 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		}
 		return output;
 	}
-	
+
 	/**
-	 * Eliminates strongly-connected (sharing an edge in cardinal directions) exterior 
-	 * cells from a region (Collection of Patches)
+	 * Eliminates strongly-connected (sharing an edge in cardinal directions)
+	 * exterior cells from a region (Collection of Patches)
+	 * 
 	 * @param region
 	 * @param edgeCells
 	 * @param species
@@ -956,11 +1158,12 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			}
 		}
 		return output;
-	} 
-	
+	}
+
 	/**
-	 * Eliminates weakly-connected (point-touching - diagonal connection) exterior 
-	 * cells from a region (Collection of Patches)
+	 * Eliminates weakly-connected (point-touching - diagonal connection)
+	 * exterior cells from a region (Collection of Patches)
+	 * 
 	 * @param region
 	 * @param species
 	 * @return
@@ -986,16 +1189,16 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		return output;
 	}
 
-	
 	/**
-	 * Eliminates weakly-connected (point-touching - diagonal connection) exterior 
-	 * cells from a region (Collection of Patches)
+	 * Eliminates weakly-connected (point-touching - diagonal connection)
+	 * exterior cells from a region (Collection of Patches)
+	 * 
 	 * @param region
 	 * @param species
 	 * @param depth
 	 * @return
 	 */
-	
+
 	public Set<Patch> nibbleWeak(Collection<Patch> region, String species,
 			int depth) {
 		Set<Patch> output = new TreeSet<Patch>(region);
@@ -1009,9 +1212,10 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	}
 
 	/**
-	 * Removes a ControlType associated with a given species from a Collection of Patches.
+	 * Removes a ControlType associated with a given species from a Collection
+	 * of Patches.
 	 */
-	
+
 	@Override
 	public void removeControl(Collection<Patch> patches, String species,
 			ControlType control) {
@@ -1021,13 +1225,14 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	}
 
 	/**
-	 * Searches for Patches infested by a given species type linked to
-	 * the given Patch.
+	 * Searches for Patches infested by a given species type linked to the given
+	 * Patch.
+	 * 
 	 * @param p
 	 * @param species
 	 * @return
 	 */
-	
+
 	public Set<Patch> searchInfestation(Patch p, String species) {
 		Set<Patch> s = new TreeSet<Patch>();
 
@@ -1062,12 +1267,14 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	}
 
 	/**
-	 * Sets the map paths indicating the ages of infestation associated with given species.
+	 * Sets the map paths indicating the ages of infestation associated with
+	 * given species.
+	 * 
 	 * @param species
 	 * @param ageMapPath
 	 * @throws IOException
 	 */
-	
+
 	public void setAgeMap(Collection<String> species, String ageMapPath)
 			throws IOException {
 		Iterator<String> it = species.iterator();
@@ -1135,16 +1342,17 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Set the cell size of the mosaic.
+	 * 
 	 * @param cellsize
 	 */
 
 	public void setCellsize(double cellsize) {
 		this.cellsize = cellsize;
 	}
-	
+
 	/**
 	 * Applies a ControlType to species occupying a Collection of Patches.
 	 */
@@ -1298,12 +1506,14 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	}
 
 	/**
-	 * Sets the map paths indicating the management types associated with given species.
+	 * Sets the map paths indicating the management types associated with given
+	 * species.
+	 * 
 	 * @param species
 	 * @param managementMapPath
 	 * @throws IOException
 	 */
-	
+
 	@Override
 	public void setManagementMap(String managementMapPath, String species)
 			throws IOException {
@@ -1444,7 +1654,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	/**
 	 * Sets the monitoring status of a Collection of Patches.
 	 */
-	
+
 	@Override
 	public void setMonitored(Collection<Patch> patches, boolean isMonitored) {
 		for (Patch p : patches) {
@@ -1635,7 +1845,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	/**
 	 * Updates the list of species used by the Mosaic.
 	 */
-	
+
 	public void updateSpeciesList() {
 		Set<String> speciesList = new TreeSet<String>();
 		for (int key : patches.keySet()) {

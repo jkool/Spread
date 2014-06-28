@@ -34,6 +34,7 @@ import spread.impl.process.Process_GroundControl;
 import spread.impl.process.Process_Growth;
 import spread.impl.process.Process_Infestation;
 import spread.impl.process.Process_Monitor;
+import spread.impl.random.RandomGenerator_Determined;
 import spread.impl.random.RandomGenerator_Exponential;
 import spread.impl.random.RandomGenerator_Kernel;
 import spread.impl.random.RandomGenerator_Poisson;
@@ -674,7 +675,7 @@ public class Spread {
 		
 		Process_Monitor pm = new Process_Monitor();
 		pm.setContainmentCutoff(Double.parseDouble(properties.getProperty("Containment_Cutoff","500000")));
-		pm.setCoreBufferSize(Double.parseDouble(properties.getProperty("Containment_Cutoff","750")));
+		pm.setCoreBufferSize(Double.parseDouble(properties.getProperty("Core_Buffer_Size","750")));
 		pm.setCheckFrequency(mgt_frq);
 		List<double[]> p_discovery = parseMultiNumericArray(properties.getProperty("p_Detection"));
 		Map<String, double[]> detectionMap = new TreeMap<String,double[]>();
@@ -752,12 +753,12 @@ public class Spread {
 		pcst.setGroundControlCosts(gc_CostMap);
 		pcst.setGroundControlLabour(gc_LabourMap);
 				
+		processes.add(pm);
 		processes.add(pgc);
 		processes.add(pcc);
 		processes.add(pcst);
 		processes.add(pg);
 		processes.add(pd);
-		processes.add(pm);
 		
 		// Adding infestation step
 		

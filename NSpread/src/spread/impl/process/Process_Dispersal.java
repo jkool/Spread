@@ -11,7 +11,6 @@ import spread.Occupant;
 import spread.Patch;
 import spread.Process;
 
-
 /**
  * Performs operations on a Mosaic pertaining to dispersing propagules. Chiefly,
  * calls the disperse() method if a patch is infested.
@@ -20,7 +19,7 @@ import spread.Process;
 
 public class Process_Dispersal implements Process, Cloneable {
 
-	private Map<String,Long> waitTimes;
+	private Map<String, Long> waitTimes;
 
 	/**
 	 * Returns a clone/copy of the instance
@@ -29,10 +28,10 @@ public class Process_Dispersal implements Process, Cloneable {
 	@Override
 	public Process_Dispersal clone() {
 		Process_Dispersal pd = new Process_Dispersal();
-		Map<String,Long> c_waitTimes = new TreeMap<String,Long>();
-			for(String s:waitTimes.keySet()){
-				c_waitTimes.put(s, waitTimes.get(s));
-			}
+		Map<String, Long> c_waitTimes = new TreeMap<String, Long>();
+		for (String s : waitTimes.keySet()) {
+			c_waitTimes.put(s, waitTimes.get(s));
+		}
 		pd.setWaitTimes(waitTimes);
 		return pd;
 	}
@@ -60,7 +59,11 @@ public class Process_Dispersal implements Process, Cloneable {
 		while (it.hasNext()) {
 			String species = it.next();
 			Occupant o = patch.getOccupant(species);
-			if (o.isInfested() && o.getAgeOfInfestation() >= waitTimes.get(species) && !o.hasControl(ControlType.GROUND_CONTROL)) {
+			if (o.isInfested()
+					&& o.getAgeOfInfestation() >= waitTimes.get(species)
+					&& !o.hasControl(ControlType.GROUND_CONTROL)
+					&& !o.hasControl(ControlType.CONTAINMENT)
+					|| o.hasControl(ControlType.CONTAINMENT_CORE)){
 				o.disperse();
 			}
 		}
@@ -74,7 +77,7 @@ public class Process_Dispersal implements Process, Cloneable {
 	 *            equals).
 	 */
 
-	public void setWaitTimes(Map<String,Long> waitTimes) {
+	public void setWaitTimes(Map<String, Long> waitTimes) {
 		this.waitTimes = waitTimes;
 	}
 }

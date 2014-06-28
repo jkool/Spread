@@ -67,6 +67,8 @@ public interface Mosaic {
 	
 	public double getArea(Collection<Patch> patches);
 	
+	public Map<Integer,Patch> getControlled(String species, ControlType control);
+	
 	/**
 	 * Retrieves a region of infested patches, including all enclosed areas even if not infested.
 	 * 
@@ -98,6 +100,36 @@ public interface Mosaic {
 	
 	public int getNumberInfested(String species);
 
+	public int getNumberUndetected();
+
+	/**
+	 * Retrieves the number of infested but undetected patches in the
+	 * RasterMosaic for a given species.
+	 * 
+	 * @return - the number of infested but undetected patches in the
+	 *         RasterMosaic for a given species.
+	 */
+
+	public int getNumberUndetected(String species);
+
+	/**
+	 * Retrieves the number of uninfested patches in the RasterMosaic
+	 * 
+	 * @return - the number of uninfested patches in the RasterMosaic
+	 */
+
+	public int getNumberUninfested();
+
+	/**
+	 * Retrieves the number of uninfested patches in the RasterMosaic for a
+	 * given species.
+	 * 
+	 * @return - the number of uninfested patches in the RasterMosaic for a
+	 *         given species.
+	 */
+
+	public int getNumberUninfested(String species);
+	
 	/**
 	 * Retrieves a map of keys and Patches capable of containing species whether or not they are occupied.
 	 * @param species
@@ -160,6 +192,46 @@ public interface Mosaic {
 	 */
 	
 	public Set<Patch> getStrongRegion(Patch patch, String species);
+
+	/**
+	 * Retrieves infested but undetected cells (any occupied) from the
+	 * RasterMosaic as a map of keys and Patches.
+	 * 
+	 * @return - the undetected cells from the RasterMosaic as a map of keys and
+	 *         Patches.
+	 */
+
+	public Map<Integer, Patch> getUndetected();
+
+	/**
+	 * Retrieves infested but undetected cells (occupancy type specified by key)
+	 * from the RasterMosaic as a map of keys and Patches.
+	 * 
+	 * @return - the undetected cells from the RasterMosaic as a map of keys and
+	 *         Patches.
+	 */
+
+	public Map<Integer, Patch> getUndetected(String species);
+
+	/**
+	 * Retrieves uninfested cells (any occupied) from the RasterMosaic as a map
+	 * of keys and Patches.
+	 * 
+	 * @return - the undetected cells from the RasterMosaic as a map of keys and
+	 *         Patches.
+	 */
+
+	public Map<Integer, Patch> getUninfested();
+
+	/**
+	 * Retrieves infested but undetected cells (occupancy type specified by key)
+	 * from the RasterMosaic as a map of keys and Patches.
+	 * 
+	 * @return - the undetected cells from the RasterMosaic as a map of keys and
+	 *         Patches.
+	 */
+
+	public Map<Integer, Patch> getUninfested(String species);
 	
 	/**
 	 * Retrieves the inner buffered core of a collection of patches.  Exterior weakly-connected elements are

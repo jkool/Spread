@@ -15,6 +15,7 @@ import spread.Process;
 import spread.StatsWriter;
 
 import spread.impl.process.Process_Costing;
+import spread.util.ControlType;
 
 /**
  * Used to write Experiment-level output to output files, including number of
@@ -75,7 +76,7 @@ public class StatsWriter_Text implements StatsWriter {
 				sb.append("RunID,Time,Distance,Rate,Replicate,");
 
 				//sb.append("N_infested,K_no,K_Allocation,K_quantity,K_histo,K_standard,Chance_agreement,Quantity_agreement,Allocation_agreement, Allocation_disagreement,Quantity_disagreement");
-				sb.append("N_infested,Cost,Labour");
+				sb.append("N_infested,Empty, Undetected, Ground, Containment, Core, Containment_sum, Cost, Labour");
 				sb.append("\n");
 				bw_map.get(species).write(sb.toString());
 			}
@@ -121,6 +122,12 @@ public class StatsWriter_Text implements StatsWriter {
 			// generate statistics
 
 			sb.append(mosaic.getNumberInfested(species) + ",");
+			sb.append(mosaic.getNumberUninfested(species) + ",");
+			sb.append(mosaic.getNumberUndetected(species) + ",");
+			sb.append(mosaic.getControlled(species, ControlType.GROUND_CONTROL).size() + ",");
+			sb.append(mosaic.getControlled(species, ControlType.CONTAINMENT).size()-mosaic.getControlled(species, ControlType.CONTAINMENT_CORE).size() + ",");
+			sb.append(mosaic.getControlled(species, ControlType.CONTAINMENT_CORE).size()+",");
+			sb.append(mosaic.getControlled(species, ControlType.CONTAINMENT).size() + ",");
 			sb.append(pcst.getCost(mosaic) + ",");
 			sb.append(pcst.getLabour(mosaic) + ",");
 			sb.append("\n");
