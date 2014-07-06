@@ -34,6 +34,7 @@ public class Experiment implements Cloneable {
 	private long timeIncrement = 1;
 	private String identifier = "";
 	private boolean writeEachTimeStep = false;
+	private boolean writeEachMgtStep = false;
 	private boolean writeTraceFile = false;
 
 	/**
@@ -53,6 +54,9 @@ public class Experiment implements Cloneable {
 		ex.setMonitoredWriter(mm);// May need to consider cloning instead of
 		// passing a reference.
 		ex.setStatsWriter(sw);
+		ex.writeEachTimeStep=writeEachTimeStep;
+		ex.writeEachMgtStep=writeEachMgtStep;
+		ex.writeTraceFile=writeTraceFile;
 		return ex;
 	}
 
@@ -107,7 +111,7 @@ public class Experiment implements Cloneable {
 	 */
 
 	public int getNInfested() {
-		return mosaic.getNumberInfested();
+		return mosaic.getNumberInfestedPatches();
 	}
 
 	/**
@@ -117,7 +121,7 @@ public class Experiment implements Cloneable {
 	 */
 
 	public int getNInfested(String species) {
-		return mosaic.getNumberInfested(species);
+		return mosaic.getNumberInfestations(species);
 	}
 
 	/**
@@ -347,6 +351,13 @@ public class Experiment implements Cloneable {
 						+ nf.format(time));
 				mw.write(mosaic, species);
 			}
+			if (writeEachMgtStep) {
+				mm.setWriteHeader(mw.getWriteHeader());
+				mm.setName("monitored" + "_" + identifier + "_" + species + "_t"
+						+ nf.format(time));
+				mm.setFolder(mw.getFolder());
+				mm.write(mosaic, species);
+			}
 		}
 		
 		if(writeTraceFile){
@@ -362,6 +373,14 @@ public class Experiment implements Cloneable {
 
 	public void writeEachTimeStep(boolean writeEachTimeStep) {
 		this.writeEachTimeStep = writeEachTimeStep;
+	}
+	
+	/**
+	 * Sets whether output should be written at each time step
+	 */
+
+	public void writeEachMgtStep(boolean writeEachMgtStep) {
+		this.writeEachMgtStep = writeEachMgtStep;
 	}
 	
 	/**

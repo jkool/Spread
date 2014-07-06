@@ -10,15 +10,15 @@ import spread.util.ControlType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Represents the occupation of a Patch object by a single species.  The class 
+ * Represents the Infestation of a Patch object by a single species.  The class 
  * represents the potential for a species to inhabit the patch (i.e. it is a container).  
  * The current implementation is such that if an Occupant is in place, then it is also 
  * filled, but other implementations may operate such that it might not necessarily be.
  */
 
-public class Occupant implements Cloneable {
+public class Infestation implements Cloneable {
 
-	private String name = "";
+	private String species = "";
 	private boolean infested = false;
 	private boolean wasInfested = false;
 	private boolean visited = false;
@@ -26,7 +26,6 @@ public class Occupant implements Cloneable {
 	private long cumulativeAgeOfInfestation = 0;
 	private int stageOfInfestation = 0;
 	private int maxInfestation = -99;
-	private double habitatSuitability = 1d;
 	private Disperser disperser;
 	private List<Coordinate> propagules = new ArrayList<Coordinate>();
 	private Map<ControlType, Long> controls = new TreeMap<ControlType, Long>();
@@ -34,11 +33,11 @@ public class Occupant implements Cloneable {
 	private boolean wasControlled = false;
 	private boolean NODATA = false;
 
-	public Occupant() {
+	public Infestation() {
 	}
 
-	public Occupant(String name) {
-		this.name = name;
+	public Infestation(String name) {
+		this.species = name;
 	}
 
 	/**
@@ -56,6 +55,10 @@ public class Occupant implements Cloneable {
 				maxControl=control;
 			}
 		}
+	}
+	
+	public void clearControls(){
+		controls.clear();
 	}
 	
 	/**
@@ -81,17 +84,18 @@ public class Occupant implements Cloneable {
 	 */
 	
 	@Override
-	public Occupant clone() {
-		Occupant occ = new Occupant();
+	public Infestation clone() {
+		Infestation occ = new Infestation();
 		occ.ageOfInfestation = ageOfInfestation;
-		occ.habitatSuitability = habitatSuitability;
-		occ.disperser = disperser.clone();
+		if(disperser!=null){
+			occ.disperser = disperser.clone();
+		}
 		occ.infested = infested;
 		occ.stageOfInfestation = stageOfInfestation;
 		occ.maxInfestation = maxInfestation;
 		occ.maxControl=maxControl;
 		occ.wasControlled=wasControlled;
-		occ.name = name;
+		occ.species = species;
 		List<Coordinate> propagules_c = new ArrayList<Coordinate>();
 		for (Coordinate c : propagules) {
 			propagules_c.add((Coordinate) c.clone());
@@ -109,6 +113,9 @@ public class Occupant implements Cloneable {
 	
 	public void disperse() {
 		try {
+			if(disperser==null){
+				System.out.println("Infestation 113");
+			}
 			propagules = disperser.disperse();
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -162,15 +169,6 @@ public class Occupant implements Cloneable {
 	public Disperser getDisperser() {
 		return disperser;
 	}
-
-	/**
-	 * Returns the species-specific habitat suitability for this Occupancy.
-	 * @return
-	 */
-	
-	public double getHabitatSuitability() {
-		return habitatSuitability;
-	}
 	
 	/**
 	 * Return the maximum control level applied to this Occupant.
@@ -196,7 +194,7 @@ public class Occupant implements Cloneable {
 	 */
 	
 	public String getName() {
-		return name;
+		return species;
 	}
 
 	/**
@@ -322,15 +320,6 @@ public class Occupant implements Cloneable {
 	}
 
 	/**
-	 * Sets the habitat suitability of the Occupancy
-	 * @param habitatSuitability
-	 */
-	
-	public void setHabitatSuitability(double habitatSuitability) {
-		this.habitatSuitability = habitatSuitability;
-	}
-
-	/**
 	 * Sets whether the Occupant is present/infested.
 	 * @param infested
 	 */
@@ -349,11 +338,11 @@ public class Occupant implements Cloneable {
 	
 	/**
 	 * Sets the species name associated with the Occupant.
-	 * @param name
+	 * @param species
 	 */
 
-	public void setName(String name) {
-		this.name = name;
+	public void setSpecies(String species) {
+		this.species = species;
 	}
 
 	/**

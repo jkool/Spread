@@ -40,7 +40,7 @@ public interface Mosaic {
 	 * @param patches - The patches to be tagged
 	 */
 	
-	public void clearVisitedOccupancies(Collection<Occupant> occupancies);
+	public void clearVisitedInfestations(Collection<Infestation> infestations);
 	
 	/**
 	 * Assigns whether a collection of occupancies (within Patches) should have their visited status cleared
@@ -58,6 +58,8 @@ public interface Mosaic {
 	public Mosaic clone();
 
 	Set<Patch> fill(Collection<Patch> region, String species);
+	
+	public Map<Integer, Infestation> getActiveInfestations(String species);
 	
 	/**
 	 * Retrieves the total area covered by the set of patches
@@ -80,25 +82,37 @@ public interface Mosaic {
 	public Set<Patch> getFilledRegion(Patch patch, String species);
 	
 	/**
+	 * Retrieves a map of keys and Infestations which may or may not be currently occupied.
+	 * @param species
+	 * @return
+	 */
+	
+	public Map<Integer,Infestation>getInfestations(String species);
+	
+	/**
 	 * Retrieves the infested Patches within the Mosaic
 	 * @return a Map of Patch keys and infested Patches within the Mosaic
 	 */
 	
-	public Map<Integer, Patch> getInfested();
+	public Map<Integer, Patch> getInfestedPatches();
+	
+	public int getNumberActiveInfestations(String species);
 	
 	/**
 	 * Retrieves the number of infested Patches within the Mosaic
 	 * @return - the number of infested Patches within the Mosaic
 	 */
 	
-	public int getNumberInfested();
-	
+	public int getNumberInfestations(String species);
+
 	/**
 	 * Retrieves the number of infested Patches within the Mosaic
 	 * @return - the number of infested Patches within the Mosaic
 	 */
 	
-	public int getNumberInfested(String species);
+	public int getNumberInfestedPatches();
+
+	public int getNumberNoData();
 
 	public int getNumberUndetected();
 
@@ -111,7 +125,7 @@ public interface Mosaic {
 	 */
 
 	public int getNumberUndetected(String species);
-
+	
 	/**
 	 * Retrieves the number of uninfested patches in the RasterMosaic
 	 * 
@@ -119,7 +133,7 @@ public interface Mosaic {
 	 */
 
 	public int getNumberUninfested();
-
+	
 	/**
 	 * Retrieves the number of uninfested patches in the RasterMosaic for a
 	 * given species.
@@ -129,23 +143,6 @@ public interface Mosaic {
 	 */
 
 	public int getNumberUninfested(String species);
-	
-	/**
-	 * Retrieves a map of keys and Patches capable of containing species whether or not they are occupied.
-	 * @param species
-	 * @return
-	 */
-	
-	public Map<Integer,Occupant>getOccupants(String species);
-	
-	/**
-	 * Retrieves a map of keys corresponding to Patches occupied by the given species
-	 * 
-	 * @param species
-	 * @return
-	 */
-	
-	public Map<Integer, Occupant>getOccupied(String species);
 	
 	/**
 	 * Retrieves a single Patch object using its key.
@@ -266,11 +263,20 @@ public interface Mosaic {
 	/**
 	 * Removes a control associated with a given species from the Collection of patches.
 	 * @param patches - the Collection of Patches to be processed
+	 * @param control - the control type to be removed
+	 */
+
+	
+	public void removeControl(Collection<Patch> patches, ControlType control);
+	
+	/**
+	 * Removes a control associated with a given species from the Collection of patches.
+	 * @param patches - the Collection of Patches to be processed
 	 * @param species - the species associated with the control
 	 * @param control - the control type to be removed
 	 */
 	
-	public void removeControl(Collection<Patch> patches, String species, ControlType control);
+	public void removeControl(Collection<Patch> patches, ControlType control, String species);
 	
 	/**
 	 * Sets the age information using a path.
@@ -283,11 +289,21 @@ public interface Mosaic {
 	 * specified form of control.
 	 * 
 	 * @param patches - The patches to be controlled
+	 * @param control - The control label to apply to the occupancies.
 	 * @param species - The species to be controlled
+	 */
+
+	public void setControl(Collection<Patch> patches, ControlType control, String species);
+	
+	/**
+	 * Sets occupancies (specified by species) within a collection of patches to be under a
+	 * specified form of control.
+	 * 
+	 * @param patches - The patches to be controlled
 	 * @param control - The control label to apply to the occupancies.
 	 */
 
-	public void setControl(Collection<Patch> patches, String species, ControlType control);
+	public void setControl(Collection<Patch> patches, ControlType control);
 	
 	/**
 	 * Sets a copy of the provided Disperser to all patches in the RasterMosaic.

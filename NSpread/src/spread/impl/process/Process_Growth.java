@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import spread.Mosaic;
-import spread.Occupant;
+import spread.Infestation;
 import spread.Patch;
 import spread.Process;
 
@@ -63,7 +63,7 @@ public class Process_Growth implements Process, Cloneable {
 
 	private void process(Patch patch) {
 
-		Iterator<String> it = patch.getOccupants().keySet().iterator();
+		Iterator<String> it = patch.getInfestation().keySet().iterator();
 		while (it.hasNext()) {
 
 			String species = it.next();
@@ -71,7 +71,7 @@ public class Process_Growth implements Process, Cloneable {
 			long[] th = Arrays.copyOf(thresholds.get(species),
 					thresholds.get(species).length + 1);
 			th[th.length - 1] = Long.MAX_VALUE;
-			Occupant o = patch.getOccupant(species);
+			Infestation o = patch.getInfestation(species);
 
 			o.incrementInfestationTime(timeIncrement);
 
@@ -122,4 +122,10 @@ public class Process_Growth implements Process, Cloneable {
 	public void setTimeIncrement(long timeIncrement) {
 		this.timeIncrement = timeIncrement;
 	}
+	
+	/**
+	 * Resets the process
+	 */
+	
+	public void reset(){}
 }

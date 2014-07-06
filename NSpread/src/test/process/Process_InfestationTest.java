@@ -53,6 +53,7 @@ public class Process_InfestationTest {
 
 		try {
 			rm.setPresenceMap("./resource files/test.txt",species);
+			rm.setHabitatMap("ALL", species);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -60,15 +61,15 @@ public class Process_InfestationTest {
 		rm.setDisperser(species, d2);
 		Map<Integer, Patch> cells = rm.getPatches();
 
-		assertFalse(cells.get(1).getOccupant(species).isInfested());
-		assertFalse(cells.get(22).getOccupant(species).isInfested());
-		assertFalse(cells.get(43).getOccupant(species).isInfested());
+		assertFalse(cells.get(1).isInfestedBy(species));
+		assertFalse(cells.get(22).isInfestedBy(species));
+		assertFalse(cells.get(43).isInfestedBy(species));
 
 		pd.process(rm);
 		pi.process(rm);
 
-		assertFalse(cells.get(1).getOccupant(species).isInfested());
-		assertTrue(cells.get(22).getOccupant(species).isInfested());
-		assertTrue(cells.get(43).getOccupant(species).isInfested());
+		assertFalse(cells.get(1).isInfestedBy(species));
+		assertTrue(cells.get(22).isInfestedBy(species));
+		assertTrue(cells.get(43).isInfestedBy(species));
 	}
 }

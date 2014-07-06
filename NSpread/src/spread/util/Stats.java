@@ -3,7 +3,7 @@ package spread.util;
 import java.util.Iterator;
 import java.util.Map;
 
-import spread.Occupant;
+import spread.Infestation;
 
 
 public class Stats {
@@ -78,8 +78,8 @@ public class Stats {
 	 * @return
 	 */
 
-	public int[][] makeConfusionMatrix(Map<Integer, Occupant> reference,
-			Map<Integer, Occupant> comparison) {
+	public int[][] makeConfusionMatrix(Map<Integer, Infestation> reference,
+			Map<Integer, Infestation> comparison) {
 		if (reference == null) {
 			throw new IllegalArgumentException("Reference patches are null");
 		}

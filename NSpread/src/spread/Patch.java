@@ -1,9 +1,14 @@
 package spread;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
+import spread.util.ControlType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -24,17 +29,52 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	private boolean monitored = false;
 	private boolean wasMonitored = false;
 	private Geometry geom;
-	private Map<String, Occupant> occupants = new TreeMap<String, Occupant>();
+	private Map<String, Double> habitatSuitabilities = new TreeMap<String, Double>();
+	private Map<String, Infestation> infestations = new TreeMap<String, Infestation>();
+	private Set<ControlType> controls = new TreeSet<ControlType>();
 
 	private boolean nodata = false;
 
+	public void addControl(ControlType control){
+		controls.add(control);
+	}
+	
+	public void clearControls(){
+		controls.clear();
+		for(String s:infestations.keySet()){
+			infestations.get(s).clearControls();
+		}
+	}
+	
+	public boolean hasControl(ControlType control){
+		return controls.contains(control);
+	}
+	
+	public boolean hasControl(ControlType control, String species){
+		return infestations.containsKey(species) && infestations.get(species).hasControl(control);
+	}
+	
+	public void removeControl(ControlType control){
+		controls.remove(control);
+	}
+	
+	public Set<String> getControlled(ControlType control){
+		Set<String> controlled = new TreeSet<String>();
+		for(String occupant:infestations.keySet()){
+			if(infestations.get(occupant).hasControl(control)){
+				controlled.add(occupant);
+			}
+		}
+		return controlled;
+	}
+	
 	/**
 	 * Adds an Occupant to the Patch
 	 * @param occupant
 	 */
 	
-	public void addOccupant(Occupant occupant) {
-		occupants.put(occupant.getName(), occupant);
+	public void addInfestation(Infestation infestation) {
+		infestations.put(infestation.getName(), infestation);
 	}
 
 	/**
@@ -44,9 +84,9 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 	
 	public void addOccupant(String species) {
-		Occupant occupant = new Occupant();
-		occupant.setName(species);
-		occupants.put(species, occupant);
+		Infestation infestation = new Infestation();
+		infestation.setSpecies(species);
+		infestations.put(species, infestation);
 	}
 	
 	/**
@@ -55,7 +95,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 
 	public void clearInfestation(String species) {
-		occupants.get(species).clearInfestation();
+		infestations.get(species).clearInfestation();
 	}
 
 	/**
@@ -69,12 +109,17 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		patch.nodata = nodata;
 		patch.visited = visited;
 		patch.monitored = monitored;
-		patch.id = id;
-		Map<String, Occupant> ocopy = new TreeMap<String, Occupant>();
-		for (String o : occupants.keySet()) {
-			ocopy.put(o, occupants.get(o).clone());
+		Map<String,Double> hscopy = new TreeMap<String,Double>();
+		for (String s:habitatSuitabilities.keySet()){
+			hscopy.put(s, habitatSuitabilities.get(s));
 		}
-		patch.occupants = ocopy;
+		patch.habitatSuitabilities=hscopy;
+		patch.id = id;
+		Map<String, Infestation> ocopy = new TreeMap<String, Infestation>();
+		for (String o : infestations.keySet()) {
+			ocopy.put(o, infestations.get(o).clone());
+		}
+		patch.infestations = ocopy;
 
 		return patch;
 	}
@@ -112,15 +157,35 @@ public class Patch implements Cloneable, Comparable<Patch> {
 
 	public Map<String, Long> getAgesOfInfestation() {
 		Map<String, Long> agesOfInfestation = new TreeMap<String, Long>();
-		Iterator<String> it = occupants.keySet().iterator();
+		Iterator<String> it = infestations.keySet().iterator();
 		while (it.hasNext()) {
 			String key = it.next();
 			agesOfInfestation
-					.put(key, occupants.get(key).getAgeOfInfestation());
+					.put(key, infestations.get(key).getAgeOfInfestation());
 		}
 		return agesOfInfestation;
 	}
+	
+	/**
+	 * Returns the length of time occupying species have infested this Patch
+	 * @return
+	 */
 
+	public long getAgeOfInfestation(String species) {
+		if(infestations.containsKey(species)){
+			return infestations.get(species).getAgeOfInfestation();
+		}
+		return 0l;
+	}
+
+	public Set<ControlType> getControls(String species){
+		Set<ControlType> controls = new TreeSet<ControlType>();
+			if(infestations.containsKey(species)){
+				controls.addAll(infestations.get(species).getControls().keySet());
+			}
+		return controls;
+	}
+	
 	/**
 	 * Returns the cumulative length of time occupying species have infested this Patch,
 	 * e.g. the species may have been eliminated and re-infested.
@@ -129,10 +194,10 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	
 	public Map<String, Long> getCumulativeAgesOfInfestation() {
 		Map<String, Long> cumulativeAgesOfInfestation = new TreeMap<String, Long>();
-		Iterator<String> it = occupants.keySet().iterator();
+		Iterator<String> it = infestations.keySet().iterator();
 		while (it.hasNext()) {
 			String key = it.next();
-			cumulativeAgesOfInfestation.put(key, occupants.get(key)
+			cumulativeAgesOfInfestation.put(key, infestations.get(key)
 					.getCumulativeAgeOfInfestation());
 		}
 		return cumulativeAgesOfInfestation;
@@ -146,10 +211,10 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	
 	public Map<String, Disperser> getDispersers() {
 		Map<String, Disperser> dispersers = new TreeMap<String, Disperser>();
-		Iterator<String> it = occupants.keySet().iterator();
+		Iterator<String> it = infestations.keySet().iterator();
 		while (it.hasNext()) {
 			String key = it.next();
-			dispersers.put(key, occupants.get(key).getDisperser());
+			dispersers.put(key, infestations.get(key).getDisperser());
 		}
 		return dispersers;
 	}
@@ -169,13 +234,16 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 	
 	public Map<String, Double> getHabitatSuitabilities() {
-		Map<String, Double> suitabilities = new TreeMap<String, Double>();
-		Iterator<String> it = occupants.keySet().iterator();
-		while (it.hasNext()) {
-			String key = it.next();
-			suitabilities.put(key, occupants.get(key).getHabitatSuitability());
-		}
-		return suitabilities;
+		return habitatSuitabilities;
+	}
+	
+	/**
+	 * Retrieves the suitability of the Patch associated with species types.
+	 * @return
+	 */
+	
+	public double getHabitatSuitability(String species) {
+		return habitatSuitabilities.get(species);
 	}
 	
 	/**
@@ -192,12 +260,12 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 * @return
 	 */
 	
-	public Map<String, Integer> getMaxInfestation() {
+	public Map<String, Integer> getMaxInfestations() {
 		Map<String, Integer> maxInfestations = new TreeMap<String, Integer>();
-		Iterator<String> it = occupants.keySet().iterator();
+		Iterator<String> it = infestations.keySet().iterator();
 		while (it.hasNext()) {
 			String key = it.next();
-			maxInfestations.put(key, occupants.get(key).getMaxInfestation());
+			maxInfestations.put(key, infestations.get(key).getMaxInfestation());
 		}
 		return maxInfestations;
 	}
@@ -208,8 +276,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 * @return
 	 */
 	
-	public Occupant getOccupant(String species) {
-		return occupants.get(species);
+	public Infestation getInfestation(String species) {
+		return infestations.get(species);
 	}
 	
 	/**
@@ -217,23 +285,16 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 * @return
 	 */
 
-	public Map<String, Occupant> getOccupants() {
-		return occupants;
+	public Map<String, Infestation> getInfestation() {
+		return infestations;
 	}
-
-	/**
-	 * Gets a list of propagules associated with particular species.  Note, these are
-	 * the equivalent of seeds that have reached their destination
-	 * @return
-	 */
-	public Map<String, List<Coordinate>> getPropagules() {
-		Map<String, List<Coordinate>> propaguleCollection = new TreeMap<String, List<Coordinate>>();
-		Iterator<String> it = occupants.keySet().iterator();
-		while (it.hasNext()) {
-			String key = it.next();
-			propaguleCollection.put(key, occupants.get(key).getPropagules());
+	
+	public List<Coordinate> getPropagules(String species){
+		List<Coordinate> propagules = new ArrayList<Coordinate>();
+		if(infestations.containsKey(species)){
+			propagules.addAll(infestations.get(species).getPropagules());
 		}
-		return propaguleCollection;
+		return propagules;
 	}
 
 	/**
@@ -244,10 +305,10 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	public Map<String, Integer> getStagesOfInfestation() {
 		
 		Map<String, Integer> stages = new TreeMap<String, Integer>();
-		Iterator<String> it = occupants.keySet().iterator();
+		Iterator<String> it = infestations.keySet().iterator();
 		while (it.hasNext()) {
 			String key = it.next();
-			stages.put(key, occupants.get(key).getStageOfInfestation());
+			stages.put(key, infestations.get(key).getStageOfInfestation());
 		}
 		return stages;
 	}
@@ -260,16 +321,6 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	public boolean hasNoData() {
 		return nodata;
 	}
-
-	/**
-	 * Indicates whether the patch has the given species as an Occupant
-	 * @param species
-	 * @return
-	 */
-	
-	public boolean hasOccupant(String species) {
-		return occupants.containsKey(species);
-	}
 	
 	/**
 	 * Increments all infestations by the given time increment
@@ -277,9 +328,9 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 	
 	public void incrementInfestationTime(long increment) {
-		Iterator<String> it = occupants.keySet().iterator();
+		Iterator<String> it = infestations.keySet().iterator();
 		while (it.hasNext()) {
-			occupants.get(it.next()).incrementInfestationTime(increment);
+			infestations.get(it.next()).incrementInfestationTime(increment);
 		}
 	}
 	
@@ -289,23 +340,12 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 	
 	public boolean isControlled(){
-		for(Occupant o:occupants.values()){
+		for(Infestation o:infestations.values()){
 			if (o.isControlled()){
 				return true;
 			}
 		}
 		return false;
-	}
-	
-	/**
-	 * Indicates whether the Patch is infested by a given species type.
-	 * @param species
-	 * @return
-	 */
-	
-	public boolean isInfestedBy(String species){
-		Occupant o = occupants.get(species);
-		return o.isInfested();
 	}
 	
 	/**
@@ -316,6 +356,16 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	
 	public boolean isMonitored() {
 		return monitored;
+	}
+
+	/**
+	 * Indicates whether the patch has the given species as an Occupant
+	 * @param species
+	 * @return
+	 */
+	
+	public boolean isInfestedBy(String species) {
+		return infestations.containsKey(species) && infestations.get(species).isInfested();
 	}
 	
 	/**
@@ -329,12 +379,27 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
+	 * Retrieves a list of species currently occupying the patch
+	 * @return
+	 */
+	
+	public Set<String> getCurrentOccupants(){
+		Set<String> occupants = new TreeSet<String>();
+		for(String occupant:infestations.keySet()){
+			if(infestations.get(occupant).isInfested()){
+				occupants.add(occupant);
+			}
+		}
+		return occupants;
+	}
+	
+	/**
 	 * Removes a given Occupant from the Patch.
 	 * @param key
 	 */
 
 	public void removeOccupant(String key) {
-		occupants.remove(key);
+		infestations.remove(key);
 	}
 
 	/**
@@ -344,7 +409,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 	
 	public void setAgeOfInfestation(String species, long ageOfInfestation) {
-		occupants.get(species).setAgeOfInfestation(ageOfInfestation);
+		infestations.get(species).setAgeOfInfestation(ageOfInfestation);
 	}
 
 	/**
@@ -354,7 +419,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 	
 	public void setDisperser(String species, Disperser disperser) {
-		occupants.get(species).setDisperser(disperser);
+		infestations.get(species).setDisperser(disperser);
 	}
 	
 	/**
@@ -373,7 +438,17 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 	
 	public void setHabitatSuitability(String species, double habitatSuitability) {
-		occupants.get(species).setHabitatSuitability(habitatSuitability);
+		habitatSuitabilities.put(species, habitatSuitability);
+	}
+	
+	/**
+	 * Sets the habitat suitability of the Patch associated with a given species.
+	 * @param species
+	 * @param habitatSuitability
+	 */
+	
+	public void setHabitatSuitabilities(Map<String,Double> habitatSuitabilities) {
+		this.habitatSuitabilities=habitatSuitabilities;
 	}
 	
 	/**
@@ -386,13 +461,13 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Sets the infestation state of the Patch by a given species (assumes the Patch is already Occupied)
+	 * Sets the infestation state of the Patch by a given species (assumes the Patch is already Infested)
 	 * @param species
 	 * @param infested
 	 */
 
 	public void setInfested(String species, boolean infested) {
-		occupants.get(species).setInfested(infested);
+		infestations.get(species).setInfested(infested);
 	}
 	
 	/**
@@ -404,6 +479,14 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		this.monitored = monitored;
 		if(monitored){wasMonitored=true;}
 	}
+	
+	public void clear(){
+		infestations = new TreeMap<String, Infestation>();
+		controls=new TreeSet<ControlType>();
+		visited = false;
+		monitored = false;
+		wasMonitored = false;
+	}
 
 	/**
 	 * Sets whether this is a 'NoData' Patch.
@@ -412,6 +495,9 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	
 	public void setNoData(boolean nodata) {
 		this.nodata = nodata;
+		if(nodata){
+			clear();
+		}
 	}
 	
 	/**
@@ -423,7 +509,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 
 	public void setPropagules(String species, List<Coordinate> propagules) {
-		occupants.get(species).setPropagules(propagules);
+		infestations.get(species).setPropagules(propagules);
 	}
 
 	/**
@@ -433,7 +519,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 	
 	public void setStageOfInfestation(String species, int stageOfInfestation) {
-		occupants.get(species).setStageOfInfestation(stageOfInfestation);
+		infestations.get(species).setStageOfInfestation(stageOfInfestation);
 	}
 	
 	/**
@@ -461,7 +547,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 
 	public boolean wasControlled(){
-		for(Occupant o:occupants.values()){
+		for(Infestation o:infestations.values()){
 			if (o.wasControlled()){
 				return true;
 			}
@@ -476,8 +562,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 	
 	public boolean wasInfestedBy(String species){
-		Occupant o = occupants.get(species);
-		return o.wasInfested();
+		return infestations.containsKey(species);
 	}
 	
 	/**

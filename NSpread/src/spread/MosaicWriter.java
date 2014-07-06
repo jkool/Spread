@@ -8,6 +8,8 @@ package spread;
 
 public interface MosaicWriter {
 
+	public boolean getWriteHeader();
+	
 	/**
 	 * Sets the path of the output file. The name of the file is set separately
 	 * by setName
@@ -35,4 +37,6 @@ public interface MosaicWriter {
 	 */
 
 	public void write(Mosaic mosaic, String species);
+	
+	public String getFolder();
 }

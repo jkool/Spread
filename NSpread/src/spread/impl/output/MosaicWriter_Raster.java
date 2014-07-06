@@ -69,9 +69,13 @@ public class MosaicWriter_Raster implements MosaicWriter {
 
 	protected double getVal(RasterMosaic rm, int key, String species){
 		if(rm.getPatches().get(key).hasNoData()){return nodata;}
-		else{return rm.getPatches().get(key).getOccupant(species).isInfested() ? 1 : 0;}
+		else{return rm.getPatches().get(key).isInfestedBy(species) ? 1 : 0;}
 	}
 
+	public String getFolder(){
+		return path;
+	}
+	
 	/**
 	 * Sets the path of the output file. The name of the file is set separately
 	 * by setName
@@ -100,6 +104,10 @@ public class MosaicWriter_Raster implements MosaicWriter {
 	@Override
 	public void setWriteHeader(boolean writeHeader) {
 		this.writeHeader = writeHeader;
+	}
+	
+	public boolean getWriteHeader(){
+		return writeHeader;
 	}
 	
 }

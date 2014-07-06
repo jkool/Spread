@@ -85,6 +85,7 @@ public class RasterMosaicTest {
 		re.clear();
 		try {
 			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setHabitatMap("ALL", species);
 			Set<Patch> region = re.getWeakRegion(re.getPatch(7),species);
 			Set<Patch> filledRegion = re.fill(region,species);
 			Set<Integer> keys = re.getKeys(filledRegion);
@@ -135,6 +136,7 @@ public class RasterMosaicTest {
 		
 		try {
 			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setHabitatMap("ALL", species);
 			Set<Patch> cells = re.getStrongRegion(re.getPatch(27),species);
 			Set<Integer> keys = re.getKeys(cells);
 			Set<Integer> expected = new TreeSet<Integer>();
@@ -237,11 +239,11 @@ public class RasterMosaicTest {
 			re.infest(species, test_propagules);
 
 			// Ensure cells are not infested
-			assertFalse(re.getPatches().get(0).getOccupant(species).isInfested());
-			assertFalse(re.getPatches().get(20).getOccupant(species).isInfested());
-			assertFalse(re.getPatches().get(42).getOccupant(species).isInfested());
-			assertFalse(re.getPatches().get(64).getOccupant(species).isInfested());
-			assertFalse(re.getPatches().get(127).getOccupant(species).isInfested());
+			assertFalse(re.getPatches().get(0).isInfestedBy(species));
+			assertFalse(re.getPatches().get(20).isInfestedBy(species));
+			assertFalse(re.getPatches().get(42).isInfestedBy(species));
+			assertFalse(re.getPatches().get(64).isInfestedBy(species));
+			assertFalse(re.getPatches().get(127).isInfestedBy(species));
 			
 			re.setHabitatMap("ALL",species);
 			
@@ -249,11 +251,11 @@ public class RasterMosaicTest {
 			re.infest(species,test_propagules);
 
 			// Ensure cells are now infested
-			assertTrue(re.getPatches().get(0).getOccupant(species).isInfested());
-			assertTrue(re.getPatches().get(21).getOccupant(species).isInfested());
-			assertTrue(re.getPatches().get(42).getOccupant(species).isInfested());
-			assertTrue(re.getPatches().get(64).getOccupant(species).isInfested());
-			assertTrue(re.getPatches().get(127).getOccupant(species).isInfested());
+			assertTrue(re.getPatches().get(0).isInfestedBy(species));
+			assertTrue(re.getPatches().get(21).isInfestedBy(species));
+			assertTrue(re.getPatches().get(42).isInfestedBy(species));
+			assertTrue(re.getPatches().get(64).isInfestedBy(species));
+			assertTrue(re.getPatches().get(127).isInfestedBy(species));
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -271,6 +273,7 @@ public class RasterMosaicTest {
 
 			// Set the environment such that no cells are infested
 			re.setPresenceMap("NONE",species);
+			re.setHabitatMap("ALL", species);
 
 			// Generate a List of propagules - note, these are coordinates, NOT
 			// indices i.e. y is flipped.
@@ -282,21 +285,21 @@ public class RasterMosaicTest {
 			test_propagules.add(new Coordinate(7, 3));
 
 			// Ensure cells are not infested
-			assertFalse(re.getPatches().get(0).getOccupant(species).isInfested());
-			assertFalse(re.getPatches().get(20).getOccupant(species).isInfested());
-			assertFalse(re.getPatches().get(42).getOccupant(species).isInfested());
-			assertFalse(re.getPatches().get(64).getOccupant(species).isInfested());
-			assertFalse(re.getPatches().get(127).getOccupant(species).isInfested());
+			assertFalse(re.getPatches().get(0).isInfestedBy(species));
+			assertFalse(re.getPatches().get(20).isInfestedBy(species));
+			assertFalse(re.getPatches().get(42).isInfestedBy(species));
+			assertFalse(re.getPatches().get(64).isInfestedBy(species));
+			assertFalse(re.getPatches().get(127).isInfestedBy(species));
 
 			// Run the infestation
 			re.infest(species, test_propagules);
 
 			// Ensure cells are now infested
-			assertTrue(re.getPatches().get(0).getOccupant(species).isInfested());
-			assertTrue(re.getPatches().get(21).getOccupant(species).isInfested());
-			assertTrue(re.getPatches().get(42).getOccupant(species).isInfested());
-			assertTrue(re.getPatches().get(64).getOccupant(species).isInfested());
-			assertTrue(re.getPatches().get(127).getOccupant(species).isInfested());
+			assertTrue(re.getPatches().get(0).isInfestedBy(species));
+			assertTrue(re.getPatches().get(21).isInfestedBy(species));
+			assertTrue(re.getPatches().get(42).isInfestedBy(species));
+			assertTrue(re.getPatches().get(64).isInfestedBy(species));
+			assertTrue(re.getPatches().get(127).isInfestedBy(species));
 
 			// Ensure no other cells are infested
 			for (int i = 0; i < 10; i++) {
@@ -306,7 +309,7 @@ public class RasterMosaicTest {
 							|| key == 127 || re.getPatches().get(key).hasNoData()) {
 						continue;
 					}
-					assertFalse(re.getPatches().get(key).getOccupant(species).isInfested());
+					assertFalse(re.getPatches().get(key).isInfestedBy(species));
 				}
 			}
 		} catch (IOException e) {
@@ -372,6 +375,8 @@ public class RasterMosaicTest {
 		re.clear();
 		try {
 			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setHabitatMap("ALL", species);
+			
 			Patch p = re.getPatch(0);
 			Set<Patch> s = re.searchInfestation(p,species);
 			assertTrue(s.size()==0);
@@ -411,10 +416,10 @@ public class RasterMosaicTest {
 
 			// Set the age of infestation using the test raster
 			re.setAgeMap("C:/Temp/Rasters/Age.txt",species);
-			assertEquals(0, cells.get(0).getOccupant(species).getAgeOfInfestation());
-			assertEquals(1, cells.get(21).getOccupant(species).getAgeOfInfestation());
-			assertEquals(2, cells.get(42).getOccupant(species).getAgeOfInfestation());
-			assertEquals(3, cells.get(63).getOccupant(species).getAgeOfInfestation());
+			assertEquals(0, cells.get(0).getAgeOfInfestation(species));
+			assertEquals(1, cells.get(21).getAgeOfInfestation(species));
+			assertEquals(2, cells.get(42).getAgeOfInfestation(species));
+			assertEquals(3, cells.get(63).getAgeOfInfestation(species));
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -434,14 +439,14 @@ public class RasterMosaicTest {
 			re.setPresenceMap("C:/Temp/Rasters/Age.txt",species);
 			re.setDisperser(species,d2);
 			Map<Integer, Patch> cells = re.getPatches();
-			assertEquals(new Coordinate(1.5, 8.5), cells.get(21).getOccupant(species).getDisperser()
+			assertEquals(new Coordinate(1.5, 8.5), cells.get(21).getInfestation(species).getDisperser()
 					.getPosition());
-			assertEquals(new Coordinate(2.5, 7.5), cells.get(42).getOccupant(species).getDisperser()
+			assertEquals(new Coordinate(2.5, 7.5), cells.get(42).getInfestation(species).getDisperser()
 					.getPosition());
-			assertEquals(new Coordinate(3.5, 6.5), cells.get(63).getOccupant(species).getDisperser()
+			assertEquals(new Coordinate(3.5, 6.5), cells.get(63).getInfestation(species).getDisperser()
 					.getPosition());
 			assertEquals(new Coordinate(10.5, 9.5), cells.get(10)
-					.getOccupant(species).getDisperser().getPosition());
+					.getInfestation(species).getDisperser().getPosition());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -462,7 +467,7 @@ public class RasterMosaicTest {
 
 			// Set the disperser at 1,1
 			re.setDisperser(species,d2, 21);
-			Disperser d = re.getPatches().get(21).getOccupant(species).getDisperser();
+			Disperser d = re.getPatches().get(21).getInfestation(species).getDisperser();
 
 			// Ensure we are retrieving the same object
 			assertEquals(d, d2);
@@ -492,10 +497,10 @@ public class RasterMosaicTest {
 			// Ensure that cells are infested in a manner consistent with
 			// the structure of the test raster
 
-			assertFalse(cells.get(0).getOccupant(species).isInfested());
-			assertTrue(cells.get(21).getOccupant(species).isInfested());
-			assertTrue(cells.get(42).getOccupant(species).isInfested());
-			assertTrue(cells.get(63).getOccupant(species).isInfested());
+			assertFalse(cells.get(0).isInfestedBy(species));
+			assertTrue(cells.get(21).isInfestedBy(species));
+			assertTrue(cells.get(42).isInfestedBy(species));
+			assertTrue(cells.get(63).isInfestedBy(species));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -23,6 +23,6 @@ public class MosaicWriter_Raster_Stage extends MosaicWriter_Raster {
 	@Override
 	protected double getVal(RasterMosaic rm, int key, String species) {
 		if(rm.getPatches().get(key).hasNoData()){return super.nodata;}
-		else{return rm.getPatches().get(key).getOccupant(species).getStageOfInfestation();}
+		else{return rm.getPatches().get(key).getInfestation(species).getStageOfInfestation();}
 	}
 }

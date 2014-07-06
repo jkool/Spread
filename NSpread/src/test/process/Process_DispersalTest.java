@@ -61,21 +61,16 @@ public class Process_DispersalTest {
 		Map<Integer, Patch> cells = rm.getPatches();
 
 		List<Coordinate> empty = new ArrayList<Coordinate>();
-		assertEquals(cells.get(0).getOccupant(species).getPropagules(), empty);
-		assertEquals(cells.get(21).getOccupant(species).getPropagules(), empty);
-		assertEquals(cells.get(42).getOccupant(species).getPropagules(), empty);
-		assertEquals(cells.get(94).getOccupant(species).getPropagules(), empty);
-
+		assertEquals(empty,cells.get(0).getPropagules(species));
+		assertEquals(empty,cells.get(21).getPropagules(species));
+		assertEquals(empty,cells.get(42).getPropagules(species));
+		assertEquals(empty,cells.get(94).getPropagules(species));
 		pd.process(rm);
 
-		assertEquals(empty, cells.get(0).getOccupant(species).getPropagules());
-		assertEquals(new Coordinate(2.5, 8.5), cells.get(21).getOccupant(species).getPropagules()
-				.get(0));
-		assertEquals(new Coordinate(3.5, 7.5), cells.get(42).getOccupant(species).getPropagules()
-				.get(0));
-		assertEquals(new Coordinate(11.5, 9.5), cells.get(10).getOccupant(species).getPropagules()
-				.get(0));
-		assertEquals(new Coordinate(15.5, 5.5), cells.get(94).getOccupant(species).getPropagules()
-				.get(0));
+		assertEquals(cells.get(0).getPropagules(species), empty);
+		assertEquals(new Coordinate(2.5, 8.5), cells.get(21).getPropagules(species).get(0));
+		assertEquals(new Coordinate(3.5, 7.5), cells.get(42).getPropagules(species).get(0));
+		assertEquals(new Coordinate(11.5, 9.5), cells.get(10).getPropagules(species).get(0));
+		assertEquals(new Coordinate(15.5, 5.5), cells.get(94).getPropagules(species).get(0));
 	}
 }

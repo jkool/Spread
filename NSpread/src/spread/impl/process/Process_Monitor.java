@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import spread.Mosaic;
-import spread.Occupant;
+import spread.Infestation;
 import spread.Patch;
 import spread.Process;
 
@@ -30,7 +30,10 @@ public class Process_Monitor implements Process, Cloneable {
 	private long counter = 0;
 	private long timeIncrement = 1;
 	private long chkFrq = 1;
-	private Set<Occupant> visited = new HashSet<Occupant>();
+	private Set<Infestation> visited = new HashSet<Infestation>();
+	private Set<String> coreControl = new HashSet<String>();
+	boolean ignoreFirst = true;
+	boolean first = true;
 
 	/**
 	 * Returns a copy of the current instance of the class.
@@ -64,6 +67,11 @@ public class Process_Monitor implements Process, Cloneable {
 		
 		counter+=timeIncrement;
 		
+		if(ignoreFirst && first){
+			first=false;
+			return;
+		}
+		
 		if(counter<chkFrq){
 			return;
 		}
@@ -76,7 +84,7 @@ public class Process_Monitor implements Process, Cloneable {
 			process(mosaic.getPatches().get(key));
 		}
 		
-		ms.clearVisitedOccupancies(visited);
+		ms.clearVisitedInfestations(visited);
 		visited.clear();
 	}
 
@@ -94,11 +102,11 @@ public class Process_Monitor implements Process, Cloneable {
 			return;
 		}
 
-		Iterator<String> it = patch.getOccupants().keySet().iterator();
+		Iterator<String> it = patch.getInfestation().keySet().iterator();
 		while (it.hasNext()) {
 			
 			String species = it.next();
-			Occupant o = patch.getOccupant(species);
+			Infestation o = patch.getInfestation(species);
 			
 			// If this Patch has been processed already as part of a chain, continue
 			
@@ -112,10 +120,9 @@ public class Process_Monitor implements Process, Cloneable {
 			
 			// If the patch is infested, apply a random number to determine whether it was detected
 			
-			if (o.isInfested()) {
+			if (o.isInfested()) {///////////////////////////////////////////////////// Should we check if it is already under control?
 				double p = Uniform.staticNextDouble();
 				int stage = o.getStageOfInfestation();
-				
 				if (p < p_discovery.get(species)[stage - 1]) {
 					patch.setMonitored(true);
 					
@@ -123,10 +130,6 @@ public class Process_Monitor implements Process, Cloneable {
 					
 					Set<Patch> region = ms.getWeakRegion(patch, species);
 					Set<Patch> filled = ms.fill(region, species);
-							
-					//if(ms.getArea(filled)<=containmentCutoff){
-					//	ms.setMonitored(region, true);
-					//	ms.setControl(region, species, ControlType.GROUND_CONTROL);
 					
 					// Determine cells that are already controlled
 
@@ -137,17 +140,25 @@ public class Process_Monitor implements Process, Cloneable {
 					if(filled.size()-controlled.size()<=containmentCutoff){
 						ms.setMonitored(region, true);
 						region.removeAll(controlled);
-						ms.setControl(region,species,ControlType.GROUND_CONTROL);
+						ms.setControl(region, ControlType.GROUND_CONTROL,species);
 					}
 					
 					// Otherwise assign all cells in the bounded area to containment
 				
 					else{
-						
-						ms.setMonitored(filled, true);
-						ms.setControl(filled, species, ControlType.CONTAINMENT);
-						ms.setControl(ms.getStrongCore(filled, species, coreBufferSize), species, ControlType.CONTAINMENT_CORE);
-						ms.removeControl(filled, species, ControlType.GROUND_CONTROL);						
+							ms.setMonitored(filled, true);
+						    ms.setControl(filled, ControlType.CONTAINMENT);
+
+						    Set<Patch> core = ms.getStrongCore(filled, species, coreBufferSize);
+					    	ms.setControl(core, ControlType.CONTAINMENT_CORE);
+					    	ms.removeControl(core, ControlType.CONTAINMENT);
+						    
+							Iterator<String> it2 = patch.getInfestation().keySet().iterator();
+
+							while(it2.hasNext()){
+						    	String species2 = it2.next();
+						    	ms.removeControl(filled, ControlType.GROUND_CONTROL, species2); ////////Unless in core control!!!!
+						    }
 					}
 					
 					// Mark any cells visited as part of the process chain as processed
@@ -155,7 +166,7 @@ public class Process_Monitor implements Process, Cloneable {
 					ms.setVisited(filled,species);
 					
 					for(Patch v:filled){
-						visited.add(v.getOccupant(species));
+						visited.add(v.getInfestation(species));
 					}
 				}
 			}
@@ -176,7 +187,7 @@ public class Process_Monitor implements Process, Cloneable {
 	private Set<Patch> getControlled(Set<Patch> patches, String species, ControlType control){
 		Set<Patch> controlled = new TreeSet<Patch>();
 		for(Patch p:patches){
-			if(p.getOccupant(species).hasControl(control)){
+			if(p.getInfestation(species).hasControl(control)){
 				controlled.add(p);
 			}
 		}
@@ -224,6 +235,10 @@ public class Process_Monitor implements Process, Cloneable {
 		this.p_discovery = p_discovery;
 	}
 	
+	public void ignoreFirst(boolean ignore){
+		this.ignoreFirst=ignore;
+	}
+	
 	/**
 	 * Sets the amount of time currently being incremented by the growth process
 	 * 
@@ -232,5 +247,9 @@ public class Process_Monitor implements Process, Cloneable {
 	
 	public void setTimeIncrement(long timeIncrement){
 		this.timeIncrement=timeIncrement;
+	}
+	
+	public void reset(){
+		this.first=true;
 	}
 }

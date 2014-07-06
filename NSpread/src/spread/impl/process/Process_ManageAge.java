@@ -3,7 +3,7 @@ package spread.impl.process;
 import java.util.Iterator;
 
 import spread.Mosaic;
-import spread.Occupant;
+import spread.Infestation;
 import spread.Patch;
 import spread.Process;
 
@@ -51,9 +51,9 @@ public class Process_ManageAge implements Process, Cloneable {
 
 	public void process(Patch patch) {
 
-		Iterator<String> it = patch.getOccupants().keySet().iterator();
+		Iterator<String> it = patch.getInfestation().keySet().iterator();
 		while (it.hasNext()) {
-			Occupant o = patch.getOccupant(it.next());
+			Infestation o = patch.getInfestation(it.next());
 
 			if (o.getAgeOfInfestation() >= ageThreshold.longValue()) {
 				o.setInfested(false);
@@ -63,4 +63,10 @@ public class Process_ManageAge implements Process, Cloneable {
 			}
 		}
 	}
+	
+	/**
+	 * Resets the process
+	 */
+	
+	public void reset(){}
 }

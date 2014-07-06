@@ -47,29 +47,29 @@ public class Process_GrowthTest {
 	@Test
 	public void testProcess() {
 		Map<Integer, Patch> cells = rm.getPatches();
-		assertFalse(cells.get(0).getOccupant(species).isInfested());
-		assertTrue(cells.get(21).getOccupant(species).isInfested());
-		assertTrue(cells.get(42).getOccupant(species).isInfested());
-		assertEquals(0, cells.get(0).getOccupant(species).getAgeOfInfestation());
-		assertEquals(0, cells.get(21).getOccupant(species).getAgeOfInfestation());
-		assertEquals(0, cells.get(42).getOccupant(species).getAgeOfInfestation());
+		assertFalse(cells.get(0).isInfestedBy(species));
+		assertTrue(cells.get(21).isInfestedBy(species));
+		assertTrue(cells.get(42).isInfestedBy(species));
+		assertEquals(0, cells.get(0).getAgeOfInfestation(species));
+		assertEquals(0, cells.get(21).getAgeOfInfestation(species));
+		assertEquals(0, cells.get(42).getAgeOfInfestation(species));
 		pg.setTimeIncrement(1);
 		pg.process(rm);
-		assertEquals(0, cells.get(0).getOccupant(species).getAgeOfInfestation());
-		assertEquals(1, cells.get(21).getOccupant(species).getAgeOfInfestation());
-		assertEquals(1, cells.get(42).getOccupant(species).getAgeOfInfestation());
-		assertEquals(1, cells.get(21).getOccupant(species).getStageOfInfestation());
-		assertEquals(1, cells.get(21).getOccupant(species).getMaxInfestation());
+		assertEquals(0, cells.get(0).getAgeOfInfestation(species));
+		assertEquals(1, cells.get(21).getAgeOfInfestation(species));
+		assertEquals(1, cells.get(42).getAgeOfInfestation(species));
+		assertEquals(1, cells.get(21).getInfestation(species).getStageOfInfestation());
+		assertEquals(1, cells.get(21).getInfestation(species).getMaxInfestation());
 		pg.process(rm);
-		assertEquals(0, cells.get(0).getOccupant(species).getAgeOfInfestation());
-		assertEquals(2, cells.get(21).getOccupant(species).getAgeOfInfestation());
-		assertEquals(2, cells.get(42).getOccupant(species).getAgeOfInfestation());
+		assertEquals(0, cells.get(0).getAgeOfInfestation(species));
+		assertEquals(2, cells.get(21).getAgeOfInfestation(species));
+		assertEquals(2, cells.get(42).getAgeOfInfestation(species));
 		pg.setTimeIncrement(4);
 		pg.process(rm);
-		assertEquals(0, cells.get(0).getOccupant(species).getAgeOfInfestation());
-		assertEquals(6, cells.get(21).getOccupant(species).getAgeOfInfestation());
-		assertEquals(6, cells.get(42).getOccupant(species).getAgeOfInfestation());
-		assertEquals(2, cells.get(21).getOccupant(species).getStageOfInfestation());
-		assertEquals(2, cells.get(21).getOccupant(species).getMaxInfestation());
+		assertEquals(0, cells.get(0).getAgeOfInfestation(species));
+		assertEquals(6, cells.get(21).getAgeOfInfestation(species));
+		assertEquals(6, cells.get(42).getAgeOfInfestation(species));
+		assertEquals(2, cells.get(21).getInfestation(species).getStageOfInfestation());
+		assertEquals(2, cells.get(21).getInfestation(species).getMaxInfestation());
 	}
 }

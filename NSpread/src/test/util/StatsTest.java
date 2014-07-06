@@ -10,7 +10,7 @@ import spread.util.Stats;
 import org.junit.Before;
 import org.junit.Test;
 
-import spread.Occupant;
+import spread.Infestation;
 
 public class StatsTest {
 
@@ -23,12 +23,12 @@ public class StatsTest {
 
 	@Test
 	public void testConfusionMatrix(){
-		Map<Integer,Occupant> truth = new TreeMap<Integer,Occupant>();
-		Map<Integer,Occupant> estimate = new TreeMap<Integer,Occupant>();
-		Occupant infested = new Occupant("Test");
+		Map<Integer,Infestation> truth = new TreeMap<Integer,Infestation>();
+		Map<Integer,Infestation> estimate = new TreeMap<Integer,Infestation>();
+		Infestation infested = new Infestation("Test");
 		infested.setInfested(true);
 		
-		Occupant not_infested = new Occupant("Test");
+		Infestation not_infested = new Infestation("Test");
 		not_infested.setInfested(false);
 		
 		estimate.put(0, not_infested);

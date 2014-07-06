@@ -77,7 +77,7 @@ public class Process_Containment implements Process, Cloneable{
 
 	private void process(Patch patch) {
 		
-		for (String species : patch.getOccupants().keySet()) {
+		for (String species : patch.getInfestation().keySet()) {
 			
 			if(ignore.contains(species)){
 				continue;
@@ -85,13 +85,13 @@ public class Process_Containment implements Process, Cloneable{
 
 			// I'm gonna break my rusty cage... and run!
 
-			if (patch.getOccupant(species).hasControl(ControlType.CONTAINMENT_CORE)) {
+			if (patch.getInfestation(species).hasControl(ControlType.CONTAINMENT_CORE)) {
 				continue;
 			}
 			
-			if (patch.getOccupant(species).hasControl(ControlType.CONTAINMENT)) {
-				patch.getOccupant(species).setStageOfInfestation(0);
-				patch.getOccupant(species).clearInfestation();
+			if (patch.getInfestation(species).hasControl(ControlType.CONTAINMENT)) {
+				patch.getInfestation(species).setStageOfInfestation(0);
+				patch.getInfestation(species).clearInfestation();
 			}
 		}
 	}
@@ -126,4 +126,10 @@ public class Process_Containment implements Process, Cloneable{
 	public void setTimeIncrement(long timeIncrement) {
 		this.timeIncrement = timeIncrement;
 	}
+	
+	/**
+	 * Resets the process
+	 */
+	
+	public void reset(){}
 }

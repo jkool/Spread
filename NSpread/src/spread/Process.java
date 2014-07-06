@@ -18,4 +18,10 @@ public interface Process {
 	 */
 
 	public abstract void process(Mosaic mosaic);
+	
+	/**
+	 * Re-initializes the process
+	 */
+	
+	public void reset();
 }

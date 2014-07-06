@@ -24,10 +24,10 @@ public class MosaicWriter_Raster_WasMonitored extends MosaicWriter_Raster {
 	@Override
 	protected double getVal(RasterMosaic rm, int key, String species) {
 		Patch p = rm.getPatches().get(key);
-		if (!p.hasOccupant(species) || p.getOccupant(species).hasNoData()) {
+		if (!p.isInfestedBy(species) || p.getInfestation(species).hasNoData()) {
 			return super.nodata;
 		} else {
-			return p.getOccupant(species).getMaxControl();
+			return p.getInfestation(species).getMaxControl();
 		}
 	}
 }

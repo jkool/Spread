@@ -40,6 +40,7 @@ public class Process_MonitorTest {
 		
 		pm.setPDiscovery(p_discovery);
 		pm.setCoreBufferSize(2);
+		pm.ignoreFirst(false);
 		}
 
 	@Test
@@ -50,24 +51,23 @@ public class Process_MonitorTest {
 			if(patches.get(key).hasNoData()){
 				continue;
 			}
-			assertEquals(0,patches.get(key).getOccupant(species).getControls().size());
+			assertEquals(0,patches.get(key).getControls(species).size());
 		}
 		
 		pm.process(rm);
 		
-		assertTrue(rm.getPatch(0).getOccupant(species).getControls().isEmpty());
-		assertTrue(rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT));
-		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.GROUND_CONTROL));
-		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT_CORE));
-		assertTrue(rm.getPatch(10).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT));
-		assertTrue(!rm.getPatch(10).getOccupant(species).getControls().containsKey(ControlType.GROUND_CONTROL));
-		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT_CORE));
-		assertTrue(rm.getPatch(105).getOccupant(species).getControls().containsKey(ControlType.GROUND_CONTROL));
-		assertTrue(!rm.getPatch(105).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT));
-		assertTrue(!rm.getPatch(7).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT_CORE));
-		assertTrue(!rm.getPatch(60).getOccupant(species).getControls().containsKey(ControlType.GROUND_CONTROL));
-		assertTrue(rm.getPatch(60).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT));
-		assertTrue(rm.getPatch(60).getOccupant(species).getControls().containsKey(ControlType.CONTAINMENT_CORE));
-			
+		assertTrue(rm.getPatch(0).getControls(species).isEmpty());
+		assertTrue(rm.getPatch(7).getControls(species).contains(ControlType.CONTAINMENT));
+		assertTrue(!rm.getPatch(7).getControls(species).contains(ControlType.GROUND_CONTROL));
+		assertTrue(!rm.getPatch(7).getControls(species).contains(ControlType.CONTAINMENT_CORE));
+		assertTrue(rm.getPatch(10).getControls(species).contains(ControlType.CONTAINMENT));
+		assertTrue(!rm.getPatch(10).getControls(species).contains(ControlType.GROUND_CONTROL));
+		assertTrue(!rm.getPatch(7).getControls(species).contains(ControlType.CONTAINMENT_CORE));
+		assertTrue(rm.getPatch(105).getControls(species).contains(ControlType.GROUND_CONTROL));
+		assertTrue(!rm.getPatch(105).getControls(species).contains(ControlType.CONTAINMENT));
+		assertTrue(!rm.getPatch(7).getControls(species).contains(ControlType.CONTAINMENT_CORE));
+		assertTrue(!rm.getPatch(60).getControls(species).contains(ControlType.GROUND_CONTROL));
+		assertTrue(rm.getPatch(60).getControls(species).contains(ControlType.CONTAINMENT));
+		assertTrue(rm.getPatch(60).getControls(species).contains(ControlType.CONTAINMENT_CORE));
 	}
 }

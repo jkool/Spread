@@ -93,8 +93,8 @@ public class Process_Costing implements Process, Cloneable {
 			return 0;
 		}
 
-		for (String species : patch.getOccupants().keySet()) {
-			Map<ControlType, Long> controls = patch.getOccupant(species)
+		for (String species : patch.getInfestation().keySet()) {
+			Map<ControlType, Long> controls = patch.getInfestation(species)
 					.getControls();
 			if (controls.containsKey(ControlType.CONTAINMENT_CORE)) {
 				continue; // cost is effectively 0
@@ -104,7 +104,7 @@ public class Process_Costing implements Process, Cloneable {
 			}
 			if (controls.containsKey(ControlType.GROUND_CONTROL)) {
 
-				int stage = patch.getOccupant(species).getStageOfInfestation();
+				int stage = patch.getInfestation(species).getStageOfInfestation();
 				patchCost = Math.max(patchCost,
 						ground_control_costs.get(species)[stage - 1]);
 			}
@@ -158,8 +158,8 @@ public class Process_Costing implements Process, Cloneable {
 			return 0;
 		}
 
-		for (String species : patch.getOccupants().keySet()) {
-			Map<ControlType, Long> controls = patch.getOccupant(species)
+		for (String species : patch.getInfestation().keySet()) {
+			Map<ControlType, Long> controls = patch.getInfestation(species)
 					.getControls();
 			if (controls.containsKey(ControlType.CONTAINMENT_CORE)) {
 				continue; // cost is effectively 0
@@ -169,7 +169,7 @@ public class Process_Costing implements Process, Cloneable {
 			}
 			if (controls.containsKey(ControlType.GROUND_CONTROL)) {
 
-				int stage = patch.getOccupant(species).getStageOfInfestation();
+				int stage = patch.getInfestation(species).getStageOfInfestation();
 				patLabor = Math.max(patLabor,
 						ground_control_labour.get(species)[stage - 1]);
 			}
@@ -226,6 +226,15 @@ public class Process_Costing implements Process, Cloneable {
 		costTotal += getCost(patch);
 		labourTotal += getLabour(patch);
 
+	}
+	
+	/**
+	 * Resets the process
+	 */
+	
+	public void reset(){
+		this.costTotal = 0;
+		this.labourTotal = 0;
 	}
 
 	/**

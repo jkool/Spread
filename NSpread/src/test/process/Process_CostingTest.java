@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import spread.impl.RasterMosaic;
 import spread.impl.process.Process_Costing;
 import spread.impl.process.Process_Monitor;
+import spread.util.ControlType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +33,7 @@ public class Process_CostingTest {
 
 		try {
 			rm.setPresenceMap("./resource files/patchtest.txt", species);
+			rm.setHabitatMap("ALL", species);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -41,34 +43,33 @@ public class Process_CostingTest {
 
 		pm.setPDiscovery(p_discovery);
 		pm.setCoreBufferSize(2);
+		pm.ignoreFirst(false);
 
 	}
 
 	@Test
-	public void test() {
+	public void testCostingProcess() {
 		Map<Integer, Patch> patches = rm.getPatches();
 
 		for (Integer key : patches.keySet()) {
 			if (patches.get(key).hasNoData()) {
 				continue;
 			}
-			assertEquals(0, patches.get(key).getOccupant(species).getControls()
-					.size());
+			assertEquals(0, patches.get(key).getControls(species).size());
 		}
 
 		pm.process(rm);
 		pc.process(rm);
 
-		/*Map<Integer, Patch> patchlist = rm.getPatches();
+		Map<Integer, Patch> patchlist = rm.getPatches();
 
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 20; j++) {
 				
 				Patch pp = patchlist.get((i * 20) + j);
 				if(pp.hasNoData()){System.out.print("NaN "); continue;}
-				ArrayList<ControlType> alist = new ArrayList<ControlType>(
-						pp.getOccupant("Test_1")
-								.getControls().keySet());
+				ArrayList<ControlType> alist = new ArrayList<ControlType>();
+				alist.addAll(pp.getControls(species));
 				if (alist.size() == 0) {
 					System.out.print("0");
 				} else {
@@ -77,7 +78,7 @@ public class Process_CostingTest {
 				System.out.print(" ");
 			}
 			System.out.println();
-		}*/
+		}
 
 	 assertEquals(26590, pc.getCostTotal(),1E-16);
 	 assertEquals(373, pc.getLabourTotal(),1E-16);

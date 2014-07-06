@@ -563,6 +563,11 @@ public class Spread {
 				.parseBoolean(properties.getProperty("Write_Each_Time_Step"))
 				: false;
 
+		boolean writeEachMgtStep = properties
+				.containsKey("Write_Each_Mgt_Step") ? Boolean
+				.parseBoolean(properties.getProperty("Write_Each_Mgt_Step"))
+				: false;				
+				
 		boolean writeFrequencyMap = properties
 				.containsKey("Write_Frequency_Map") ? Boolean
 				.parseBoolean(properties.getProperty("Write_Frequency_Map"))
@@ -648,6 +653,7 @@ public class Spread {
 		// Adding dispersal
 		
 		Process_Dispersal pd = new Process_Dispersal();
+		pd.addToCoreControlList(parseStringArray(properties.getProperty("Core_Control")));
 
 		Map<String, Long> waitTimes = new TreeMap<String, Long>();
 
@@ -699,6 +705,7 @@ public class Spread {
 		Process_GroundControl pgc = new Process_GroundControl();
 		pgc.setCheckFrequency(mgt_frq);
 		pgc.addToIgnoreList(parseStringArray(properties.getProperty("Ground_Control_Ignore")));
+		pgc.addToCoreControlList(parseStringArray(properties.getProperty("Core_Control")));
 		
 		// Adding containment actions
 		
@@ -801,6 +808,8 @@ public class Spread {
 
 					RandomGenerator_Exponential distanceGenerator = new RandomGenerator_Exponential();
 					distanceGenerator.setLambda(1 / distances.get(j)[i]);
+					//RandomGenerator_Determined distanceGenerator = new RandomGenerator_Determined(1);
+					
 					RandomGenerator angleGenerator = new RandomGenerator_Uniform();
 
 					if (properties.containsKey("Direction_Kernel")) {
@@ -865,7 +874,7 @@ public class Spread {
 					e.setOutputWriter(mosaicWriter);
 					e.setProcesses(processes);
 					e.writeEachTimeStep(writeEachTimeStep);
-					
+					e.writeEachMgtStep(writeEachMgtStep);
 					
 
 					int id = (i * reps) + n;
@@ -883,6 +892,8 @@ public class Spread {
 					
 					pcst.resetCost();
 					pcst.resetLabour();
+					
+					pm.reset();
 
 				}
 			}
@@ -973,6 +984,7 @@ public class Spread {
 						e.setOutputWriter(mosaicWriter);
 						e.setProcesses(processes);
 						e.writeEachTimeStep(writeEachTimeStep);
+						e.writeEachMgtStep(writeEachMgtStep);
 
 						int id = (i * reps) + n;
 

@@ -14,7 +14,7 @@ import spread.Experiment;
 import spread.ExperimentWriter;
 import spread.Mosaic;
 import spread.MosaicWriter;
-import spread.Occupant;
+import spread.Infestation;
 import spread.Process;
 
 import spread.impl.RasterMosaic;
@@ -158,8 +158,8 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 
 			// calculate the confusion matrix
 			int[][] cf = stats.makeConfusionMatrix(
-					reference.getOccupants(species),
-					mosaic.getOccupants(species));
+					reference.getInfestations(species),
+					mosaic.getInfestations(species));
 
 			// generate statistics
 
@@ -226,8 +226,8 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 
 			if (writeFrequencyMap) {
 				tally.put(species, new TreeMap<Integer, Long>());
-				Map<Integer, Occupant> occupancies = mosaic
-						.getOccupants(species);
+				Map<Integer, Infestation> occupancies = mosaic
+						.getInfestations(species);
 				for (Integer key : occupancies.keySet()) {
 					if (occupancies.get(key).hasNoData()) {
 						tally.get(species).put(key, nodata);

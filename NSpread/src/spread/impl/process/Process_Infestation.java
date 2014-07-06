@@ -3,7 +3,7 @@ package spread.impl.process;
 import java.util.Iterator;
 
 import spread.Mosaic;
-import spread.Occupant;
+import spread.Infestation;
 import spread.Process;
 
 
@@ -37,10 +37,10 @@ public class Process_Infestation implements Process, Cloneable {
 	public void process(Mosaic mosaic) {
 		for (Integer key : mosaic.getPatches().keySet()) {
 
-			Iterator<String> it = mosaic.getPatch(key).getOccupants().keySet()
+			Iterator<String> it = mosaic.getPatch(key).getInfestation().keySet()
 					.iterator();
 			while (it.hasNext()) {
-				Occupant o = mosaic.getPatch(key).getOccupant(it.next());
+				Infestation o = mosaic.getPatch(key).getInfestation(it.next());
 
 				if (o.isInfested()) {
 					mosaic.infest(o.getName(), o.getPropagules());
@@ -49,4 +49,10 @@ public class Process_Infestation implements Process, Cloneable {
 			}
 		}
 	}
+	
+	/**
+	 * Resets the process
+	 */
+	
+	public void reset(){}
 }

@@ -1,13 +1,16 @@
 package spread.impl.process;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import spread.util.ControlType;
 
 import spread.Mosaic;
-import spread.Occupant;
+import spread.Infestation;
 import spread.Patch;
 import spread.Process;
 
@@ -20,6 +23,7 @@ import spread.Process;
 public class Process_Dispersal implements Process, Cloneable {
 
 	private Map<String, Long> waitTimes;
+	private Set<String> coreControl = new TreeSet<String>();
 
 	/**
 	 * Returns a clone/copy of the instance
@@ -55,16 +59,17 @@ public class Process_Dispersal implements Process, Cloneable {
 	 */
 
 	private void process(Patch patch) {
-		Iterator<String> it = patch.getOccupants().keySet().iterator();
+		Iterator<String> it = patch.getInfestation().keySet().iterator();
 		while (it.hasNext()) {
 			String species = it.next();
-			Occupant o = patch.getOccupant(species);
+			Infestation o = patch.getInfestation(species);
 			if (o.isInfested()
 					&& o.getAgeOfInfestation() >= waitTimes.get(species)
 					&& !o.hasControl(ControlType.GROUND_CONTROL)
-					&& !o.hasControl(ControlType.CONTAINMENT)
-					|| o.hasControl(ControlType.CONTAINMENT_CORE)){
-				o.disperse();
+					&& !patch.hasControl(ControlType.CONTAINMENT)
+					&& !(patch.hasControl(ControlType.CONTAINMENT_CORE) || coreControl.contains(species))){
+				
+					o.disperse();
 			}
 		}
 	}
@@ -80,4 +85,18 @@ public class Process_Dispersal implements Process, Cloneable {
 	public void setWaitTimes(Map<String, Long> waitTimes) {
 		this.waitTimes = waitTimes;
 	}
+	
+	public void addToCoreControlList(Collection<String> species){
+		this.coreControl.addAll(species);
+	}
+
+	public void addToCoreControlList(String species){
+		this.coreControl.add(species);
+	}
+	
+	/**
+	 * Resets the process
+	 */
+	
+	public void reset(){}
 }

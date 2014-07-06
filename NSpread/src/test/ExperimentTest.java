@@ -70,6 +70,7 @@ public class ExperimentTest {
 
 		try {
 			rm.setPresenceMap("./resource files/test.txt", species);
+			rm.setHabitatMap("ALL",species);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
