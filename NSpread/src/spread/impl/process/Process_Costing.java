@@ -2,6 +2,7 @@ package spread.impl.process;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import spread.Mosaic;
@@ -60,7 +61,7 @@ public class Process_Costing implements Process, Cloneable {
 		clone.timeIncrement = timeIncrement;
 		return clone;
 	}
-	
+
 	/**
 	 * Retrieves the total instantaneous cost of management across the mosaic
 	 * 
@@ -93,26 +94,35 @@ public class Process_Costing implements Process, Cloneable {
 			return 0;
 		}
 
-		for (String species : patch.getInfestation().keySet()) {
-			Map<ControlType, Long> controls = patch.getInfestation(species)
-					.getControls();
-			if (controls.containsKey(ControlType.CONTAINMENT_CORE)) {
-				continue; // cost is effectively 0
-			}
-			if (controls.containsKey(ControlType.CONTAINMENT)) {
-				patchCost = Math.max(patchCost, containment_cost);
-			}
-			if (controls.containsKey(ControlType.GROUND_CONTROL)) {
+		// Add patch-level cost
 
-				int stage = patch.getInfestation(species).getStageOfInfestation();
-				patchCost = Math.max(patchCost,
+		if (patch.hasControl(ControlType.CONTAINMENT)) {
+			patchCost += containment_cost;
+		}
+
+		// Add species-level cost
+
+		double max_gc = 0;
+		
+		for (String species : patch.getInfestation().keySet()) {
+			Set<ControlType> sp_controls = patch.getControls(species);
+
+			if (sp_controls.contains(ControlType.GROUND_CONTROL)
+					|| sp_controls
+							.contains(ControlType.CONTAINMENT_CORE_CONTROL)) {
+
+				int stage = patch.getInfestation(species)
+						.getStageOfInfestation();
+				max_gc = Math.max(max_gc,
 						ground_control_costs.get(species)[stage - 1]);
 			}
 		}
+		
+		patchCost+=max_gc;
 
 		return patchCost;
 	}
-	
+
 	/**
 	 * Gets the total management cost
 	 * 
@@ -122,14 +132,15 @@ public class Process_Costing implements Process, Cloneable {
 	public double getCostTotal() {
 		return costTotal;
 	}
-	
+
 	/**
-	 * Retrieves the total instantaneous labour cost of management across the mosaic
+	 * Retrieves the total instantaneous labour cost of management across the
+	 * mosaic
 	 * 
 	 * @param mosaic
 	 * @return
 	 */
-	
+
 	public double getLabour(Mosaic mosaic) {
 
 		double total = 0;
@@ -142,7 +153,8 @@ public class Process_Costing implements Process, Cloneable {
 	}
 
 	/**
-	 * Retrieves the total instantaneous labour cost of management for a single Patch
+	 * Retrieves the total instantaneous labour cost of management for a single
+	 * Patch
 	 * 
 	 * @param patch
 	 * @return
@@ -152,28 +164,35 @@ public class Process_Costing implements Process, Cloneable {
 
 		double patLabor = 0;
 
-		// If a Patch has NoData, ignore it
-
 		if (patch.hasNoData()) {
 			return 0;
 		}
 
-		for (String species : patch.getInfestation().keySet()) {
-			Map<ControlType, Long> controls = patch.getInfestation(species)
-					.getControls();
-			if (controls.containsKey(ControlType.CONTAINMENT_CORE)) {
-				continue; // cost is effectively 0
-			}
-			if (controls.containsKey(ControlType.CONTAINMENT)) {
-				patLabor = Math.max(patLabor, containment_labour);
-			}
-			if (controls.containsKey(ControlType.GROUND_CONTROL)) {
+		// Add patch-level labour
 
-				int stage = patch.getInfestation(species).getStageOfInfestation();
-				patLabor = Math.max(patLabor,
+		if (patch.hasControl(ControlType.CONTAINMENT)) {
+			patLabor += containment_labour;
+		}
+
+		// Add species-level labour
+
+		double max_gc = 0;
+		
+		for (String species : patch.getInfestation().keySet()) {
+			Set<ControlType> sp_controls = patch.getControls(species);
+
+			if (sp_controls.contains(ControlType.GROUND_CONTROL)
+					|| sp_controls
+							.contains(ControlType.CONTAINMENT_CORE_CONTROL)) {
+
+				int stage = patch.getInfestation(species)
+						.getStageOfInfestation();
+				max_gc = Math.max(max_gc,
 						ground_control_labour.get(species)[stage - 1]);
 			}
 		}
+		
+		patLabor+=max_gc;
 
 		return patLabor;
 
@@ -227,12 +246,12 @@ public class Process_Costing implements Process, Cloneable {
 		labourTotal += getLabour(patch);
 
 	}
-	
+
 	/**
 	 * Resets the process
 	 */
-	
-	public void reset(){
+
+	public void reset() {
 		this.costTotal = 0;
 		this.labourTotal = 0;
 	}
@@ -302,13 +321,13 @@ public class Process_Costing implements Process, Cloneable {
 	public void setGroundControlLabour(Map<String, double[]> groundControlLabour) {
 		this.ground_control_labour = groundControlLabour;
 	}
-	
+
 	/**
 	 * Sets the associated time interval for each time step made by this class.
 	 * 
 	 * @param timeIncrement
 	 */
-	
+
 	public void setTimeIncrement(long timeIncrement) {
 		this.timeIncrement = timeIncrement;
 	}

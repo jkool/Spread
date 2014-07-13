@@ -75,7 +75,11 @@ public class Process_Growth implements Process, Cloneable {
 
 			o.incrementInfestationTime(timeIncrement);
 
-			if (o.isInfested()&&(o.getControls().isEmpty()||o.hasControl(ControlType.CONTAINMENT_CORE))) {
+			if (o.isInfested()
+					&& !patch.hasControl(ControlType.CONTAINMENT)
+					&& !patch.hasControl(ControlType.GROUND_CONTROL, species)
+					&& !patch.hasControl(ControlType.CONTAINMENT_CORE_CONTROL,
+							species)) {
 
 				for (int j = 0; j < th.length; j++) {
 
@@ -86,7 +90,7 @@ public class Process_Growth implements Process, Cloneable {
 						ct++;
 					}
 
-					o.setStageOfInfestation(ct+1);
+					o.setStageOfInfestation(ct + 1);
 				}
 			}
 		}
@@ -103,16 +107,18 @@ public class Process_Growth implements Process, Cloneable {
 	public long getTimeIncrement() {
 		return timeIncrement;
 	}
-	
+
 	/**
-	 * Sets the age thresholds defining the boundaries between different growth stages
+	 * Sets the age thresholds defining the boundaries between different growth
+	 * stages
+	 * 
 	 * @param thresholds
 	 */
-	
-	public void setThresholds(Map<String,long[]> thresholds){
-		this.thresholds=thresholds;
+
+	public void setThresholds(Map<String, long[]> thresholds) {
+		this.thresholds = thresholds;
 	}
-	
+
 	/**
 	 * Sets the amount of time currently being incremented by the growth process
 	 * 
@@ -122,10 +128,11 @@ public class Process_Growth implements Process, Cloneable {
 	public void setTimeIncrement(long timeIncrement) {
 		this.timeIncrement = timeIncrement;
 	}
-	
+
 	/**
 	 * Resets the process
 	 */
-	
-	public void reset(){}
+
+	public void reset() {
+	}
 }

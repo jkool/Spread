@@ -9,7 +9,7 @@ package spread.util;
 
 public enum ControlType {
 	NONE("None"), GROUND_CONTROL("Ground Control"), CONTAINMENT("Containment"), CONTAINMENT_CORE(
-			"Containment Core");
+			"Containment Core"), CONTAINMENT_CORE_CONTROL("Core Control");
 
 	private String displayName;
 

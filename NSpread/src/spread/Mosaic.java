@@ -69,6 +69,8 @@ public interface Mosaic {
 	
 	public double getArea(Collection<Patch> patches);
 	
+	public Map<Integer,Patch> getControlled(ControlType control);
+	
 	public Map<Integer,Patch> getControlled(String species, ControlType control);
 	
 	/**
@@ -375,4 +377,8 @@ public interface Mosaic {
 	 */
 
 	public void shutdown();
+
+	Set<Patch> getStrongRegion(Patch p, Set<String> species, boolean condition);
+
+	Set<Patch> getWeakRegion(Patch p, Set<String> speciesSet, boolean condition);
 }

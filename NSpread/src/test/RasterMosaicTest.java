@@ -31,12 +31,15 @@ public class RasterMosaicTest {
 
 	RasterMosaic re = new RasterMosaic();
 	String species = "Test_1";
+	String species2 = "Test_2";
+	String species3 = "Test_3";
 	
 	@Before
 	public void setup(){
 		List<String> speciesList = new ArrayList<String>();
 		speciesList.add("Test_1");
 		speciesList.add("Test_2");
+		speciesList.add("Test_3");
 		re.setSpeciesList(speciesList);
 	}
 	
@@ -126,8 +129,7 @@ public class RasterMosaicTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
-	}
-	
+	}	
 	
 	@Test
 	public void testGetStrongRegion(){
@@ -144,6 +146,73 @@ public class RasterMosaicTest {
 			expected.add(27);
 			expected.add(47);
 			expected.add(67);
+			assertEquals(expected,keys);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testGetStrongRegionSet(){
+		
+		re.clear();
+		
+		try {
+			re.setPresenceMap("C:/Temp/Rasters/block_left.txt",species);
+			re.setPresenceMap("C:/Temp/Rasters/block_center.txt",species2);
+			re.setPresenceMap("C:/Temp/Rasters/block_right.txt",species3);
+			re.setHabitatMap("ALL", species);
+			re.setHabitatMap("ALL", species2);
+			re.setHabitatMap("ALL", species3);
+			Set<String> speciesSet = new TreeSet<String>();
+			speciesSet.add(species);
+			speciesSet.add(species2);
+			Set<Patch> cells = re.getStrongRegion(re.getPatch(22),speciesSet,true);
+			Set<Integer> keys = re.getKeys(cells);
+			Set<Integer> expected = new TreeSet<Integer>();
+			expected.clear();
+			expected.add(2);
+			expected.add(22);
+			expected.add(23);
+			expected.add(24);
+			expected.add(25);
+			expected.add(42);
+			expected.add(43);
+			expected.add(44);
+			expected.add(45);
+			expected.add(62);
+			expected.add(63);
+			expected.add(64);
+			expected.add(65);
+			expected.add(82);
+			expected.add(83);
+			expected.add(84);
+			expected.add(85);
+			expected.add(102);
+			expected.add(103);
+			expected.add(104);
+			expected.add(105);
+			expected.add(125);
+			expected.add(145);
+			expected.add(165);
+			expected.add(185);
+			expected.add(10);
+			expected.add(11);
+			expected.add(12);
+			expected.add(30);
+			expected.add(31);
+			expected.add(32);
+			expected.add(50);
+			expected.add(51);
+			expected.add(52);
+			expected.add(66);
+			expected.add(67);
+			expected.add(68);
+			expected.add(69);
+			expected.add(70);
+			expected.add(71);
+			expected.add(72);
+			
 			assertEquals(expected,keys);
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -67,7 +67,8 @@ public class Process_Dispersal implements Process, Cloneable {
 					&& o.getAgeOfInfestation() >= waitTimes.get(species)
 					&& !o.hasControl(ControlType.GROUND_CONTROL)
 					&& !patch.hasControl(ControlType.CONTAINMENT)
-					&& !(patch.hasControl(ControlType.CONTAINMENT_CORE) || coreControl.contains(species))){
+					&& !patch.hasControl(ControlType.CONTAINMENT_CORE_CONTROL,species)
+					&& !patch.hasControl(ControlType.GROUND_CONTROL,species)){
 				
 					o.disperse();
 			}

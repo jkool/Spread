@@ -39,6 +39,12 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		controls.add(control);
 	}
 	
+	public void addControl(ControlType control, String species){
+		if(isInfestedBy(species)){
+			infestations.get(species).addControl(control);
+		}
+	}
+	
 	public void clearControls(){
 		controls.clear();
 		for(String s:infestations.keySet()){
@@ -178,12 +184,16 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		return 0l;
 	}
 
-	public Set<ControlType> getControls(String species){
-		Set<ControlType> controls = new TreeSet<ControlType>();
-			if(infestations.containsKey(species)){
-				controls.addAll(infestations.get(species).getControls().keySet());
-			}
+	public Set<ControlType> getControls(){
 		return controls;
+	}
+	
+	public Set<ControlType> getControls(String species){
+		Set<ControlType> speciesControls = new TreeSet<ControlType>();
+			if(infestations.containsKey(species)){
+				speciesControls.addAll(infestations.get(species).getControls().keySet());
+			}
+		return speciesControls;
 	}
 	
 	/**
@@ -357,9 +367,24 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	public boolean isMonitored() {
 		return monitored;
 	}
-
+	
 	/**
-	 * Indicates whether the patch has the given species as an Occupant
+	 * Indicates whether the patch is infested by any species
+	 * @param species
+	 * @return
+	 */
+
+	public boolean isInfested(){
+		for(String species:infestations.keySet()){
+			if(infestations.get(species).isInfested()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Indicates whether the patch is infested by the provided species
 	 * @param species
 	 * @return
 	 */
@@ -379,7 +404,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Retrieves a list of species currently occupying the patch
+	 * Retrieves a list of species currently occupying the Patch
 	 * @return
 	 */
 	

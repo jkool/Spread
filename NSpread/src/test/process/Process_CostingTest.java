@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import spread.impl.RasterMosaic;
 import spread.impl.process.Process_Costing;
@@ -24,26 +26,60 @@ public class Process_CostingTest {
 	Process_Monitor pm = new Process_Monitor();
 	Process_Costing pc = new Process_Costing();
 	String species = "Test_1";
+	String species2 = "Test_2";
+	String species3 = "Test_3";
 
 	@Before
 	public void setUp() throws Exception {
 		List<String> speciesList = new ArrayList<String>();
-		speciesList.add("Test_1");
+		speciesList.add(species);
+		speciesList.add(species2);
+		speciesList.add(species3);
 		rm.setSpeciesList(speciesList);
 
 		try {
-			rm.setPresenceMap("./resource files/patchtest.txt", species);
+			rm.setPresenceMap("./resource files/monitor_1.txt", species);
+			rm.setPresenceMap("./resource files/monitor_2.txt", species2);
+			rm.setPresenceMap("./resource files/monitor_3.txt", species3);
 			rm.setHabitatMap("ALL", species);
+			rm.setHabitatMap("ALL", species2);
+			rm.setHabitatMap("ALL", species3);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		Map<String, double[]> p_discovery = new TreeMap<String, double[]>();
 		p_discovery.put(species, new double[] { 1, 1, 1 });
+		p_discovery.put(species2, new double[] { 1, 1, 1 });
+		p_discovery.put(species3, new double[] { 1, 1, 1 });
+
+		pc.setContainmentCost(1);
+		pc.setContainmentLabour(1);
+
+		Map<String, double[]> gcCost = new TreeMap<String, double[]>();
+		Map<String, double[]> gcLabour = new TreeMap<String, double[]>();
+		Set<String> coreControl = new TreeSet<String>();
+
+		gcCost.put(species, new double[] { 1E3, 2E3, 3E3 });
+		gcCost.put(species2, new double[] { 1E6, 2E6, 3E6 });
+		gcCost.put(species3, new double[] { 1E9, 2E9, 3E9 });
+
+		gcLabour.put(species, new double[] { 1E-3, 2E-3, 3E-3 });
+		gcLabour.put(species2, new double[] { 1E-6, 2E-6, 3E-6 });
+		gcLabour.put(species3, new double[] { 1E-9, 2E-9, 3E-9 });
+		
+		coreControl.add(species2);
+
+		pc.setGroundControlCosts(gcCost);
+		pc.setGroundControlLabour(gcLabour);
 
 		pm.setPDiscovery(p_discovery);
+		pm.setContainmentCutoff(6);
 		pm.setCoreBufferSize(2);
 		pm.ignoreFirst(false);
+		pm.addToContainmentIgnore(species3);
+		pm.addToCoreControl(species2);
 
 	}
 
@@ -60,28 +96,17 @@ public class Process_CostingTest {
 
 		pm.process(rm);
 		pc.process(rm);
+		
+		assertEquals(rm.getControlled(ControlType.CONTAINMENT).size(),30);
+		assertEquals(rm.getControlled(ControlType.CONTAINMENT_CORE).size(),5);
+		assertEquals(rm.getControlled(species,ControlType.GROUND_CONTROL).size(),6);
+		assertEquals(rm.getControlled(species2,ControlType.CONTAINMENT_CORE_CONTROL).size(),2);
+		assertEquals(rm.getControlled(species2,ControlType.GROUND_CONTROL).size(),7);
+		assertEquals(rm.getControlled(species3,ControlType.GROUND_CONTROL).size(),31);
 
-		Map<Integer, Patch> patchlist = rm.getPatches();
-
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 20; j++) {
-				
-				Patch pp = patchlist.get((i * 20) + j);
-				if(pp.hasNoData()){System.out.print("NaN "); continue;}
-				ArrayList<ControlType> alist = new ArrayList<ControlType>();
-				alist.addAll(pp.getControls(species));
-				if (alist.size() == 0) {
-					System.out.print("0");
-				} else {
-					System.out.print(alist.get(0).ordinal() + 1);
-				}
-				System.out.print(" ");
-			}
-			System.out.println();
-		}
-
-	 assertEquals(26590, pc.getCostTotal(),1E-16);
-	 assertEquals(373, pc.getLabourTotal(),1E-16);
-
+		assertEquals(31008006030d, pc.getCostTotal(), 1E-8);
+		// Numbers are slightly different since ground control for species 2 now exceeds
+		// species 3.
+		assertEquals(30.006009030d, pc.getLabourTotal(), 1E-8);
 	}
 }

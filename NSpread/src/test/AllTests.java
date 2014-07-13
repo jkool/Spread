@@ -10,12 +10,13 @@ import test.process.Process_DispersalTest;
 import test.process.Process_GrowthTest;
 import test.process.Process_InfestationTest;
 import test.process.Process_MonitorTest;
+import test.util.StatsTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ RasterMosaicTest.class, Process_CostingTest.class, 
 	    Process_GrowthTest.class, Process_DispersalTest.class, 
 	    Process_InfestationTest.class, Process_MonitorTest.class, 
-	    OutputWriter_RasterCoverTest.class,	ExperimentTest.class })
+	    OutputWriter_RasterCoverTest.class,	ExperimentTest.class, StatsTest.class })
 public class AllTests {
 
 }
