@@ -179,6 +179,16 @@ public class Process_Monitor implements Process, Cloneable {
 		}
 	}
 
+	/**
+	 * Performs actions associated with monitoring a region of interconnected
+	 * Patches starting with a single seed Patch.
+	 * 
+	 * @param patch
+	 *            - the starting Patch
+	 * @param species
+	 *            - the species being considered
+	 */
+
 	private void handleRegion(Patch patch, String species) {
 
 		// If the patch has been visited for this species, return
@@ -241,6 +251,7 @@ public class Process_Monitor implements Process, Cloneable {
 		else {
 			ms.setMonitored(filled, true);
 			ms.setControl(filled, ControlType.CONTAINMENT);
+			ms.removeControl(filled, ControlType.GROUND_CONTROL, species);
 
 			Set<Patch> core = ms.getStrongCore(filled, species, coreBufferSize);
 			ms.setControl(core, ControlType.CONTAINMENT_CORE);
@@ -256,7 +267,7 @@ public class Process_Monitor implements Process, Cloneable {
 							ControlType.CONTAINMENT_CORE_CONTROL);
 				}
 			}
-			
+
 			it2 = visited.keySet().iterator();
 			while (it2.hasNext()) {
 				String sp = it2.next();
@@ -355,6 +366,13 @@ public class Process_Monitor implements Process, Cloneable {
 		this.p_discovery = p_discovery;
 	}
 
+	/**
+	 * Indicates whether monitoring should be ignored on the first pass (i.e.
+	 * assuming initial activity has been explicitly set)
+	 * 
+	 * @param ignore
+	 */
+
 	public void ignoreFirst(boolean ignore) {
 		this.ignoreFirst = ignore;
 	}
@@ -369,6 +387,11 @@ public class Process_Monitor implements Process, Cloneable {
 		this.timeIncrement = timeIncrement;
 	}
 
+	/**
+	 * Resets the process
+	 */
+
+	@Override
 	public void reset() {
 		this.first = true;
 	}

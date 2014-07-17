@@ -64,18 +64,42 @@ public class Process_GroundControl implements Process, Cloneable {
 		table.put(3, 7l, 0);
 	}
 	
+	/**
+	 * Adds a collection of species (indicated by Strings) to the list to be ignored by
+	 * ground control actions.
+	 * @param species - The species to be ignored.
+	 */
+	
 	public void addToIgnoreList(Collection<String> species){
 		this.ignore.addAll(species);
 	}
 
+	/**
+	 * Adds a species (indicated by a String) to the list to be ignored by
+	 * ground control actions.
+	 * @param species - The species to be ignored.
+	 */
+	
 	public void addToIgnoreList(String species){
 		this.ignore.add(species);
 	}
+	
+	/**
+	 * Adds a collection of species (indicated by Strings) to the list to be added to
+	 * core control activities
+	 * @param species - The species to be ignored.
+	 */
 	
 	public void addToCoreControlList(Collection<String> species){
 		this.coreControl.addAll(species);
 	}
 
+	/**
+	 * Adds a species (indicated by a String) to the list to be added to
+	 * core control activities
+	 * @param species - The species to be ignored.
+	 */
+	
 	public void addToCoreControlList(String species){
 		this.coreControl.add(species);
 	}
@@ -117,7 +141,7 @@ public class Process_GroundControl implements Process, Cloneable {
 	 */
 	
 	private void process(Patch patch) {
-
+		
 		for (String species : patch.getInfestation().keySet()) {
 			
 			if(ignore.contains(species)){
@@ -242,5 +266,6 @@ public class Process_GroundControl implements Process, Cloneable {
 	 * Resets the process
 	 */
 	
+	@Override
 	public void reset(){}
 }

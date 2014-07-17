@@ -7,9 +7,8 @@ package spread.util;
 public class MatrixUtils {
 
 	/**
-	 * Returns the absolute value for an array of doubles
-	 * @param da
-	 * @return
+	 * @param da - the input double array.
+	 * @return the absolute value for an array of doubles
 	 */
 	
 	public static double[] abs(double[] da){
@@ -22,9 +21,9 @@ public class MatrixUtils {
 	
 	/**
 	 * Adds two vectors of doubles
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a - the first vector of doubles.
+	 * @param b - the second vector of doubles.
+	 * @return the result of adding two vectors of doubles.
 	 */
 	
 	public static double[] add(double[] a,double[]b){
@@ -37,9 +36,9 @@ public class MatrixUtils {
 	
 	/**
 	 * Divides two vectors of doubles, array-wise.
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a - the first vector of doubles.
+	 * @param b - the second vector of doubles.
+	 * @return the result of dividing two vectors of doubles.
 	 */
 	
 	public static double[] arrayDivide(double[] a,double[]b){
@@ -52,9 +51,9 @@ public class MatrixUtils {
 
 	/**
 	 * Multiplies two vectors of doubles, array-wise.
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a - the first vector of doubles.
+	 * @param b - the second vector of doubles.
+	 * @return the result of multiplying two vectors of doubles.
 	 */
 	
 	public static double[] arrayMultiply(double[] a,double[]b){
@@ -67,8 +66,8 @@ public class MatrixUtils {
 	
 	/**
 	 * Sums a matrix along columns (across rows), assuming row,column orientation
-	 * @param na
-	 * @return
+	 * @param na - a matrix of integer values.
+	 * @return a vector representing the column sum of a matrix.
 	 */
 	
 	public static int[] colSum(int[][] na){
@@ -89,8 +88,8 @@ public class MatrixUtils {
 	
 	/**
 	 * Converts a vector of values into a diagonal matrix.
-	 * @param ia
-	 * @return
+	 * @param ia - a matrix of integer values.
+	 * @return - a matrix with the input values along the diagonal.
 	 */
 	
 	public static int[] diag(int[][] ia){
@@ -103,9 +102,9 @@ public class MatrixUtils {
 	
 	/**
 	 * Returns the dot product of two vectors.
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a - the first vector of doubles.
+	 * @param b - the second vector of doubles.
+	 * @return the result of taking the dot product of two vectors of doubles.
 	 */
 
 	public static double dot(double[] a,double[]b){
@@ -118,9 +117,9 @@ public class MatrixUtils {
 	
 	/**
 	 * Extracts a single column from a matrix
-	 * @param ia - the original matrix
-	 * @param col - the index of the column to be extracted
-	 * @return
+	 * @param ia - the original matrix.
+	 * @param col - the index of the column to be extracted.
+	 * @return the vector of values at the given column index.
 	 */
 	
 	public static int[] getCol(int[][] ia, int col){
@@ -132,10 +131,10 @@ public class MatrixUtils {
 	}
 	
 	/**
-	 * Extracts a single row from a matrix
-	 * @param ia - the original matrix
-	 * @param row - the index of the row to be extracted
-	 * @return
+	 * Extracts a single row from a matrix.
+	 * @param ia - the original matrix.
+	 * @param row - the index of the row to be extracted.
+	 * @return the vector of values at the given row index.
 	 */
 	
 	public static int[] getRow(int[][] ia, int row){
@@ -144,8 +143,8 @@ public class MatrixUtils {
 	
 	/**
 	 * Converts a vector of ints to doubles.
-	 * @param ia
-	 * @return
+	 * @param ia - the input vector of integers.
+	 * @return - the output vector of doubles.
 	 */
 	
 	public static double[] int2double(int[] ia){
@@ -158,8 +157,8 @@ public class MatrixUtils {
 	
 	/**
 	 * Returns the minimum value in vector of doubles.
-	 * @param da
-	 * @return
+	 * @param da - input vector of doubles.
+	 * @return - the minimum value within the vector.
 	 */
 	
 	public static double min(double[] da){
@@ -172,10 +171,9 @@ public class MatrixUtils {
 	}
 	
 	/**
-	 * Returns the minimum value between array of doubles and a given value.
-	 * @param da
-	 * @param val
-	 * @return
+	 * @param da - a vector of double values.
+	 * @param val - the comparison value.
+	 * @return the minimum value between an array of doubles and a given value.
 	 */
 	
 	public static double min(double[] da, double val){
@@ -187,10 +185,9 @@ public class MatrixUtils {
 	}
 	
 	/**
-	 * Returns an array containing the minimum of the array value or the given value
-	 * @param da - the array of input values
-	 * @param val - the minimum comparison value
-	 * @return
+	 * @param da - the array of input values.
+	 * @param val - the minimum comparison value.
+	 * @return an array containing the minimum of the array value or the given value.
 	 */
 	
 	public static double[] minOf(double[] da, double val){
@@ -202,10 +199,9 @@ public class MatrixUtils {
 	}
 
 	/**
-	 * Returns an array containing the pair-wise minimum among two arrays
-	 * @param a - the first array of input values
-	 * @param b - the second array of input values
-	 * @return
+	 * @param a - the first array of input values.
+	 * @param b - the second array of input values.
+	 * @return an array containing the pair-wise minimum among two arrays.
 	 */
 	
 	public static double[] minOf(double[] a,double[] b){
@@ -218,8 +214,8 @@ public class MatrixUtils {
 
 	/**
 	 * Sums a matrix along rows (across columns), assuming row,column orientation
-	 * @param na
-	 * @return
+	 * @param na - an array of integer values.
+	 * @return a vector representing the row sum of a matrix.
 	 */
 	
 	public static int[] rowSum(int[][] na){
@@ -241,7 +237,7 @@ public class MatrixUtils {
 	 * Divides an array of doubles by a scalar value
 	 * @param a - the vector of doubles
 	 * @param b - the scalar divisor
-	 * @return
+	 * @return the result of dividing the input vector by the scalar divisor.
 	 */
 	
 	public static double[] scalarDivide(double[] a,double b ){
@@ -256,7 +252,7 @@ public class MatrixUtils {
 	 * Multiplies an array of doubles by a scalar value
 	 * @param a - the vector of doubles
 	 * @param b - the scalar multiplier
-	 * @return
+	 * @return the result of multiplying the input vector by the scalar divisor.
 	 */	
 	
 	public static double[] scalarMultiply(double[] a,double b ){
@@ -269,9 +265,9 @@ public class MatrixUtils {
 	
 	/**
 	 * Returns the array-wise difference between two vectors.
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a - the first vector of doubles.
+	 * @param b - the second vector of doubles.
+	 * @return the result of subtracting the first vector of doubles from the second.
 	 */
 	
 	public static double[] subtract(double[] a,double[]b){
@@ -283,9 +279,8 @@ public class MatrixUtils {
 	}
 	
 	/**
-	 * Returns the sum of an array of doubles
-	 * @param da - an array of doubles
-	 * @return
+	 * @param da - an array of doubles.
+	 * @return the sum of an array of doubles.
 	 */
 	
 	public static double sum(double[] da){
@@ -297,9 +292,8 @@ public class MatrixUtils {
 	}
 	
 	/**
-	 * Returns the sum of an array of ints
-	 * @param ia - an array of ints
-	 * @return
+	 * @param ia - an array of ints.
+	 * @return the sum of an array of ints.
 	 */
 	
 	public static int sum(int[] ia){
@@ -311,9 +305,8 @@ public class MatrixUtils {
 	}
 	
 	/**
-	 * Returns the trace of a matrix of doubles (sum of elements on the diagonal)
-	 * @param matrix
-	 * @return
+	 * @param matrix - a matrix of doubles.
+	 * @return the trace of a matrix of doubles (sum of elements on the diagonal).
 	 */
 	
 	public static double trace(double[][] matrix){
@@ -325,9 +318,8 @@ public class MatrixUtils {
 	}
 	
 	/**
-	 * Returns the trace of a matrix of ints (sum of elements on the diagonal)
-	 * @param matrix
-	 * @return
+	 * @param matrix - a matrix of ints.
+	 * @return the trace of a matrix of ints (sum of elements on the diagonal).
 	 */
 	
 	public static int trace(int[][] matrix){

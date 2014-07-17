@@ -98,9 +98,9 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 				StringBuilder sb = new StringBuilder();
 				sb.append("OID,Distance,Rate,Replicate,");
 
-				//sb.append("N_infested,K_no,K_Allocation,K_quantity,K_histo,K_standard,Chance_agreement,Quantity_agreement,Allocation_agreement, Allocation_disagreement,Quantity_disagreement");
+				// sb.append("N_infested,K_no,K_Allocation,K_quantity,K_histo,K_standard,Chance_agreement,Quantity_agreement,Allocation_agreement, Allocation_disagreement,Quantity_disagreement");
 				sb.append("N_infested,Cost,Labour,K_no,K_Allocation,K_quantity,K_histo,K_standard,Chance_agreement,Quantity_agreement,Allocation_agreement, Allocation_disagreement,Quantity_disagreement");
-				
+
 				if (stats.isBinary()) {
 					sb.append(",Pierce_Skill,Figure_of_merit");
 				}
@@ -109,12 +109,11 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 				bw_map.get(species).write(sb.toString());
 			}
 		}
-		
+
 		mw.setFolder(outputFolder);
 		ms.setFolder(outputFolder);
 		mm.setFolder(outputFolder);
 	}
-
 
 	/**
 	 * Writes an experiment to output - i.e. a single line in the output table
@@ -130,15 +129,15 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 		Mosaic mosaic = exp.getMosaic();
 		List<Process> plist = exp.getProcesses();
 		int idx = -1;
-		for(int i = 0; i < plist.size(); i++){
-			if(plist.get(i) instanceof Process_Costing){
+		for (int i = 0; i < plist.size(); i++) {
+			if (plist.get(i) instanceof Process_Costing) {
 				idx = i;
 				break;
 			}
 		}
-		
+
 		Process_Costing pcst = (Process_Costing) plist.get(idx);
-		
+
 		List<String> speciesList = mosaic.getSpeciesList();
 
 		for (int i = 0; i < speciesList.size(); i++) {
@@ -248,6 +247,14 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 		n_expts++;
 	}
 
+	/**
+	 * Sets whether the frequency map should be written.
+	 * 
+	 * @param writeFrequencyMap
+	 *            - boolean indicating whether the frequency map should be
+	 *            written.
+	 */
+
 	public void writeFrequencyMap(boolean writeFrequencyMap) {
 		this.writeFrequencyMap = writeFrequencyMap;
 	}
@@ -272,8 +279,8 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 				if (tally.get(speciesList.get(i)).get(key) == nodata) {
 					data[row][col] = nodata;
 				} else {
-					data[row][col] = (double) tally.get(speciesList.get(i)).get(key)
-							/ (double) n_expts;
+					data[row][col] = (double) tally.get(speciesList.get(i))
+							.get(key) / (double) n_expts;
 				}
 			}
 
@@ -287,7 +294,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 			}
 		}
 	}
-	
+
 	// Getters and setters
 
 	public String getOutputFile() {
@@ -297,7 +304,7 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 	public String getOutputFolder() {
 		return outputFolder;
 	}
-	
+
 	public void setDistances(double[] distances) {
 		this.distances = distances;
 	}
@@ -333,5 +340,4 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 	public void setWriteTableHeader(boolean writeTableHeader) {
 		this.writeTableHeader = writeTableHeader;
 	}
-
 }

@@ -18,9 +18,7 @@ public enum ControlType {
 	}
 
 	/**
-	 * Returns the display name of the control type
-	 * 
-	 * @return
+	 * @return the display name of the control type
 	 */
 	
 	public String displayName() {

@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import junit.framework.Assert;
 
 import spread.impl.Disperser_Continuous2D;
+import spread.impl.Disperser_None;
 import spread.impl.RasterMosaic;
 import spread.impl.random.RandomGenerator_Determined;
 
@@ -40,6 +41,10 @@ public class RasterMosaicTest {
 		speciesList.add("Test_1");
 		speciesList.add("Test_2");
 		speciesList.add("Test_3");
+		
+		re.addDisperser(species, new Disperser_None());
+		re.addDisperser(species2, new Disperser_None());
+		re.addDisperser(species3, new Disperser_None());
 		re.setSpeciesList(speciesList);
 	}
 	

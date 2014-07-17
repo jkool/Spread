@@ -34,6 +34,7 @@ import spread.impl.process.Process_GroundControl;
 import spread.impl.process.Process_Growth;
 import spread.impl.process.Process_Infestation;
 import spread.impl.process.Process_Monitor;
+import spread.impl.random.RandomGenerator_Determined;
 import spread.impl.random.RandomGenerator_Exponential;
 import spread.impl.random.RandomGenerator_Kernel;
 import spread.impl.random.RandomGenerator_Poisson;
@@ -682,6 +683,9 @@ public class Spread {
 		pm.setContainmentCutoff(Double.parseDouble(properties.getProperty("Containment_Cutoff","500000")));
 		pm.setCoreBufferSize(Double.parseDouble(properties.getProperty("Core_Buffer_Size","750")));
 		pm.setCheckFrequency(mgt_frq);
+		if(properties.containsKey("Containment_Ignore")){
+			pm.addToContainmentIgnore((parseStringArray(properties.getProperty("Containment_Ignore"))));
+		}
 		List<double[]> p_discovery = parseMultiNumericArray(properties.getProperty("p_Detection"));
 		Map<String, double[]> detectionMap = new TreeMap<String,double[]>();
 		
@@ -711,7 +715,9 @@ public class Spread {
 		
 		Process_Containment pcc = new Process_Containment();
 		pcc.setCheckFrequency(mgt_frq);
-		pcc.addToIgnoreList(parseStringArray(properties.getProperty("Containment_Ignore")));
+		if(properties.containsKey("Containment_Ignore")){
+			pcc.addToIgnoreList(parseStringArray(properties.getProperty("Containment_Ignore")));
+		}
 		
 		// Adding cost accounting
 		
@@ -917,10 +923,10 @@ public class Spread {
 					for (int k = 0; k < speciesList.size(); k++) {
 
 						Disperser_Continuous2D dc2 = new Disperser_Continuous2D();
-						RandomGenerator_Exponential distanceGenerator = new RandomGenerator_Exponential();
-						distanceGenerator.setLambda(1 / distances.get(k)[i]);
-						//RandomGenerator_Determined distanceGenerator = new RandomGenerator_Determined();
-						//distanceGenerator.setValue(1 / distances.get(k)[i]);
+						//RandomGenerator_Exponential distanceGenerator = new RandomGenerator_Exponential();
+						//distanceGenerator.setLambda(1 / distances.get(k)[i]);
+						RandomGenerator_Determined distanceGenerator = new RandomGenerator_Determined();
+						distanceGenerator.setValue(1);
 						RandomGenerator angleGenerator = new RandomGenerator_Uniform();
 
 						if (properties.containsKey("Direction_Kernel")) {
@@ -930,6 +936,10 @@ public class Spread {
 									.getProperty("Direction_Kernel")).get(k));
 							angleGenerator = rk;
 						}
+						
+						RandomGenerator_Determined ad = new RandomGenerator_Determined();
+						ad.setValue(0);
+						angleGenerator = ad;
 
 						RandomGenerator_Poisson numberGenerator = new RandomGenerator_Poisson();
 						numberGenerator.setLambda(rates.get(k)[j]);

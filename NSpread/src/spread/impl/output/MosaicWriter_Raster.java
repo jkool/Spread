@@ -71,7 +71,12 @@ public class MosaicWriter_Raster implements MosaicWriter {
 		if(rm.getPatches().get(key).hasNoData()){return nodata;}
 		else{return rm.getPatches().get(key).isInfestedBy(species) ? 1 : 0;}
 	}
+	
+	/**
+	 * Gets the output folder/directory.
+	 */
 
+	@Override
 	public String getFolder(){
 		return path;
 	}
@@ -106,6 +111,11 @@ public class MosaicWriter_Raster implements MosaicWriter {
 		this.writeHeader = writeHeader;
 	}
 	
+	/**
+	 * Gets whether header information is included in the written output.
+	 */
+	
+	@Override
 	public boolean getWriteHeader(){
 		return writeHeader;
 	}

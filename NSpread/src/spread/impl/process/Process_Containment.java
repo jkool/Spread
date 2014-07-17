@@ -77,6 +77,10 @@ public class Process_Containment implements Process, Cloneable{
 
 	private void process(Patch patch) {
 		
+		if (patch.hasControl(ControlType.CONTAINMENT_CORE)) {
+			return;
+		}
+		
 		for (String species : patch.getInfestation().keySet()) {
 			
 			if(ignore.contains(species)){
@@ -84,12 +88,8 @@ public class Process_Containment implements Process, Cloneable{
 			}
 
 			// I'm gonna break my rusty cage... and run!
-
-			if (patch.getInfestation(species).hasControl(ControlType.CONTAINMENT_CORE)) {
-				continue;
-			}
 			
-			if (patch.getInfestation(species).hasControl(ControlType.CONTAINMENT)) {
+			if (patch.hasControl(ControlType.CONTAINMENT)) {
 				patch.getInfestation(species).setStageOfInfestation(0);
 				patch.getInfestation(species).clearInfestation();
 			}
@@ -98,12 +98,17 @@ public class Process_Containment implements Process, Cloneable{
 	
 	/**
 	 * Removes a species from the ignore list.
-	 * @param species
+	 * @param species - the species to be removed from the ignore list.
 	 */
 	
 	public void removeFromIgnoreList(String species){
 		this.ignore.remove(species);
 	}
+	
+	/**
+	 * Sets the frequency with which containment actions should occur.
+	 * @param checkFrequency - The frequency of checking for containment.
+	 */
 	
 	public void setCheckFrequency(long checkFrequency){
 		this.chkFrq=checkFrequency;
@@ -111,7 +116,7 @@ public class Process_Containment implements Process, Cloneable{
 	
 	/**
 	 * Sets the list of species to be ignored.
-	 * @param ignore
+	 * @param ignore - the species to be ignored.
 	 */
 	
 	public void setIgnoreList(Collection<String> ignore){
@@ -120,7 +125,7 @@ public class Process_Containment implements Process, Cloneable{
 	
 	/**
 	 * Sets the time increment over which containment actions will take place.
-	 * @param timeIncrement
+	 * @param timeIncrement - the time increment over which actions will occur.
 	 */
 	
 	public void setTimeIncrement(long timeIncrement) {
@@ -131,5 +136,6 @@ public class Process_Containment implements Process, Cloneable{
 	 * Resets the process
 	 */
 	
+	@Override
 	public void reset(){}
 }

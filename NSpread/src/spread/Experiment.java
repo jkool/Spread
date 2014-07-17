@@ -244,11 +244,11 @@ public class Experiment implements Cloneable {
 	/**
 	 * Sets the OutputWriter associated with the Experiment
 	 * 
-	 * @param ow
+	 * @param mw
 	 */
 
-	public void setMonitoredWriter(MosaicWriter om) {
-		this.mm = om;
+	public void setMonitoredWriter(MosaicWriter mw) {
+		this.mm = mw;
 	}
 
 	/**
@@ -282,19 +282,19 @@ public class Experiment implements Cloneable {
 	}
 	
 	/**
-	 * Sets the OutputWriter associated with the Experiment
+	 * Sets the StageWriter associated with the Experiment
 	 * 
-	 * @param ow
+	 * @param mw - the StageWriter associated with the Experiment
 	 */
 
-	public void setStageWriter(MosaicWriter os) {
-		this.ms = os;
+	public void setStageWriter(MosaicWriter mw) {
+		this.ms = mw;
 	}
 
 	/**
 	 * Sets the start time of the Experiment (as a long value)
 	 * 
-	 * @param startTime
+	 * @param startTime - the start time of the Experiment (as a long value)
 	 */
 
 	public void setStartTime(long startTime) {
@@ -302,9 +302,9 @@ public class Experiment implements Cloneable {
 	}
 
 	/**
-	 * Sets the OutputWrier associated with the Experiment
+	 * Sets the StatsWriter associated with the Experiment
 	 * 
-	 * @param ow
+	 * @param sw - The StatsWriter to be associated with the Experiment 
 	 */
 
 	public void setStatsWriter(StatsWriter sw) {

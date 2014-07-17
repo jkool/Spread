@@ -70,7 +70,7 @@ public class RandomGenerator_Exponential implements RandomGenerator, Cloneable {
 	/**
 	 * Sets the lambda value (rate) of the distribution.
 	 * 
-	 * @param lambda
+	 * @param lambda - the rate used by the distribution.
 	 */
 
 	public void setLambda(double lambda) {

@@ -36,6 +36,9 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	private boolean nodata = false;
 
 	public void addControl(ControlType control){
+		if(control.equals(ControlType.CONTAINMENT) && id==52487){
+			System.out.println("Patch 40");
+		}
 		controls.add(control);
 	}
 	
@@ -50,6 +53,19 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		for(String s:infestations.keySet()){
 			infestations.get(s).clearControls();
 		}
+	}
+	
+	public ControlType getMaxControl(){
+		ControlType max = ControlType.NONE;
+		for(ControlType control:controls){
+			max=ControlType.values()[Math.max(max.ordinal(), control.ordinal())];
+		}
+		for(String species:infestations.keySet()){
+			for(ControlType control:infestations.get(species).getControls().keySet()){
+				max=ControlType.values()[Math.max(max.ordinal(), control.ordinal())];
+			}
+		}
+		return max;
 	}
 	
 	public boolean hasControl(ControlType control){
@@ -75,8 +91,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Adds an Occupant to the Patch
-	 * @param occupant
+	 * Adds an Infestation to the Patch
+	 * @param infestation
 	 */
 	
 	public void addInfestation(Infestation infestation) {
@@ -84,14 +100,15 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 
 	/**
-	 * Adds a default Occupant to the patch associated
+	 * Adds a default Infestation to the patch associated
 	 * with the given species name.
 	 * @param species
 	 */
 	
-	public void addOccupant(String species) {
+	public void addInfestation(String species) {
 		Infestation infestation = new Infestation();
 		infestation.setSpecies(species);
+		infestation.setInfested(true);
 		infestations.put(species, infestation);
 	}
 	
@@ -101,7 +118,9 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	 */
 
 	public void clearInfestation(String species) {
-		infestations.get(species).clearInfestation();
+		if(infestations.containsKey(species)){
+			infestations.get(species).clearInfestation();
+		}
 	}
 
 	/**
@@ -115,17 +134,25 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		patch.nodata = nodata;
 		patch.visited = visited;
 		patch.monitored = monitored;
+		patch.wasMonitored=wasMonitored;
+		patch.id = id;
+		
 		Map<String,Double> hscopy = new TreeMap<String,Double>();
 		for (String s:habitatSuitabilities.keySet()){
 			hscopy.put(s, habitatSuitabilities.get(s));
 		}
+		
 		patch.habitatSuitabilities=hscopy;
-		patch.id = id;
+		
 		Map<String, Infestation> ocopy = new TreeMap<String, Infestation>();
 		for (String o : infestations.keySet()) {
 			ocopy.put(o, infestations.get(o).clone());
 		}
+		
 		patch.infestations = ocopy;
+		
+		Set<ControlType> ccontrols = new TreeSet<ControlType>(controls);
+		patch.controls=ccontrols;
 
 		return patch;
 	}
@@ -148,8 +175,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	/**
 	 * Tests for equality of Patches (based on id value)
 	 * 
-	 * @param p
-	 * @return
+	 * @param p - the Patch for comparison.
+	 * @return - whether the current Patch and the given Patch are equal (based on ID)
 	 */
 
 	public boolean equals(Patch p) {
@@ -157,8 +184,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Returns the length of time occupying species have infested this Patch
-	 * @return
+	 * @return a Java map of species names and associated infestation times.
 	 */
 
 	public Map<String, Long> getAgesOfInfestation() {
@@ -173,8 +199,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Returns the length of time occupying species have infested this Patch
-	 * @return
+	 * @return the length of time occupying species have infested this Patch
 	 */
 
 	public long getAgeOfInfestation(String species) {
@@ -184,9 +209,18 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		return 0l;
 	}
 
+	/**
+	 * @return the set of controls currently associated with this Patch
+	 */
+	
 	public Set<ControlType> getControls(){
 		return controls;
 	}
+	
+	/**
+	 * @param species - the species of interest.
+	 * @return the set of controls currently associated with this Patch and the given Species
+	 */
 	
 	public Set<ControlType> getControls(String species){
 		Set<ControlType> speciesControls = new TreeSet<ControlType>();
@@ -197,9 +231,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Returns the cumulative length of time occupying species have infested this Patch,
+	 * @return the cumulative length of time occupying species have infested this Patch,
 	 * e.g. the species may have been eliminated and re-infested.
-	 * @return
 	 */
 	
 	public Map<String, Long> getCumulativeAgesOfInfestation() {
@@ -214,9 +247,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 
 	/**
-	 * Returns a list of dispersing propagules produced by the Patch.  This is the equivalent
+	 * @return a list of dispersing propagules produced by the Patch.  This is the equivalent
 	 * of seeds produced by the Patch which have yet to be transported.
-	 * @return
 	 */
 	
 	public Map<String, Disperser> getDispersers() {
@@ -230,8 +262,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 
 	/**
-	 * Returns the shape of the patch as a geometry.
-	 * @return
+	 * @return the shape of the patch as a geometry.
 	 */
 	
 	public Geometry getGeometry() {
@@ -239,8 +270,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 
 	/**
-	 * Retrieves the suitability of the Patch associated with species types.
-	 * @return
+	 * @return the suitability of the Patch associated with species types.
 	 */
 	
 	public Map<String, Double> getHabitatSuitabilities() {
@@ -248,8 +278,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Retrieves the suitability of the Patch associated with species types.
-	 * @return
+	 * @return the suitability of the Patch associated with species types.
 	 */
 	
 	public double getHabitatSuitability(String species) {
@@ -257,8 +286,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Retrieves the id of the Patch.
-	 * @return
+	 * @return the id of the Patch.
 	 */
 
 	public int getID() {
@@ -266,8 +294,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 
 	/**
-	 * Retrieves the maximum infestation stage of the Patch
-	 * @return
+	 * @return the maximum infestation stage of the Patch
 	 */
 	
 	public Map<String, Integer> getMaxInfestations() {
@@ -281,9 +308,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 
 	/**
-	 * Retrieves an Occupant by species name.
 	 * @param species - the name of the species
-	 * @return
+	 * @return an infestation of the patch by its species name.
 	 */
 	
 	public Infestation getInfestation(String species) {
@@ -291,13 +317,17 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Retrieves all Occupants in the Patch.
-	 * @return
+	 * @return  all Infestations in the Patch.
 	 */
 
 	public Map<String, Infestation> getInfestation() {
 		return infestations;
 	}
+	
+	/**
+	 * @param species - the species of interest.
+	 * @return the set of Coordinates representing propagules associated with the given species.
+	 */
 	
 	public List<Coordinate> getPropagules(String species){
 		List<Coordinate> propagules = new ArrayList<Coordinate>();
@@ -308,8 +338,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 
 	/**
-	 * Returns the stages of infestation associated with each occupying species type.
-	 * @return
+	 * @return the stages of infestation associated with each occupying species type.
 	 */
 	
 	public Map<String, Integer> getStagesOfInfestation() {
@@ -324,8 +353,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Indicates whether this Patch has 'NoData'.
-	 * @return
+	 * @return whether this Patch has 'NoData'.
 	 */
 
 	public boolean hasNoData() {
@@ -334,7 +362,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	
 	/**
 	 * Increments all infestations by the given time increment
-	 * @param increment
+	 * @param increment - the time increment size
 	 */
 	
 	public void incrementInfestationTime(long increment) {
@@ -345,8 +373,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Indicates whether the Patch is controlled in some manner.
-	 * @return
+	 * @return whether the Patch is controlled in some manner.
 	 */
 	
 	public boolean isControlled(){
@@ -359,9 +386,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Indicates whether the Patch is being monitored - which may be potentially
+	 * @return whether the Patch is being monitored - which may be potentially
 	 * different than whether it is being controlled.
-	 * @return
 	 */
 	
 	public boolean isMonitored() {
@@ -369,9 +395,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Indicates whether the patch is infested by any species
-	 * @param species
-	 * @return
+	 * @return whether the patch is infested by any species.
 	 */
 
 	public boolean isInfested(){
@@ -384,9 +408,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Indicates whether the patch is infested by the provided species
-	 * @param species
-	 * @return
+	 * @param species - the species of interest
+	 * @return whether the patch is infested by the provided species
 	 */
 	
 	public boolean isInfestedBy(String species) {
@@ -394,9 +417,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Indicates whether the Patch was visited by an operation - used to prevent
+	 * @return whether the Patch was visited by an operation - used to prevent
 	 * duplicate processing during chain operations. 
-	 * @return
 	 */
 
 	public boolean isVisited() {
@@ -404,8 +426,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Retrieves a list of species currently occupying the Patch
-	 * @return
+	 * @return the list of species currently occupying the Patch
 	 */
 	
 	public Set<String> getCurrentOccupants(){
@@ -419,18 +440,18 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Removes a given Occupant from the Patch.
-	 * @param key
+	 * Removes a given Infestation from the Patch.
+	 * @param key - the species name to be removed.
 	 */
 
-	public void removeOccupant(String key) {
+	public void removeInfestation(String key) {
 		infestations.remove(key);
 	}
 
 	/**
 	 * Explicitly sets the length of time a given species has infested the Patch
-	 * @param species
-	 * @param ageOfInfestation
+	 * @param species - the species of interest.
+	 * @param ageOfInfestation - the age of infestation to be set.
 	 */
 	
 	public void setAgeOfInfestation(String species, long ageOfInfestation) {
@@ -439,8 +460,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 
 	/**
 	 * Sets the Disperser type associated with a given species
-	 * @param species
-	 * @param disperser
+	 * @param species - the species of interest.
+	 * @param disperser - the Disperser to be set.
 	 */
 	
 	public void setDisperser(String species, Disperser disperser) {
@@ -449,7 +470,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	
 	/**
 	 * Explicitly sets the geometry of the Patch
-	 * @param geom
+	 * @param geom - the geometry of the Patch.
 	 */
 
 	public void setGeometry(Geometry geom) {
@@ -458,8 +479,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 
 	/**
 	 * Sets the habitat suitability of the Patch associated with a given species.
-	 * @param species
-	 * @param habitatSuitability
+	 * @param species - the species of interest.
+	 * @param habitatSuitability - the associated habitat suitability level.
 	 */
 	
 	public void setHabitatSuitability(String species, double habitatSuitability) {
@@ -468,8 +489,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	
 	/**
 	 * Sets the habitat suitability of the Patch associated with a given species.
-	 * @param species
-	 * @param habitatSuitability
+	 * @param habitatSuitabilities - a Map of species names and habitat suitability values.
 	 */
 	
 	public void setHabitatSuitabilities(Map<String,Double> habitatSuitabilities) {
@@ -478,7 +498,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	
 	/**
 	 * Sets the id of the Patch.
-	 * @param id
+	 * @param id - the ID of the Patch.
 	 */
 
 	public void setID(int id) {
@@ -487,8 +507,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	
 	/**
 	 * Sets the infestation state of the Patch by a given species (assumes the Patch is already Infested)
-	 * @param species
-	 * @param infested
+	 * @param species - the species of interest
+	 * @param infested - whether the Patch will be considered as infested or not.
 	 */
 
 	public void setInfested(String species, boolean infested) {
@@ -567,8 +587,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Returns whether the Patch was ever under management control at some point.
-	 * @return
+	 * @return whether the Patch was ever under management control at some point.
 	 */
 
 	public boolean wasControlled(){
@@ -581,9 +600,8 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 
 	/**
-	 * Returns whether the Patch was ever infested by he given Species at some point.
-	 * @param species
-	 * @return
+	 * @param species - the species of interest.
+	 * @return whether the Patch was ever infested by he given Species at some point.
 	 */
 	
 	public boolean wasInfestedBy(String species){
@@ -591,8 +609,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	}
 	
 	/**
-	 * Indicates whether the Patch was ever monitored at some point.
-	 * @return
+	 * @return whether the Patch was ever monitored at some point.
 	 */
 	
 	public boolean wasMonitored(){

@@ -65,7 +65,7 @@ public class RandomGenerator_Poisson implements RandomGenerator, Cloneable {
 	/**
 	 * Sets the lambda value (rate) of the distribution.
 	 * 
-	 * @param lambda
+	 * @param lambda - the lambda value of the distribution.
 	 */
 
 	public void setLambda(double lambda) {

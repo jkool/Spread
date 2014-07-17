@@ -14,41 +14,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  */
 
-public class Disperser_Continuous2D implements Disperser {
-
-	private String level = "None";
-	private RandomGenerator angleGenerator; //= new RandomGenerator_Kernel();
-	private RandomGenerator distanceGenerator; //= new RandomGenerator_Exponential();
-	private RandomGenerator numberGenerator; //= new RandomGenerator_Poisson();
-	private Coordinate position = new Coordinate(0, 0);
-	private final double tau = 2 * Math.PI;
-
-	/**
-	 * Adds two coordinates together. Used to transform from relative position
-	 * to absolute by adding to the positional Coordinate.
-	 * 
-	 * @param a
-	 *            - the first Coordinate
-	 * @param b
-	 *            - the second Coordinate
-	 * @return - The resultant Coordinate
-	 */
-
-	private Coordinate add(Coordinate a, Coordinate b) {
-		return new Coordinate(a.x + b.x, a.y + b.y);
-	}
+public class Disperser_None implements Disperser {
 
 	/**
 	 * Returns a clone/copy of the instance
 	 */
 
 	@Override
-	public Disperser_Continuous2D clone() {
-		Disperser_Continuous2D sd = new Disperser_Continuous2D();
-		sd.setAngleGenerator(angleGenerator.clone());
-		sd.setDistanceGenerator(distanceGenerator.clone());
-		sd.setNumberGenerator(numberGenerator.clone());
-		sd.setPosition(position);
+	public Disperser_None clone() {
+		Disperser_None sd = new Disperser_None();
 		return sd;
 	}
 
@@ -59,7 +33,7 @@ public class Disperser_Continuous2D implements Disperser {
 
 	@Override
 	public List<Coordinate> disperse() {
-		return disperse(numberGenerator.getNext().intValue());
+		return new ArrayList<Coordinate>();
 	}
 
 	/**
@@ -72,23 +46,7 @@ public class Disperser_Continuous2D implements Disperser {
 	 */
 
 	public List<Coordinate> disperse(int n) {
-		List<Coordinate> dispersePoints = new ArrayList<Coordinate>();
-
-		for (int i = 0; i < n; i++) {
-			double angle = angleGenerator.getNext().doubleValue() * tau;
-			double distance = distanceGenerator.getNext().doubleValue();
-			double x = distance * Math.cos(angle);
-			double y = distance * Math.sin(angle);
-
-			// Add the displacement to the original position to get absolute
-			// location. This is done here rather than at the level
-			// of Cell because cell could release at random positions within
-			// the Geometry.
-
-			Coordinate c = add(position, new Coordinate(x, y));
-			dispersePoints.add(c);
-		}
-		return dispersePoints;
+		return new ArrayList<Coordinate>();
 	}
 
 	/**
@@ -98,7 +56,7 @@ public class Disperser_Continuous2D implements Disperser {
 	 */
 
 	public RandomGenerator getAngleGenerator() {
-		return angleGenerator;
+		return null;
 	}
 
 	/**
@@ -108,7 +66,7 @@ public class Disperser_Continuous2D implements Disperser {
 	 */
 
 	public RandomGenerator getDistanceGenerator() {
-		return distanceGenerator;
+		return null;
 	}
 
 	/**
@@ -118,7 +76,7 @@ public class Disperser_Continuous2D implements Disperser {
 
 	@Override
 	public String getLevel() {
-		return level;
+		return "";
 	}
 
 	/**
@@ -130,7 +88,7 @@ public class Disperser_Continuous2D implements Disperser {
 	 */
 
 	public RandomGenerator getNumberGenerator() {
-		return numberGenerator;
+		return null;
 	}
 
 	/**
@@ -140,7 +98,7 @@ public class Disperser_Continuous2D implements Disperser {
 
 	@Override
 	public Coordinate getPosition() {
-		return position;
+		return null;
 	}
 
 	/**
@@ -150,7 +108,6 @@ public class Disperser_Continuous2D implements Disperser {
 	 */
 
 	public void setAngleGenerator(RandomGenerator angleGenerator) {
-		this.angleGenerator = angleGenerator;
 	}
 
 	/**
@@ -160,7 +117,6 @@ public class Disperser_Continuous2D implements Disperser {
 	 */
 
 	public void setDistanceGenerator(RandomGenerator distanceGenerator) {
-		this.distanceGenerator = distanceGenerator;
 	}
 
 	/**
@@ -172,7 +128,6 @@ public class Disperser_Continuous2D implements Disperser {
 
 	@Override
 	public void setNumberGenerator(RandomGenerator numberGenerator) {
-		this.numberGenerator = numberGenerator;
 	}
 
 	/**
@@ -182,6 +137,5 @@ public class Disperser_Continuous2D implements Disperser {
 
 	@Override
 	public void setPosition(Coordinate position) {
-		this.position = position;
 	}
 }

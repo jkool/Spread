@@ -63,10 +63,9 @@ public class Process_Costing implements Process, Cloneable {
 	}
 
 	/**
-	 * Retrieves the total instantaneous cost of management across the mosaic
-	 * 
 	 * @param mosaic
-	 * @return
+	 *            - the input Mosaic for which the cost will be calculated.
+	 * @return the total instantaneous cost of management across the mosaic.
 	 */
 
 	public double getCost(Mosaic mosaic) {
@@ -81,10 +80,9 @@ public class Process_Costing implements Process, Cloneable {
 	}
 
 	/**
-	 * Retrieves the total instantaneous cost of management for a single Patch
-	 * 
 	 * @param patch
-	 * @return
+	 *            - the Patch for which the cost will be calculated.
+	 * @return the total instantaneous cost of management for a single Patch.
 	 */
 
 	public double getCost(Patch patch) {
@@ -103,7 +101,7 @@ public class Process_Costing implements Process, Cloneable {
 		// Add species-level cost
 
 		double max_gc = 0;
-		
+
 		for (String species : patch.getInfestation().keySet()) {
 			Set<ControlType> sp_controls = patch.getControls(species);
 
@@ -113,20 +111,20 @@ public class Process_Costing implements Process, Cloneable {
 
 				int stage = patch.getInfestation(species)
 						.getStageOfInfestation();
+
 				max_gc = Math.max(max_gc,
 						ground_control_costs.get(species)[stage - 1]);
 			}
 		}
-		
-		patchCost+=max_gc;
+
+		patchCost += max_gc;
 
 		return patchCost;
 	}
 
 	/**
-	 * Gets the total management cost
+	 * @return the total accumulated management cost
 	 * 
-	 * @return
 	 */
 
 	public double getCostTotal() {
@@ -134,11 +132,9 @@ public class Process_Costing implements Process, Cloneable {
 	}
 
 	/**
-	 * Retrieves the total instantaneous labour cost of management across the
-	 * mosaic
-	 * 
 	 * @param mosaic
-	 * @return
+	 * @return the total instantaneous labour cost of management across the
+	 *         mosaic
 	 */
 
 	public double getLabour(Mosaic mosaic) {
@@ -153,11 +149,10 @@ public class Process_Costing implements Process, Cloneable {
 	}
 
 	/**
-	 * Retrieves the total instantaneous labour cost of management for a single
-	 * Patch
-	 * 
 	 * @param patch
-	 * @return
+	 *            - the Patch of interest
+	 * @return the total instantaneous labour cost of management for a single
+	 *         Patch
 	 */
 
 	public double getLabour(Patch patch) {
@@ -177,7 +172,7 @@ public class Process_Costing implements Process, Cloneable {
 		// Add species-level labour
 
 		double max_gc = 0;
-		
+
 		for (String species : patch.getInfestation().keySet()) {
 			Set<ControlType> sp_controls = patch.getControls(species);
 
@@ -191,17 +186,15 @@ public class Process_Costing implements Process, Cloneable {
 						ground_control_labour.get(species)[stage - 1]);
 			}
 		}
-		
-		patLabor+=max_gc;
+
+		patLabor += max_gc;
 
 		return patLabor;
 
 	}
 
 	/**
-	 * Gets the total labour required
-	 * 
-	 * @return
+	 * @return the total accumulated labour required
 	 */
 
 	public double getLabourTotal() {
@@ -251,6 +244,7 @@ public class Process_Costing implements Process, Cloneable {
 	 * Resets the process
 	 */
 
+	@Override
 	public void reset() {
 		this.costTotal = 0;
 		this.labourTotal = 0;

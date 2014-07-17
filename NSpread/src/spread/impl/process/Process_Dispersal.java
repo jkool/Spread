@@ -78,7 +78,7 @@ public class Process_Dispersal implements Process, Cloneable {
 	/**
 	 * Sets the amount of time before the onset of dispersion.
 	 * 
-	 * @param waitTime
+	 * @param waitTimes
 	 *            - the amount of time to wait before dispersion (commence at
 	 *            equals).
 	 */
@@ -87,10 +87,22 @@ public class Process_Dispersal implements Process, Cloneable {
 		this.waitTimes = waitTimes;
 	}
 	
+	/**
+	 * Adds a collection of species (indicated by Strings) to the list
+	 * of species that will be ground-controlled in core areas.
+	 * @param species - the species to be ground controlled
+	 */
+	
 	public void addToCoreControlList(Collection<String> species){
 		this.coreControl.addAll(species);
 	}
 
+	/**
+	 * Adds a species (indicated by a String) to the list
+	 * of species that will be ground-controlled in core areas.
+	 * @param species - the species to be ground controlled
+	 */
+	
 	public void addToCoreControlList(String species){
 		this.coreControl.add(species);
 	}
@@ -99,5 +111,6 @@ public class Process_Dispersal implements Process, Cloneable {
 	 * Resets the process
 	 */
 	
+	@Override
 	public void reset(){}
 }

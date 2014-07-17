@@ -95,6 +95,7 @@ public class Infestation implements Cloneable {
 		occ.maxInfestation = maxInfestation;
 		occ.maxControl=maxControl;
 		occ.wasControlled=wasControlled;
+		occ.wasInfested=wasInfested;
 		occ.species = species;
 		List<Coordinate> propagules_c = new ArrayList<Coordinate>();
 		for (Coordinate c : propagules) {
@@ -113,9 +114,6 @@ public class Infestation implements Cloneable {
 	
 	public void disperse() {
 		try {
-			if(disperser==null){
-				System.out.println("Infestation 113");
-			}
 			propagules = disperser.disperse();
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -123,8 +121,8 @@ public class Infestation implements Cloneable {
 	}
 	
 	/**
-	 * Returns the length of time the Occupant has been in place.
-	 * @return
+	 * Returns the length of time the Infestation has been in place.
+	 * @return the length of time the Infestations has been in place.
 	 */
 
 	public long getAgeOfInfestation() {
@@ -134,7 +132,7 @@ public class Infestation implements Cloneable {
 	/**
 	 * Returns the Map (as in Java Map) of ControlTypes associated with the occupant,
 	 * with values indicating the length of time the control has been in place.
-	 * @return
+	 * @return a map of ControlTypes and the length of time they have been in place.
 	 */
 
 	public Map<ControlType, Long> getControls() {
@@ -143,18 +141,21 @@ public class Infestation implements Cloneable {
 	
 	/**
 	 * Returns the length of time a given control has been in place.
-	 * @param control
-	 * @return
+	 * @param control - the ControlType being queried
+	 * @return - the length of time the given control has been in place
 	 */
 
 	public long getControlTime(ControlType control) {
-		return controls.get(control);
+		if(controls.containsKey(control)){
+			return controls.get(control);
+		}
+		return 0l;
 	}
 	
 	/**
-	 * Returns the cumulative time that the Occupant has been in place -
-	 * e.g. if cleared and then reinfested.
-	 * @return
+	 * Returns the cumulative time that the Infestation has been in place -
+	 * e.g. if cleared and then re-infested.
+	 * @return - the cumulative time that the Infestation has been in place.
 	 */
 
 	public long getCumulativeAgeOfInfestation() {
@@ -162,8 +163,8 @@ public class Infestation implements Cloneable {
 	}
 	
 	/**
-	 * Retrieves the Disperser object associated with the Occupant.
-	 * @return
+	 * Retrieves the Disperser object associated with the Infestation.
+	 * @return - the Disperser object associated with the Infestation
 	 */
 
 	public Disperser getDisperser() {
@@ -171,8 +172,8 @@ public class Infestation implements Cloneable {
 	}
 	
 	/**
-	 * Return the maximum control level applied to this Occupant.
-	 * @return
+	 * Return the maximum control level applied to this Infestation.
+	 * @return - the maximum control level applied to this Infestation.
 	 */
 
 	public int getMaxControl(){
@@ -180,8 +181,8 @@ public class Infestation implements Cloneable {
 	}
 
 	/**
-	 * Return the maximum infestation level associated with this Occupant.
-	 * @return
+	 * Return the maximum level associated with this Infestation.
+	 * @return the maximum level associated with this Infestation.
 	 */
 	
 	public int getMaxInfestation() {
@@ -189,8 +190,8 @@ public class Infestation implements Cloneable {
 	}
 	
 	/**
-	 * Get the species name of this Occupant.
-	 * @return
+	 * Get the species name of this Infestation.
+	 * @return the species name of this Infestation.
 	 */
 	
 	public String getName() {
@@ -199,8 +200,9 @@ public class Infestation implements Cloneable {
 
 	/**
 	 * Returns a List of Coordinate locations for propagules
-	 * produced by this Occupant.
-	 * @return
+	 * produced by this Infestation.
+	 * @return the List of Coordinate locations for propagules
+	 * produced by this Infestation.
 	 */
 	
 	public List<Coordinate> getPropagules() {
@@ -208,8 +210,8 @@ public class Infestation implements Cloneable {
 	}
 	
 	/**
-	 * Retrieve the current stage of infestation of this Occupant.
-	 * @return
+	 * Retrieve the current stage of this Infestation.
+	 * @return the current stage of this Infestation.
 	 */
 
 	public int getStageOfInfestation() {
@@ -217,10 +219,11 @@ public class Infestation implements Cloneable {
 	}
 
 	/**
-	 * Indicates whether this Occupant is currently subject to 
+	 * Indicates whether this Infestation is currently subject to 
 	 * the given ControlType.
 	 * @param control
-	 * @return
+	 * @return whether this Infestation is currently subject to 
+	 * the given ControlType.
 	 */
 	
 	public boolean hasControl(ControlType control) {
@@ -229,7 +232,7 @@ public class Infestation implements Cloneable {
 	
 	/**
 	 * Indicates whether this Occupant is a (species-specific) NoData element.
-	 * @return
+	 * @return whether this Occupant is a (species-specific) NoData element.
 	 */
 
 	public boolean hasNoData() {
@@ -251,7 +254,8 @@ public class Infestation implements Cloneable {
 	/**
 	 * Indicates whether this Occupant is currently subject to 
 	 * any ControlType
-	 * @return
+	 * @return whether this Occupant is currently subject to 
+	 * any ControlType
 	 */
 	
 	public boolean isControlled(){
@@ -265,7 +269,7 @@ public class Infestation implements Cloneable {
 	
 	/**
 	 * Indicates whether this Occupant is infested
-	 * @return
+	 * @return whether this Occupant is infested
 	 */
 
 	public boolean isInfested() {
@@ -275,7 +279,8 @@ public class Infestation implements Cloneable {
 	/**
 	 * Indicates if this Occupant has been visited as part of
 	 * a process chain.
-	 * @return
+	 * @return if this Occupant has been visited as part of
+	 * a process chain.
 	 */
 	
 	public boolean isVisited(){
@@ -303,7 +308,7 @@ public class Infestation implements Cloneable {
 	/**
 	 * Explicitly sets the control time of a given control.
 	 * @param control
-	 * @param controlTime
+	 * @param controlTime - the control time of a given control.
 	 */
 	
 	public void setControlTime(ControlType control, long controlTime) {
@@ -325,6 +330,7 @@ public class Infestation implements Cloneable {
 	 */
 	
 	public void setInfested(boolean infested) {
+		
 		this.infested = infested;
 
 		if (infested) {
@@ -353,7 +359,7 @@ public class Infestation implements Cloneable {
 	public void setNoData(boolean noData) {
 		this.NODATA = noData;
 	}
-
+	
 	/**
 	 * Explicitly sets the coordinates of propagules produced by the
 	 * Occupant.
@@ -388,8 +394,7 @@ public class Infestation implements Cloneable {
 	}
 
 	/**
-	 * Sets whether the Occupant was ever controlled at some point in time.
-	 * @return
+	 * @return whether the Occupant was ever controlled at some point in time.
 	 */
 	
 	public boolean wasControlled(){
@@ -398,8 +403,7 @@ public class Infestation implements Cloneable {
 	
 	
 	/**
-	 * Sets whether the Occupant was ever present at some point in time.
-	 * @return
+	 * @return whether the Occupant was ever present at some point in time.
 	 */
 	
 	public boolean wasInfested() {

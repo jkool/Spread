@@ -2,6 +2,8 @@ package spread.util;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import spread.Infestation;
 
@@ -24,10 +26,9 @@ public class Stats {
 	private double figureOfMerit;
 
 	/**
-	 * Generates a (2x2) confusion matrix from two logical vectors.
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a - the first vector of boolean values
+	 * @param b - the second vector of boolean values
+	 * @return a (2x2) confusion matrix from two boolean vectors.
 	 */
 
 	public int[][] makeConfusionMatrix(boolean[] a, boolean[] b){
@@ -72,10 +73,9 @@ public class Stats {
 	}
 	
 	/**
-	 * Generates a (2x2) confusion matrix from two occupant Maps (as in Java Map).
-	 * @param a - the reference Map
-	 * @param b - the comparison Map
-	 * @return
+	 * @param reference - the reference Map
+	 * @param comparison - the comparison Map
+	 * @return a (2x2) confusion matrix from two occupant Maps (as in Java Map).
 	 */
 
 	public int[][] makeConfusionMatrix(Map<Integer, Infestation> reference,
@@ -86,28 +86,22 @@ public class Stats {
 		if (comparison == null) {
 			throw new IllegalArgumentException("Observed patches are null");
 		}
-		if (reference.size() != comparison.size()) {
-			throw new IllegalArgumentException(
-					"Patch sets do not contain the same number of items.  Reference: "
-							+ reference.size() + ",Comparison: "
-							+ comparison.size());
-		}
 
 		// TODO Possibly change to more general form
 
 		int[][] c_matrix = new int[2][2];
-		Iterator<Integer> it = comparison.keySet().iterator();
 
+		Set<Integer> joint = new TreeSet<Integer>(reference.keySet());
+		joint.addAll(comparison.keySet());
+		
+		Iterator<Integer> it = joint.iterator();
+		
 		while (it.hasNext()) {
 
 				int key = it.next();
 				
-				if(comparison.get(key).hasNoData()||reference.get(key).hasNoData()){
-					continue;
-				}
-				
-				boolean comp_infested = comparison.get(key).isInfested();
-				boolean ref_infested = reference.get(key).isInfested();
+				boolean comp_infested = comparison.containsKey(key) && comparison.get(key).isInfested();
+				boolean ref_infested = reference.containsKey(key) && reference.get(key).isInfested();
 			
 				if (!comp_infested && !ref_infested) {
 					c_matrix[0][0]++;
