@@ -97,16 +97,18 @@ public class Process_CostingTest {
 		pm.process(rm);
 		pc.process(rm);
 		
-		assertEquals(rm.getControlled(ControlType.CONTAINMENT).size(),30);
-		assertEquals(rm.getControlled(ControlType.CONTAINMENT_CORE).size(),5);
-		assertEquals(rm.getControlled(species,ControlType.GROUND_CONTROL).size(),6);
-		assertEquals(rm.getControlled(species2,ControlType.CONTAINMENT_CORE_CONTROL).size(),2);
-		assertEquals(rm.getControlled(species2,ControlType.GROUND_CONTROL).size(),7);
-		assertEquals(rm.getControlled(species3,ControlType.GROUND_CONTROL).size(),31);
+		assertEquals(30,rm.getControlled(ControlType.CONTAINMENT).size()); // 35 - 5 core
+		assertEquals(5,rm.getControlled(ControlType.CONTAINMENT_CORE).size()); // 5 core (2 cells in)
+		assertEquals(6,rm.getControlled(species,ControlType.GROUND_CONTROL).size());
+		assertEquals(2,rm.getControlled(species2,ControlType.CONTAINMENT_CORE_CONTROL).size());
+		assertEquals(7,rm.getControlled(species2,ControlType.GROUND_CONTROL).size());
+		assertEquals(31,rm.getControlled(species3,ControlType.GROUND_CONTROL).size());
 
+		//31 sp3gc + 6 sp2gc + 2 sp2cc (=8) +6 sp1gc + 30 containment
 		assertEquals(31008006030d, pc.getCostTotal(), 1E-8);
+		
 		// Numbers are slightly different since ground control for species 2 now exceeds
-		// species 3.
+		// species 3. 30 containment + 6sp1gc + 7sp2gc + 2 sp2cc + 30 sp3gc
 		assertEquals(30.006009030d, pc.getLabourTotal(), 1E-8);
 	}
 }

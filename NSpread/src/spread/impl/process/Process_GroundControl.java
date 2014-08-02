@@ -196,8 +196,8 @@ public class Process_GroundControl implements Process, Cloneable {
 				// if the stage has reached 0, clear the infestation
 				
 				if (o.getStageOfInfestation() == 0) {
-					o.clearInfestation();
 					o.removeControl(ControlType.GROUND_CONTROL);
+					o.clearInfestation();
 					
 					if(patch.getCurrentOccupants().size()==1&&patch.getCurrentOccupants().contains(species)){
 						

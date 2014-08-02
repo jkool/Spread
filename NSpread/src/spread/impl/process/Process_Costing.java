@@ -104,6 +104,8 @@ public class Process_Costing implements Process, Cloneable {
 
 		for (String species : patch.getInfestation().keySet()) {
 			Set<ControlType> sp_controls = patch.getControls(species);
+			
+			// Only add species cost if ground-controlled or core controlled
 
 			if (sp_controls.contains(ControlType.GROUND_CONTROL)
 					|| sp_controls
@@ -112,6 +114,8 @@ public class Process_Costing implements Process, Cloneable {
 				int stage = patch.getInfestation(species)
 						.getStageOfInfestation();
 
+				// Take the maximum cost of the species-level controls
+				
 				max_gc = Math.max(max_gc,
 						ground_control_costs.get(species)[stage - 1]);
 			}

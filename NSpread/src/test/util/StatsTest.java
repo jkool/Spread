@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import spread.Infestation;
+import spread.Patch;
 
 public class StatsTest {
 
@@ -23,39 +24,42 @@ public class StatsTest {
 
 	@Test
 	public void testConfusionMatrix(){
-		Map<Integer,Infestation> truth = new TreeMap<Integer,Infestation>();
-		Map<Integer,Infestation> estimate = new TreeMap<Integer,Infestation>();
-		Infestation infested = new Infestation("Test");
+		Map<Integer,Patch> truth = new TreeMap<Integer,Patch>();
+		Map<Integer,Patch> estimate = new TreeMap<Integer,Patch>();
+		Infestation infested = new Infestation(species);
 		infested.setInfested(true);
 		
-		Infestation not_infested = new Infestation("Test");
+		Infestation not_infested = new Infestation(species);
 		not_infested.setInfested(false);
 		
-		estimate.put(0, not_infested);
-		estimate.put(1, not_infested);
-		estimate.put(2, not_infested);
-		estimate.put(3, not_infested);
-		estimate.put(4, not_infested);
-		estimate.put(5, not_infested);
-		estimate.put(6, not_infested);
-		estimate.put(7, infested);
-		estimate.put(8, infested);
-		estimate.put(9, infested);
+		Patch pi = new Patch();
+		pi.addInfestation(infested);
 		
-		truth.put(0, not_infested);
-		truth.put(1, not_infested);
-		truth.put(2, not_infested);
-		truth.put(3, not_infested);
-		truth.put(4, infested);
-		truth.put(5, infested);
-		truth.put(6, infested);
-		truth.put(7, not_infested);
-		truth.put(8, not_infested);
-		truth.put(9, infested);
+		Patch pni = new Patch();
 		
-
+		estimate.put(0, pni);
+		estimate.put(1, pni);
+		estimate.put(2, pni);
+		estimate.put(3, pni);
+		estimate.put(4, pni);
+		estimate.put(5, pni);
+		estimate.put(6, pni);
+		estimate.put(7, pi);
+		estimate.put(8, pi);
+		estimate.put(9, pi);
 		
-		int[][] cmatrix = stats.makeConfusionMatrix(truth, estimate);
+		truth.put(0, pni);
+		truth.put(1, pni);
+		truth.put(2, pni);
+		truth.put(3, pni);
+		truth.put(4, pi);
+		truth.put(5, pi);
+		truth.put(6, pi);
+		truth.put(7, pni);
+		truth.put(8, pni);
+		truth.put(9, pi);
+		
+		int[][] cmatrix = stats.makeConfusionMatrix(truth, estimate, species);
 		assertEquals(cmatrix[0][0],4);
 		assertEquals(cmatrix[0][1],3);
 		assertEquals(cmatrix[1][0],2);

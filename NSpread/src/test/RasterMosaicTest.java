@@ -158,6 +158,28 @@ public class RasterMosaicTest {
 	}
 	
 	@Test
+	public void testGetUndetected(){
+		
+		re.clear();
+		
+		try{
+		   re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+		   re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species3);
+		   re.setHabitatMap("ALL", species);
+		   re.setManagementMap("C:/Temp/Rasters/monitor_1.txt", species);
+		   re.setManagementMap("C:/Temp/Rasters/monitor_2.txt", species2);
+		   re.setManagementMap("C:/Temp/Rasters/monitor_3.txt", species3);
+		   assertEquals(27,re.getNumberUndetected(species));
+		   assertEquals(0,re.getNumberUndetected(species2));
+		   assertEquals(27,re.getNumberUndetected(species3));
+		   assertEquals(27,re.getNumberUndetected());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	@Test
 	public void testGetStrongRegionSet(){
 		
 		re.clear();

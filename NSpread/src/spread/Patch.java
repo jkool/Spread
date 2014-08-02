@@ -36,9 +36,6 @@ public class Patch implements Cloneable, Comparable<Patch> {
 	private boolean nodata = false;
 
 	public void addControl(ControlType control){
-		if(control.equals(ControlType.CONTAINMENT) && id==52487){
-			System.out.println("Patch 40");
-		}
 		controls.add(control);
 	}
 	
@@ -109,6 +106,7 @@ public class Patch implements Cloneable, Comparable<Patch> {
 		Infestation infestation = new Infestation();
 		infestation.setSpecies(species);
 		infestation.setInfested(true);
+		infestation.setParent(this);
 		infestations.put(species, infestation);
 	}
 	

@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import spread.Infestation;
+import spread.Patch;
 
 
 public class Stats {
@@ -78,8 +79,8 @@ public class Stats {
 	 * @return a (2x2) confusion matrix from two occupant Maps (as in Java Map).
 	 */
 
-	public int[][] makeConfusionMatrix(Map<Integer, Infestation> reference,
-			Map<Integer, Infestation> comparison) {
+	public int[][] makeConfusionMatrix(Map<Integer, Patch> reference,
+			Map<Integer, Patch> comparison, String species) {
 		if (reference == null) {
 			throw new IllegalArgumentException("Reference patches are null");
 		}
@@ -100,8 +101,10 @@ public class Stats {
 
 				int key = it.next();
 				
-				boolean comp_infested = comparison.containsKey(key) && comparison.get(key).isInfested();
-				boolean ref_infested = reference.containsKey(key) && reference.get(key).isInfested();
+				if(comparison.get(key).hasNoData() || reference.get(key).hasNoData()){continue;}
+				
+				boolean comp_infested = comparison.containsKey(key) && comparison.get(key).isInfestedBy(species);
+				boolean ref_infested = reference.containsKey(key) && reference.get(key).isInfestedBy(species);
 			
 				if (!comp_infested && !ref_infested) {
 					c_matrix[0][0]++;

@@ -594,7 +594,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 	@Override
 	public int getNumberUndetected() {
-		return getUninfested().size();
+		return getUndetected().size();
 	}
 
 	/**
@@ -876,12 +876,10 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	@Override
 	public Map<Integer, Patch> getUndetected() {
 		Map<Integer, Patch> undetected = new TreeMap<Integer, Patch>();
-		outer: for (Integer patch_key : patches.keySet()) {
+		for (Integer patch_key : patches.keySet()) {
 			Patch p = patches.get(patch_key);
-			Iterator<String> it = p.getInfestation().keySet().iterator();
-			if (p.getInfestation(it.next()).isInfested() && !p.isControlled()) {
+			if (p.isInfested()&&!p.isMonitored()){
 				undetected.put(patch_key, patches.get(patch_key));
-				continue outer;
 			}
 		}
 		return undetected;
@@ -900,6 +898,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		Map<Integer, Patch> undetected = new TreeMap<Integer, Patch>();
 		for (Integer patch_key : patches.keySet()) {
 			Patch p = patches.get(patch_key);
+			
 			if (p.isInfestedBy(species) && !p.isMonitored()) {
 				undetected.put(patch_key, patches.get(patch_key));
 			}
@@ -921,8 +920,10 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		outer: for (Integer patch_key : patches.keySet()) {
 			Patch p = patches.get(patch_key);
 			Iterator<String> it = p.getInfestation().keySet().iterator();
-			if (p.isInfestedBy(it.next())) {
-				continue outer;
+			while (it.hasNext()) {
+				if (p.isInfestedBy(it.next())) {
+					continue outer;
+				}
 			}
 			uninfested.put(patch_key, p);
 		}
@@ -1383,9 +1384,12 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	}
 
 	/**
-	 * @param p - the starting Patch
-	 * @param species - the species of interest.
-	 * @return a Set of Patches infested by the given species type linked to the provided Patch.
+	 * @param p
+	 *            - the starting Patch
+	 * @param species
+	 *            - the species of interest.
+	 * @return a Set of Patches infested by the given species type linked to the
+	 *         provided Patch.
 	 */
 
 	public Set<Patch> searchInfestation(Patch p, String species) {
@@ -1697,6 +1701,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 						.addControl(ControlType.CONTAINMENT);
 				patches.get(key).getInfestation(species)
 						.addControl(ControlType.CONTAINMENT_CORE);
+				patches.get(key).setMonitored(true);
 			}
 			return;
 		}
@@ -1708,6 +1713,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 				}
 				patches.get(key).getInfestation(species)
 						.addControl(ControlType.GROUND_CONTROL);
+				patches.get(key).setMonitored(true);
 			}
 			return;
 		}
@@ -1719,6 +1725,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 				}
 				patches.get(key).getInfestation(species)
 						.addControl(ControlType.CONTAINMENT);
+				patches.get(key).setMonitored(true);
 			}
 			return;
 		}
@@ -1730,6 +1737,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 				}
 				patches.get(key).getInfestation(species)
 						.addControl(ControlType.CONTAINMENT_CORE);
+				patches.get(key).setMonitored(true);
 			}
 			return;
 		}

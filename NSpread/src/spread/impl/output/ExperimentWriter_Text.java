@@ -157,8 +157,8 @@ public class ExperimentWriter_Text implements ExperimentWriter {
 
 			// calculate the confusion matrix
 			int[][] cf = stats.makeConfusionMatrix(
-					reference.getInfestations(species),
-					mosaic.getInfestations(species));
+					reference.getPatches(),
+					mosaic.getPatches(), species);
 
 			// generate statistics
 

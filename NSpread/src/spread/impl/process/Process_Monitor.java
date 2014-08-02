@@ -211,15 +211,21 @@ public class Process_Monitor implements Process, Cloneable {
 		Set<Patch> comanaged = ms.getWeakRegion(patch, sp_group,
 				patch.isInfestedBy(species));
 
-		// Set<Patch> region = ms.getWeakRegion(patch, species);
 		Set<Patch> filled = ms.fill(comanaged, species);
 
 		// Determine cells that are already controlled through containment
 
-		Set<Patch> controlled = getControlled(comanaged,
-				ControlType.CONTAINMENT);
-		controlled
-				.addAll(getControlled(comanaged, ControlType.CONTAINMENT_CORE));
+		Set<Patch> controlled = new TreeSet<Patch>();
+
+		// If the species is subject to containment, then add contained list to
+		// the list of already managed cells
+		
+		if (!containmentIgnore.contains(species)) {
+			controlled
+					.addAll(getControlled(comanaged, ControlType.CONTAINMENT));
+			controlled.addAll(getControlled(comanaged,
+					ControlType.CONTAINMENT_CORE));
+		}
 
 		// If the total area is less than the containment cutoff size, put cells
 		// into ground control
@@ -233,8 +239,9 @@ public class Process_Monitor implements Process, Cloneable {
 				return;
 			}
 
+			comanaged.removeAll(controlled);// ////////////////////////////////////////////////
+
 			ms.setMonitored(comanaged, true);
-			// comanaged.removeAll(controlled);
 			ms.setControl(comanaged, ControlType.GROUND_CONTROL, species);
 
 			// Add Patches to the visited list to avoid re-processing.
@@ -250,14 +257,25 @@ public class Process_Monitor implements Process, Cloneable {
 
 		else {
 			ms.setMonitored(filled, true);
-			ms.setControl(filled, ControlType.CONTAINMENT);
+
+			// Containment overrides ground control (unless we're ignoring
+			// containment,
+			// which is handled above).
+
 			ms.removeControl(filled, ControlType.GROUND_CONTROL, species);
+
+			ms.setControl(filled, ControlType.CONTAINMENT);
+
+			// Get the core and assign as Core area and remove Containment label
+			// to keep management options exclusive.
 
 			Set<Patch> core = ms.getStrongCore(filled, species, coreBufferSize);
 			ms.setControl(core, ControlType.CONTAINMENT_CORE);
 			ms.removeControl(core, ControlType.CONTAINMENT);
 
 			Iterator<String> it2 = visited.keySet().iterator();
+
+			// Apply species-specific core control if needed.
 
 			while (it2.hasNext()) {
 				String sp = it2.next();
@@ -267,6 +285,8 @@ public class Process_Monitor implements Process, Cloneable {
 							ControlType.CONTAINMENT_CORE_CONTROL);
 				}
 			}
+
+			// Mark cells as visited as long as they weren't ignored.
 
 			it2 = visited.keySet().iterator();
 			while (it2.hasNext()) {

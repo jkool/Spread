@@ -24,7 +24,7 @@ public class Infestation implements Cloneable {
 	private boolean visited = false;
 	private long ageOfInfestation = 0;
 	private long cumulativeAgeOfInfestation = 0;
-	private int stageOfInfestation = 0;
+	private int stageOfInfestation = -98;
 	private int maxInfestation = -99;
 	private Disperser disperser;
 	private List<Coordinate> propagules = new ArrayList<Coordinate>();
@@ -32,6 +32,7 @@ public class Infestation implements Cloneable {
 	private ControlType maxControl = ControlType.NONE;
 	private boolean wasControlled = false;
 	private boolean NODATA = false;
+	private Patch parent;
 
 	public Infestation() {
 	}
@@ -66,8 +67,8 @@ public class Infestation implements Cloneable {
 	 */
 
 	public void clearInfestation() {
-		this.infested = false;
-		this.stageOfInfestation = 0;
+		this.infested = false;		
+		this.stageOfInfestation = -8;
 		this.maxInfestation = 0;
 	}
 	
@@ -97,6 +98,7 @@ public class Infestation implements Cloneable {
 		occ.wasControlled=wasControlled;
 		occ.wasInfested=wasInfested;
 		occ.species = species;
+		occ.parent=parent;
 		List<Coordinate> propagules_c = new ArrayList<Coordinate>();
 		for (Coordinate c : propagules) {
 			propagules_c.add((Coordinate) c.clone());
@@ -196,6 +198,10 @@ public class Infestation implements Cloneable {
 	
 	public String getName() {
 		return species;
+	}
+	
+	public Patch getParent(){
+		return parent;
 	}
 
 	/**
@@ -358,6 +364,10 @@ public class Infestation implements Cloneable {
 	
 	public void setNoData(boolean noData) {
 		this.NODATA = noData;
+	}
+
+	public void setParent(Patch p){
+		this.parent=p;
 	}
 	
 	/**
