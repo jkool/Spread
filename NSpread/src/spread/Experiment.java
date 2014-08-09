@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 import spread.impl.output.MosaicWriter_Raster;
+import spread.impl.output.MosaicWriter_Raster_CCost;
+import spread.impl.output.MosaicWriter_Raster_GCost;
+import spread.impl.output.MosaicWriter_Raster_TCost;
 import spread.impl.output.MosaicWriter_Raster_WasMonitored;
 import spread.impl.output.MosaicWriter_Raster_Stage;
 import spread.impl.output.StatsWriter_Text;
@@ -24,6 +27,9 @@ public class Experiment implements Cloneable {
 	private MosaicWriter mw = new MosaicWriter_Raster();
 	private MosaicWriter ms = new MosaicWriter_Raster_Stage();
 	private MosaicWriter mm = new MosaicWriter_Raster_WasMonitored();
+	private MosaicWriter mct = new MosaicWriter_Raster_TCost();
+	private MosaicWriter mcg = new MosaicWriter_Raster_GCost();
+	private MosaicWriter mcc = new MosaicWriter_Raster_CCost();
 	private StatsWriter sw = new StatsWriter_Text();
 	private ExperimentWriter ew;
 	private List<Process> processes = new ArrayList<Process>();
@@ -35,6 +41,7 @@ public class Experiment implements Cloneable {
 	private String identifier = "";
 	private boolean writeEachTimeStep = false;
 	private boolean writeEachMgtStep = false;
+	private boolean writeEachCostStep = true;
 	private boolean writeTraceFile = false;
 
 	/**
@@ -56,6 +63,7 @@ public class Experiment implements Cloneable {
 		ex.setStatsWriter(sw);
 		ex.writeEachTimeStep=writeEachTimeStep;
 		ex.writeEachMgtStep=writeEachMgtStep;
+		ex.writeEachCostStep=writeEachCostStep;
 		ex.writeTraceFile=writeTraceFile;
 		return ex;
 	}
@@ -357,6 +365,25 @@ public class Experiment implements Cloneable {
 						+ nf.format(time));
 				mm.setFolder(mw.getFolder());
 				mm.write(mosaic, species);
+			}
+			if (true) {
+				mcg.setWriteHeader(mw.getWriteHeader());
+				mcg.setName("gcost" + "_" + identifier + "_" + species + "_t"
+						+ nf.format(time));
+				mcg.setFolder(mw.getFolder());
+				mcg.write(mosaic, species);
+				
+				mcc.setWriteHeader(mw.getWriteHeader());
+				mcc.setName("ccost" + "_" + identifier + "_" + species + "_t"
+						+ nf.format(time));
+				mcc.setFolder(mw.getFolder());
+				mcc.write(mosaic, species);
+				
+				mct.setWriteHeader(mw.getWriteHeader());
+				mct.setName("tcost" + "_" + identifier + "_" + species + "_t"
+						+ nf.format(time));
+				mct.setFolder(mw.getFolder());
+				mct.write(mosaic, species);
 			}
 		}
 		

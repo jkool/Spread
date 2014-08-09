@@ -129,6 +129,8 @@ public interface Mosaic {
 	 * @return - a map of keys and Infestations which may or may not be
 	 *         currently occupied.
 	 */
+	
+	public Set<Patch> getFrozen(Set<Patch> region, String species);
 
 	public Map<Integer, Infestation> getInfestations(String species);
 
@@ -240,12 +242,35 @@ public interface Mosaic {
 	 * elements are not trimmed).
 	 */
 
+	public Set<Patch> getStrongContainmentCore(Collection<Patch> patches,
+			double bufferSize);
+	
+	/**
+	 * @param patches
+	 *            - the collection of patches from which the core is to be
+	 *            extracted
+	 * @param species
+	 *            - the species that determine which occupancy to use
+	 * @param bufferSize
+	 *            - the size of the inner buffer to be removed.
+	 * @return the inner buffered core of a collection of patches. Exterior
+	 * strongly-connected elements are removed (i.e. diagonally connected
+	 * elements are not trimmed).
+	 */
+
 	public Set<Patch> getStrongCore(Collection<Patch> patches, String species,
 			double bufferSize);
+	
+	/**
+	 * @param patch - the starting Patch
+	 * @return patches that are strongly connected to the region (i.e. entire
+	 * edge)
+	 */
+
+	public Set<Patch> getStrongContainment(Patch patch);
 
 	/**
 	 * @param patch - the starting Patch
-	 * @param species - the species of interest
 	 * @return patches that are strongly connected to the region (i.e. entire
 	 * edge)
 	 */
@@ -308,6 +333,15 @@ public interface Mosaic {
 	public Set<Patch> getWeakCore(Collection<Patch> patches, String species,
 			double bufferSize);
 
+	/**
+	 * @param patch - the starting Patch
+	 * @param species - the species of interest
+	 * @return patches that are weakly connected to the region (i.e. single
+	 * vertex)
+	 */
+
+	public Set<Patch> getWeakContainment(Patch patch);
+	
 	/**
 	 * @param patch - the starting Patch
 	 * @param species - the species of interest

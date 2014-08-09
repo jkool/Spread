@@ -52,7 +52,7 @@ public class RasterMosaicTest {
 	public void testGetBlock(){
 		re.clear();
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			int[] bnds = new int[]{0,1,3,2};
 			Set<Patch> filledRegion = re.getBlock(bnds);
 			Set<Integer> keys = re.getKeys(filledRegion);
@@ -77,7 +77,7 @@ public class RasterMosaicTest {
 	public void testGetBounds(){
 		re.clear();
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			Set<Patch> region = re.getWeakRegion(re.getPatch(105),species);
 			int[] bounds = re.getBounds(region);
 			int[] expected = new int[]{5,5,7,9};
@@ -92,7 +92,7 @@ public class RasterMosaicTest {
 	public void testGetFilledRegion(){
 		re.clear();
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			re.setHabitatMap("ALL", species);
 			Set<Patch> region = re.getWeakRegion(re.getPatch(7),species);
 			Set<Patch> filledRegion = re.fill(region,species);
@@ -110,6 +110,91 @@ public class RasterMosaicTest {
 			expected.add(68);
 			expected.add(87);
 			assertEquals(expected,keys);
+
+			re.clear();
+			re.setPresenceMap("./resource files/Patchtest2.txt",species);
+			re.setHabitatMap("ALL", species);
+			Set<Patch> region2 = re.getWeakRegion(re.getPatch(0),species);
+			Set<Patch> filledRegion2 = re.fill(region2,species);
+			Set<Integer> keys2 = re.getKeys(filledRegion2);
+			Set<Integer>expected2 = new TreeSet<Integer>();
+			expected2.add(0);
+			expected2.add(1);
+			expected2.add(2);
+			expected2.add(3);
+			expected2.add(4);
+			expected2.add(20);
+			expected2.add(21);
+			expected2.add(22);
+			expected2.add(23);
+			expected2.add(24);
+			expected2.add(25);
+			expected2.add(40);
+			expected2.add(41);
+			expected2.add(42);
+			expected2.add(43);
+			expected2.add(44);
+			expected2.add(45);
+			expected2.add(46);
+			expected2.add(60);
+			expected2.add(61);
+			expected2.add(62);
+			expected2.add(63);
+			expected2.add(64);
+			expected2.add(65);
+			expected2.add(66);
+			expected2.add(67);
+			expected2.add(81);
+			expected2.add(82);
+			expected2.add(83);
+			expected2.add(84);
+			expected2.add(85);
+			expected2.add(86);
+			expected2.add(87);
+			expected2.add(88);
+			expected2.add(102);
+			expected2.add(103);
+			expected2.add(104);
+			expected2.add(105);
+			expected2.add(106);
+			expected2.add(107);
+			expected2.add(108);
+			expected2.add(109);
+			expected2.add(123);
+			expected2.add(124);
+			expected2.add(125);
+			expected2.add(126);
+			expected2.add(127);
+			expected2.add(128);
+			expected2.add(129);
+			expected2.add(130);
+			expected2.add(144);
+			expected2.add(145);
+			expected2.add(146);
+			expected2.add(147);
+			expected2.add(148);
+			expected2.add(149);
+			expected2.add(150);
+			expected2.add(151);
+			expected2.add(165);
+			expected2.add(166);
+			expected2.add(167);
+			expected2.add(168);
+			expected2.add(169);
+			expected2.add(170);
+			expected2.add(171);
+			expected2.add(172);
+			expected2.add(186);
+			expected2.add(187);
+			expected2.add(188);
+			expected2.add(189);
+			expected2.add(190);
+			expected2.add(191);
+			expected2.add(192);
+			expected2.add(193);
+			expected2.add(194);
+			
+			assertEquals(expected2,keys2);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -120,7 +205,7 @@ public class RasterMosaicTest {
 	public void testGetStrongAdjacent(){
 		re.clear();
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			Set<Patch> cells = re.getStrongAdjacent(re.getPatch(27));
 			Set<Integer> keys = re.getKeys(cells);
 			Set<Integer> expected = new TreeSet<Integer>();
@@ -142,7 +227,7 @@ public class RasterMosaicTest {
 		re.clear();
 		
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			re.setHabitatMap("ALL", species);
 			Set<Patch> cells = re.getStrongRegion(re.getPatch(27),species);
 			Set<Integer> keys = re.getKeys(cells);
@@ -163,12 +248,12 @@ public class RasterMosaicTest {
 		re.clear();
 		
 		try{
-		   re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
-		   re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species3);
+		   re.setPresenceMap("./resource files/Patchtest.txt",species);
+		   re.setPresenceMap("./resource files/Patchtest.txt",species3);
 		   re.setHabitatMap("ALL", species);
-		   re.setManagementMap("C:/Temp/Rasters/monitor_1.txt", species);
-		   re.setManagementMap("C:/Temp/Rasters/monitor_2.txt", species2);
-		   re.setManagementMap("C:/Temp/Rasters/monitor_3.txt", species3);
+		   re.setManagementMap("./resource files/monitor_1.txt", species);
+		   re.setManagementMap("./resource files/monitor_2.txt", species2);
+		   re.setManagementMap("./resource files/monitor_3.txt", species3);
 		   assertEquals(27,re.getNumberUndetected(species));
 		   assertEquals(0,re.getNumberUndetected(species2));
 		   assertEquals(27,re.getNumberUndetected(species3));
@@ -185,9 +270,9 @@ public class RasterMosaicTest {
 		re.clear();
 		
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/block_left.txt",species);
-			re.setPresenceMap("C:/Temp/Rasters/block_center.txt",species2);
-			re.setPresenceMap("C:/Temp/Rasters/block_right.txt",species3);
+			re.setPresenceMap("./resource files/block_left.txt",species);
+			re.setPresenceMap("./resource files/block_center.txt",species2);
+			re.setPresenceMap("./resource files/block_right.txt",species3);
 			re.setHabitatMap("ALL", species);
 			re.setHabitatMap("ALL", species2);
 			re.setHabitatMap("ALL", species3);
@@ -250,7 +335,7 @@ public class RasterMosaicTest {
 	public void testGetWeakAdjacent(){
 		re.clear();
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			Set<Patch> cells = re.getWeakAdjacent(re.getPatch(27));
 			Set<Integer> keys = re.getKeys(cells);
 			Set<Integer> expected = new TreeSet<Integer>();
@@ -288,7 +373,7 @@ public class RasterMosaicTest {
 
 		try {
 			// Test retrieval of a connected region
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			Set<Patch> cells = re.getWeakRegion(re.getPatch(7),species);
 			Set<Integer> keys = re.getKeys(cells);
 			Set<Integer> expected = new TreeSet<Integer>();
@@ -365,7 +450,7 @@ public class RasterMosaicTest {
 			re.clear();
 
 			// Set the parameters of the mosaic using a raster template
-			re.setPresenceMap("C:/Temp/Rasters/Age.txt",species);
+			re.setPresenceMap("./resource files/Age.txt",species);
 
 			// Set the environment such that no cells are infested
 			re.setPresenceMap("NONE",species);
@@ -417,7 +502,7 @@ public class RasterMosaicTest {
 	public void testNibbleStrong(){
 		re.clear();
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			Set<Patch> region = re.getWeakRegion(re.getPatch(21),species);
 			region = re.nibbleStrong(region,species);
 			Set<Integer> keys = re.getKeys(region);
@@ -444,7 +529,7 @@ public class RasterMosaicTest {
 	public void testNibbleWeak(){
 		re.clear();
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			Set<Patch> region = re.getWeakRegion(re.getPatch(21),species);
 			region = re.nibbleWeak(region,species);
 			Set<Integer> keys = re.getKeys(region);
@@ -470,7 +555,7 @@ public class RasterMosaicTest {
 	public void testSearchInfestation(){
 		re.clear();
 		try {
-			re.setPresenceMap("C:/Temp/Rasters/Patchtest.txt",species);
+			re.setPresenceMap("./resource files/Patchtest.txt",species);
 			re.setHabitatMap("ALL", species);
 			
 			Patch p = re.getPatch(0);
@@ -507,11 +592,11 @@ public class RasterMosaicTest {
 
 			// Set the infestation presence of the mosaic using a raster
 			// template
-			re.setPresenceMap("C:/Temp/Rasters/Age.txt",species);
+			re.setPresenceMap("./resource files/Age.txt",species);
 			Map<Integer, Patch> cells = re.getPatches();
 
 			// Set the age of infestation using the test raster
-			re.setAgeMap("C:/Temp/Rasters/Age.txt",species);
+			re.setAgeMap("./resource files/Age.txt",species);
 			assertEquals(0, cells.get(0).getAgeOfInfestation(species));
 			assertEquals(1, cells.get(21).getAgeOfInfestation(species));
 			assertEquals(2, cells.get(42).getAgeOfInfestation(species));
@@ -532,7 +617,7 @@ public class RasterMosaicTest {
 			d2.setAngleGenerator(east);
 			d2.setNumberGenerator(one);
 			re.clear();
-			re.setPresenceMap("C:/Temp/Rasters/Age.txt",species);
+			re.setPresenceMap("./resource files/Age.txt",species);
 			re.setDisperser(species,d2);
 			Map<Integer, Patch> cells = re.getPatches();
 			assertEquals(new Coordinate(1.5, 8.5), cells.get(21).getInfestation(species).getDisperser()
@@ -559,7 +644,7 @@ public class RasterMosaicTest {
 			d2.setAngleGenerator(east);
 			d2.setNumberGenerator(one);
 			re.clear();
-			re.setPresenceMap("C:/Temp/Rasters/Age.txt",species);
+			re.setPresenceMap("./resource files/Age.txt",species);
 
 			// Set the disperser at 1,1
 			re.setDisperser(species,d2, 21);
@@ -587,7 +672,7 @@ public class RasterMosaicTest {
 		try {
 			// Set the infestation presence of the mosaic using a raster
 			// template
-			re.setPresenceMap("C:/Temp/Rasters/Age.txt",species);
+			re.setPresenceMap("./resource files/Age.txt",species);
 			Map<Integer, Patch> cells = re.getPatches();
 
 			// Ensure that cells are infested in a manner consistent with

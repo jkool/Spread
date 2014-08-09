@@ -32,6 +32,7 @@ public class Infestation implements Cloneable {
 	private ControlType maxControl = ControlType.NONE;
 	private boolean wasControlled = false;
 	private boolean NODATA = false;
+	private boolean freezeManagement = false;
 	private Patch parent;
 
 	public Infestation() {
@@ -70,6 +71,7 @@ public class Infestation implements Cloneable {
 		this.infested = false;		
 		this.stageOfInfestation = -8;
 		this.maxInfestation = 0;
+		this.freezeManagement=false;
 	}
 	
 	/**
@@ -99,6 +101,7 @@ public class Infestation implements Cloneable {
 		occ.wasInfested=wasInfested;
 		occ.species = species;
 		occ.parent=parent;
+		occ.freezeManagement=freezeManagement;
 		List<Coordinate> propagules_c = new ArrayList<Coordinate>();
 		for (Coordinate c : propagules) {
 			propagules_c.add((Coordinate) c.clone());
@@ -282,6 +285,10 @@ public class Infestation implements Cloneable {
 		return infested;
 	}
 	
+	public boolean isManagementFrozen(){
+		return freezeManagement;
+	}
+	
 	/**
 	 * Indicates if this Occupant has been visited as part of
 	 * a process chain.
@@ -330,6 +337,10 @@ public class Infestation implements Cloneable {
 		this.disperser = disperser;
 	}
 
+	public void freezeManagement(boolean freezeManagement){
+		this.freezeManagement=freezeManagement;
+	}
+	
 	/**
 	 * Sets whether the Occupant is present/infested.
 	 * @param infested

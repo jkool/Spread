@@ -40,7 +40,6 @@ public class Process_MonitorTest {
 
 		pm.setPDiscovery(p_discovery);
 		pm.setCoreBufferSize(2);
-		pm.ignoreFirst(false);
 	}
 
 	@Test

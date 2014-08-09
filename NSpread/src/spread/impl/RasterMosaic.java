@@ -222,6 +222,11 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 	@Override
 	public Set<Patch> fill(Collection<Patch> region, String species) {
+		
+		if(region.isEmpty()){return new TreeSet<Patch>();}
+		
+		List<Patch> plist = new ArrayList<Patch>(region);
+		boolean condition = plist.get(0).isInfestedBy(species);
 
 		Set<Patch> s = new TreeSet<Patch>();
 		s.addAll(region);
@@ -229,6 +234,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		Set<Patch> block = getBlock(bounds);
 		block.removeAll(region);
 		PriorityQueue<Patch> pq = new PriorityQueue<Patch>(block);
+		Set<Patch> newtiles = new TreeSet<Patch>();
 
 		while (!pq.isEmpty()) {
 			Patch seed = pq.poll();
@@ -238,9 +244,11 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			}
 
 			Set<Patch> tile = getStrongRegion(seed, species, bounds);
+			
 			boolean anytouch = false;
 
 			for (Patch p : tile) {
+				
 				int row = p.getID() / ncols;
 				int col = p.getID() % ncols;
 
@@ -254,7 +262,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			}
 
 			if (!anytouch) {
-				s.addAll(tile);
+				newtiles.addAll(tile);
 			}
 
 			// regardless, clear the tile to avoid re-processing
@@ -262,6 +270,18 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			pq.removeAll(tile);
 
 		}
+		
+		Set<Patch> del = new HashSet<Patch>();
+		
+		Iterator<Patch> it = newtiles.iterator();
+		while(it.hasNext()){
+			Patch k = it.next();
+			if(k.isInfestedBy(species)==condition){
+				del.add(k);
+			}
+		}
+		newtiles.removeAll(del);
+		s.addAll(newtiles);
 		return s;
 	}
 
@@ -374,11 +394,9 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	public Map<Integer, Patch> getControlled(String species, ControlType control) {
 		Map<Integer, Patch> controlled = new TreeMap<Integer, Patch>();
 		for (Integer key : patches.keySet()) {
-			if (patches.get(key).getInfestation(species) == null) {
-				continue;
-			}
-			if (patches.get(key).getInfestation(species).hasControl(control)) {
-				controlled.put(key, patches.get(key));
+			Patch p = patches.get(key);
+			if(p.isInfestedBy(species) && (p.hasControl(control))||p.hasControl(control, species)){
+				controlled.put(key, p);
 			}
 		}
 		return controlled;
@@ -388,6 +406,17 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	public Set<Patch> getFilledRegion(Patch patch, String species) {
 		Set<Patch> region = getWeakRegion(patch, species);
 		return fill(region, species);
+	}
+
+	public Set<Patch> getFrozen(Set<Patch> region, String species) {
+		Set<Patch> frozen = new TreeSet<Patch>();
+		for (Patch p : region) {
+			if (p.isInfestedBy(species)
+					&& p.getInfestation(species).isManagementFrozen()) {
+				frozen.add(p);
+			}
+		}
+		return frozen;
 	}
 
 	/**
@@ -742,6 +771,17 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	 */
 
 	@Override
+	public Set<Patch> getStrongContainmentCore(Collection<Patch> patches,
+			double bufferSize) {
+		return nibbleStrong(patches, (int) (bufferSize / cellsize));
+	}
+	
+	/**
+	 * Retrieves an internal core of values that are strongly connected to one
+	 * another - i.e. sharing an edge (in cardinal directions).
+	 */
+
+	@Override
 	public Set<Patch> getStrongCore(Collection<Patch> patches, String species,
 			double bufferSize) {
 		return nibbleStrong(patches, species, (int) (bufferSize / cellsize));
@@ -755,6 +795,17 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	@Override
 	public Set<Patch> getStrongRegion(Patch p, String species) {
 		return getStrongRegion(p, species, new int[] { 0, 0, nrows - 1,
+				ncols - 1 });
+	}
+	
+	/**
+	 * Retrieves a region (Patch collection) of strongly connected Patches
+	 * associated with a given Patch.
+	 */
+
+	@Override
+	public Set<Patch> getStrongContainment(Patch p) {
+		return getStrongContainment(p, new int[] { 0, 0, nrows - 1,
 				ncols - 1 });
 	}
 
@@ -821,6 +872,49 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		clearVisitedPatches(clearSet);
 		return s;
 	}
+	
+	/**
+	 * @param p
+	 *            - the starting Patch.
+	 * @param species
+	 *            - the species of interest.
+	 * @param bnds
+	 *            - a box that bounds the search area.
+	 * @return the region (Patch collection) of strongly connected Patches.
+	 *         associated with a given Patch, bounded by an extent box.
+	 */
+
+	public Set<Patch> getStrongContainment(Patch p, int[] bnds) {
+		Set<Patch> s = new TreeSet<Patch>();
+
+		s.add(p);
+		p.setVisited(true);
+
+		PriorityQueue<Patch> pq = new PriorityQueue<Patch>();
+		Set<Patch> clearSet = new HashSet<Patch>();
+
+		pq.addAll(getStrongAdjacent(p, bnds));
+
+		while (!pq.isEmpty()) {
+			Patch pc = pq.poll();
+
+			if (pc.hasNoData()) {
+				continue;
+			}
+
+			clearSet.add(pc);
+			if (!pc.isVisited()
+					&& ((pc.hasControl(ControlType.CONTAINMENT)||pc.hasControl(ControlType.CONTAINMENT_CORE)))
+					&& !pc.hasNoData()) {
+				s.add(pc);
+				pq.addAll(getStrongAdjacent(pc, bnds));
+			}
+			pc.setVisited(true);
+		}
+
+		clearVisitedPatches(clearSet);
+		return s;
+	}
 
 	/**
 	 * @param p
@@ -878,7 +972,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		Map<Integer, Patch> undetected = new TreeMap<Integer, Patch>();
 		for (Integer patch_key : patches.keySet()) {
 			Patch p = patches.get(patch_key);
-			if (p.isInfested()&&!p.isMonitored()){
+			if (p.isInfested() && !p.isMonitored()) {
 				undetected.put(patch_key, patches.get(patch_key));
 			}
 		}
@@ -898,7 +992,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		Map<Integer, Patch> undetected = new TreeMap<Integer, Patch>();
 		for (Integer patch_key : patches.keySet()) {
 			Patch p = patches.get(patch_key);
-			
+
 			if (p.isInfestedBy(species) && !p.isMonitored()) {
 				undetected.put(patch_key, patches.get(patch_key));
 			}
@@ -1032,6 +1126,17 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	 */
 
 	@Override
+	public Set<Patch> getWeakContainment(Patch p) {
+		return getWeakContainment(p,
+				new int[] { 0, 0, nrows - 1, ncols - 1 });
+	}
+	
+	/**
+	 * Retrieves a region (Patch collection) of weakly connected Patches
+	 * associated with a given Patch.
+	 */
+
+	@Override
 	public Set<Patch> getWeakRegion(Patch p, String species) {
 		return getWeakRegion(p, species,
 				new int[] { 0, 0, nrows - 1, ncols - 1 });
@@ -1087,6 +1192,49 @@ public class RasterMosaic implements Mosaic, Cloneable {
 					pq.addAll(getWeakAdjacent(pc, bnds));
 					break outer;
 				}
+			}
+			pc.setVisited(true);
+		}
+
+		clearVisitedPatches(clearSet);
+		return s;
+	}
+	
+	/**
+	 * @param p
+	 *            - the starting Patch
+	 * @param species
+	 *            - the species of interest
+	 * @param bnds
+	 *            -the extent box (mincol,minrow,maxcol,maxrow)
+	 * @return a region (Patch collection) of strongly connected Patches
+	 *         associated with a given Patch, bounded by an extent box.
+	 */
+
+	public Set<Patch> getWeakContainment(Patch p, int[] bnds) {
+		Set<Patch> s = new TreeSet<Patch>();
+
+		s.add(p);
+		p.setVisited(true);
+
+		PriorityQueue<Patch> pq = new PriorityQueue<Patch>();
+		Set<Patch> clearSet = new HashSet<Patch>();
+
+		pq.addAll(getWeakAdjacent(p, bnds));
+
+		while (!pq.isEmpty()) {
+			Patch pc = pq.poll();
+
+			if (pc.hasNoData()) {
+				continue;
+			}
+
+			clearSet.add(pc);
+			if (!pc.isVisited()
+					&& ((pc.hasControl(ControlType.CONTAINMENT)||pc.hasControl(ControlType.CONTAINMENT_CORE)))
+					&& !pc.hasNoData()) {
+				s.add(pc);
+				pq.addAll(getWeakAdjacent(pc, bnds));
 			}
 			pc.setVisited(true);
 		}
@@ -1210,6 +1358,25 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		return str.length() == pos.getIndex();
 	}
 
+	public Set<Patch> nibbleStrong(Collection<Patch> region) {
+		Set<Patch> output = new TreeSet<Patch>(region);
+		Iterator<Patch> it = region.iterator();
+		outer: while (it.hasNext()) {
+			Patch p = it.next();
+			Set<Patch> adjacent = getStrongAdjacent(p);
+			for (Patch inner : adjacent) {
+				if (inner.hasNoData()) {
+					continue;
+				}
+				if (!region.containsAll(adjacent)) {
+					output.remove(p);
+					continue outer;
+				}
+			}
+		}
+		return output;
+	}
+	
 	public Set<Patch> nibbleStrong(Collection<Patch> region, String species) {
 		Set<Patch> output = new TreeSet<Patch>(region);
 		Iterator<Patch> it = region.iterator();
@@ -1228,6 +1395,44 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		}
 		return output;
 	}
+	
+	/**
+	 * Eliminates strongly-connected (sharing an edge in cardinal directions)
+	 * exterior Patches from a region (Collection of Patches)
+	 * 
+	 * @param region
+	 *            - the region to be nibbled
+	 * @param species
+	 *            - the species of interest
+	 * @param depth
+	 *            - the depth to which exterior cells should be removed.
+	 * @return the Patches remaining after exterior Patches are removed to the
+	 *         specified depth.
+	 */
+
+	public Set<Patch> nibbleStrong(Collection<Patch> region, int depth) {
+
+		if (depth <= 0) {
+			return new TreeSet<Patch>(region);
+		}
+		if (depth == 1) {
+			return nibbleStrong(region);
+		}
+
+		// Set<Patch> full = new TreeSet<Patch>(region);
+		Set<Patch> output = nibbleStrong(region);
+
+		for (int i = 1; i < depth; i++) {
+			if (output.isEmpty()) {
+				return output;
+			}
+
+			output = nibbleStrong(output);
+		}
+
+		return output;
+	}
+
 
 	/**
 	 * Eliminates strongly-connected (sharing an edge in cardinal directions)
@@ -1529,6 +1734,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	@Override
 	public void setControl(Collection<Patch> patches, ControlType control) {
 		for (Patch p : patches) {
+
 			p.addControl(control);
 		}
 	}
@@ -1702,6 +1908,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 				patches.get(key).getInfestation(species)
 						.addControl(ControlType.CONTAINMENT_CORE);
 				patches.get(key).setMonitored(true);
+				patches.get(key).getInfestation(species).freezeManagement(true);
 			}
 			return;
 		}
@@ -1714,6 +1921,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 				patches.get(key).getInfestation(species)
 						.addControl(ControlType.GROUND_CONTROL);
 				patches.get(key).setMonitored(true);
+				patches.get(key).getInfestation(species).freezeManagement(true);
 			}
 			return;
 		}
@@ -1819,6 +2027,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 
 						p.getInfestation(species).addControl(
 								ControlType.GROUND_CONTROL);
+						p.getInfestation(species).freezeManagement(true);
 						break;
 					}
 					case 2: {

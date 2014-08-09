@@ -77,7 +77,6 @@ public class Process_CostingTest {
 		pm.setPDiscovery(p_discovery);
 		pm.setContainmentCutoff(6);
 		pm.setCoreBufferSize(2);
-		pm.ignoreFirst(false);
 		pm.addToContainmentIgnore(species3);
 		pm.addToCoreControl(species2);
 

@@ -33,12 +33,11 @@ public class Process_Monitor implements Process, Cloneable {
 	private long chkFrq = 1;
 
 	private Map<String, Set<Patch>> visited;
+	private Set<Patch> dissolveVisited;
 	private Set<String> groundControlIgnore = new TreeSet<String>();
 	private Set<String> containmentIgnore = new TreeSet<String>();
 	private Set<String> coreControl = new TreeSet<String>();
 	private Set<String> co_managed;
-	boolean ignoreFirst = true;
-	boolean first = true;
 
 	/**
 	 * Returns a copy of the current instance of the class.
@@ -63,7 +62,6 @@ public class Process_Monitor implements Process, Cloneable {
 		clone.counter = counter;
 		clone.ms = ms;
 		clone.visited = visited;
-		clone.ignoreFirst = ignoreFirst;
 		Set<String> ci = new TreeSet<String>();
 		Set<String> gci = new TreeSet<String>();
 		ci.addAll(containmentIgnore);
@@ -73,7 +71,7 @@ public class Process_Monitor implements Process, Cloneable {
 
 		return clone;
 	}
-
+	
 	/**
 	 * Processes all patches in the Mosaic
 	 */
@@ -93,11 +91,6 @@ public class Process_Monitor implements Process, Cloneable {
 
 		counter += timeIncrement;
 
-		if (ignoreFirst && first) {
-			first = false;
-			return;
-		}
-
 		if (counter < chkFrq) {
 			return;
 		}
@@ -111,6 +104,50 @@ public class Process_Monitor implements Process, Cloneable {
 		}
 
 		visited.clear();
+		
+		dissolveContainment();
+	}
+	
+	/**
+	 * Performs dissolve operations on Patches undergoing containment
+	 */
+	
+	private void dissolveContainment(){
+		
+		dissolveVisited = new TreeSet<Patch>();
+
+		for (Integer key : ms.getPatches().keySet()) {
+		
+			Patch patch = ms.getPatch(key);
+			
+			if (patch.hasNoData()||dissolveVisited.contains(patch)||!(patch.hasControl(ControlType.CONTAINMENT)||patch.hasControl(ControlType.CONTAINMENT_CORE))) {
+				continue;
+			}
+			
+			Set<Patch> containmentZone = ms.getWeakContainment(patch);
+		
+		// Get the core and assign as Core area and remove Containment label
+		// to keep management options exclusive.
+
+		Set<Patch> core = ms.getStrongContainmentCore(containmentZone, coreBufferSize);
+		ms.setControl(core, ControlType.CONTAINMENT_CORE);
+		ms.removeControl(core, ControlType.CONTAINMENT);
+
+		Iterator<String> it = ms.getSpeciesList().iterator();
+
+		// Apply species-specific core control if needed.
+
+		while (it.hasNext()) {
+			String sp = it.next();
+
+			if (coreControl.contains(sp)) {
+				setControlled(core, sp,
+						ControlType.CONTAINMENT_CORE_CONTROL);
+			}
+		}
+
+		dissolveVisited.addAll(containmentZone);
+		}
 	}
 
 	/**
@@ -222,11 +259,16 @@ public class Process_Monitor implements Process, Cloneable {
 		
 		if (!containmentIgnore.contains(species)) {
 			controlled
-					.addAll(getControlled(comanaged, ControlType.CONTAINMENT));
-			controlled.addAll(getControlled(comanaged,
+					.addAll(getControlled(filled, ControlType.CONTAINMENT));
+			controlled.addAll(getControlled(filled,
 					ControlType.CONTAINMENT_CORE));
 		}
 
+		// Remove pre-frozen ground-controlled cells from changeable Patches.
+		
+		Set<Patch> frozen = ms.getFrozen(comanaged,species);
+		controlled.addAll(frozen);
+		
 		// If the total area is less than the containment cutoff size, put cells
 		// into ground control
 
@@ -239,7 +281,7 @@ public class Process_Monitor implements Process, Cloneable {
 				return;
 			}
 
-			comanaged.removeAll(controlled);// ////////////////////////////////////////////////
+			comanaged.removeAll(controlled);
 
 			ms.setMonitored(comanaged, true);
 			ms.setControl(comanaged, ControlType.GROUND_CONTROL, species);
@@ -256,6 +298,8 @@ public class Process_Monitor implements Process, Cloneable {
 		// Otherwise assign all cells in the bounded area to containment
 
 		else {
+			
+			filled.removeAll(controlled);
 			ms.setMonitored(filled, true);
 
 			// Containment overrides ground control (unless we're ignoring
@@ -264,37 +308,9 @@ public class Process_Monitor implements Process, Cloneable {
 
 			ms.removeControl(filled, ControlType.GROUND_CONTROL, species);
 
+			// Only assign the new cells to containment, not existing ones.
+			
 			ms.setControl(filled, ControlType.CONTAINMENT);
-
-			// Get the core and assign as Core area and remove Containment label
-			// to keep management options exclusive.
-
-			Set<Patch> core = ms.getStrongCore(filled, species, coreBufferSize);
-			ms.setControl(core, ControlType.CONTAINMENT_CORE);
-			ms.removeControl(core, ControlType.CONTAINMENT);
-
-			Iterator<String> it2 = visited.keySet().iterator();
-
-			// Apply species-specific core control if needed.
-
-			while (it2.hasNext()) {
-				String sp = it2.next();
-
-				if (coreControl.contains(sp)) {
-					setControlled(core, sp,
-							ControlType.CONTAINMENT_CORE_CONTROL);
-				}
-			}
-
-			// Mark cells as visited as long as they weren't ignored.
-
-			it2 = visited.keySet().iterator();
-			while (it2.hasNext()) {
-				String sp = it2.next();
-				if (!containmentIgnore.contains(sp)) {
-					visited.get(sp).addAll(filled);
-				}
-			}
 		}
 	}
 
@@ -387,17 +403,6 @@ public class Process_Monitor implements Process, Cloneable {
 	}
 
 	/**
-	 * Indicates whether monitoring should be ignored on the first pass (i.e.
-	 * assuming initial activity has been explicitly set)
-	 * 
-	 * @param ignore
-	 */
-
-	public void ignoreFirst(boolean ignore) {
-		this.ignoreFirst = ignore;
-	}
-
-	/**
 	 * Sets the amount of time currently being incremented by the growth process
 	 * 
 	 * @param timeIncrement
@@ -413,7 +418,6 @@ public class Process_Monitor implements Process, Cloneable {
 
 	@Override
 	public void reset() {
-		this.first = true;
 	}
 
 	public void addToContainmentIgnore(Collection<String> species) {
