@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2249,6 +2250,18 @@ public class RasterMosaic implements Mosaic, Cloneable {
 		Set<String> speciesList = new TreeSet<String>();
 		for (int key : patches.keySet()) {
 			speciesList.addAll(patches.get(key).getInfestation().keySet());
+		}
+	}
+	
+	public void updateInfestationStages(Map<String, long[]> thresholds) {
+		for (String species:thresholds.keySet()) {
+			for(Patch p:patches.values()){
+				if(p.isInfestedBy(species)&&p.getInfestation(species).getAgeOfInfestation()>0){
+					int stage = Arrays.binarySearch(thresholds.get(species), p.getInfestation(species).getAgeOfInfestation());
+					stage = stage<0?-(stage+1)+1:stage+1;
+					p.setStageOfInfestation(species,stage);
+				}
+			}
 		}
 	}
 

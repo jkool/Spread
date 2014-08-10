@@ -531,4 +531,6 @@ public interface Mosaic {
 
 	public Set<Patch> getWeakRegion(Patch p, Set<String> speciesSet,
 			boolean condition);
+	
+	public void updateInfestationStages(Map<String, long[]> thresholds);
 }

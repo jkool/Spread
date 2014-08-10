@@ -650,6 +650,7 @@ public class Spread {
 		}
 
 		pg.setThresholds(thresholds);
+		mosaic.updateInfestationStages(thresholds);
 
 		// Adding dispersal
 		
