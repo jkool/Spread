@@ -33,8 +33,8 @@ public class CrossTab {
 
 	public void crossTab(Raster zoneRaster, Raster valRaster) {
 
-		for (int i = 0; i < zoneRaster.rows; i++) {
-			for (int j = 0; j < zoneRaster.cols; j++) {
+		for (int i = 0; i < zoneRaster.getRows(); i++) {
+			for (int j = 0; j < zoneRaster.getCols(); j++) {
 				double zone = zoneRaster.getValue(i, j);
 				double val = valRaster.getValue(i, j);
 				if (!table.contains(zone, val)) {
@@ -49,14 +49,14 @@ public class CrossTab {
 	public boolean checkConsistency(Raster zoneRaster, Raster valRaster) {
 		if (!zoneRaster.isConsistent(valRaster)) {
 			System.out.println("Raster dimensions are inconsistent.");
-			System.out.println("\tZone raster:" + "nrows:" + zoneRaster.rows
-					+ " ncols:" + zoneRaster.cols + " llx:" + zoneRaster.xll
-					+ " lly:" + zoneRaster.yll + " cellsize:"
-					+ zoneRaster.cellsize);
-			System.out.println("\tValue raster:" + "nrows:" + valRaster.rows
-					+ " ncols:" + valRaster.cols + " llx:" + valRaster.xll
-					+ " lly:" + valRaster.yll + " cellsize:"
-					+ valRaster.cellsize);
+			System.out.println("\tZone raster:" + "nrows:" + zoneRaster.getRows()
+					+ " ncols:" + zoneRaster.getCols() + " llx:" + zoneRaster.getXll()
+					+ " lly:" + zoneRaster.getYll() + " cellsize:"
+					+ zoneRaster.getCellsize());
+			System.out.println("\tValue raster:" + "nrows:" + valRaster.getRows()
+					+ " ncols:" + valRaster.getCols() + " llx:" + valRaster.getXll()
+					+ " lly:" + valRaster.getYll() + " cellsize:"
+					+ valRaster.getCellsize());
 			System.out.println("WARNING: Values were not tabulated.");
 			return false;
 		}

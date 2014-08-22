@@ -44,6 +44,7 @@ public class Process_MonitorTest {
 
 		pm.setPDiscovery(p_discovery);
 		pm.setCoreBufferSize(2);
+		pm.setContainmentCutoff(7);
 	}
 
 	@Test

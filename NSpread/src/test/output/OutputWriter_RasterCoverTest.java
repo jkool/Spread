@@ -22,6 +22,7 @@ public class OutputWriter_RasterCoverTest {
 
 	MosaicWriter_Raster ow = new MosaicWriter_Raster();
 	RasterMosaic rm = new RasterMosaic();
+	RasterReader rr = new RasterReader();
 	String species = "Test_1";
 	
 	@Before
@@ -43,9 +44,8 @@ public class OutputWriter_RasterCoverTest {
 		ow.setName("presence_test.txt");
 		try {
 			ow.write(rm,species);
-			Raster a = RasterReader.readRaster("C:/Temp/Rasters/age.txt");
-			Raster b = RasterReader
-					.readRaster("C:/Temp/Rasters/presence_test.txt");
+			Raster a = rr.readRaster("C:/Temp/Rasters/age.txt");
+			Raster b = rr.readRaster("C:/Temp/Rasters/presence_test.txt");
 			assertEquals(a.getCellsize(), b.getCellsize(), 1E-12);
 			assertEquals(a.getRows(), b.getRows());
 			assertEquals(a.getCols(), b.getCols());

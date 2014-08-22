@@ -46,6 +46,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 	private Raster habitatMap;
 	private Raster presenceMap;
 	private Raster managementMap;
+	RasterReader rr = new RasterReader();
 	private List<String> speciesList = new ArrayList<String>();
 	private Map<String, Disperser> dispersers = new TreeMap<String, Disperser>();
 	private Long NO_PRESENCE = 0l;
@@ -1668,7 +1669,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			}
 		}
 
-		Raster tmpAgeMap = RasterReader.readRaster(ageMapPath);
+		Raster tmpAgeMap = rr.readRaster(ageMapPath);
 
 		// If the cell list is empty, use the raster as a template
 
@@ -1830,7 +1831,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			return;
 		}
 
-		Raster tmpHabitatMap = RasterReader.readRaster(habitatMapPath);
+		Raster tmpHabitatMap = rr.readRaster(habitatMapPath);
 
 		// If the cell list is empty, use the raster as a template
 
@@ -1968,7 +1969,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			return;
 		}
 
-		Raster tmpManagementMap = RasterReader.readRaster(managementMapPath);
+		Raster tmpManagementMap = rr.readRaster(managementMapPath);
 
 		// If the cell list is empty, use the raster as a template
 
@@ -2114,7 +2115,7 @@ public class RasterMosaic implements Mosaic, Cloneable {
 			return;
 		}
 
-		Raster tmpPresenceMap = RasterReader.readRaster(presenceMapPath);
+		Raster tmpPresenceMap = rr.readRaster(presenceMapPath);
 
 		// If the cell list is empty, use the raster as a template
 
