@@ -684,6 +684,9 @@ public class Spread {
 		pm.setContainmentCutoff(Double.parseDouble(properties.getProperty("Containment_Cutoff","500000")));
 		pm.setCoreBufferSize(Double.parseDouble(properties.getProperty("Core_Buffer_Size","750")));
 		pm.setCheckFrequency(mgt_frq);
+		if(properties.containsKey("Ground_Control_Ignore")){
+			pm.addToGroundControlIgnore((parseStringArray(properties.getProperty("Ground_Control_Ignore"))));
+		}
 		if(properties.containsKey("Containment_Ignore")){
 			pm.addToContainmentIgnore((parseStringArray(properties.getProperty("Containment_Ignore"))));
 		}

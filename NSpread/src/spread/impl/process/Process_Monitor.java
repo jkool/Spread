@@ -179,6 +179,8 @@ public class Process_Monitor implements Process, Cloneable {
 
 			Infestation o = patch.getInfestation(species);
 
+			// If the patch is not infested, but is under ground control, then remove ground control
+			
 			if (!o.isInfested() && o.hasControl(ControlType.GROUND_CONTROL)) {
 				o.removeControl(ControlType.GROUND_CONTROL);
 			}
@@ -272,8 +274,7 @@ public class Process_Monitor implements Process, Cloneable {
 		// If the total area is less than the containment cutoff size, put cells
 		// into ground control
 
-		if (filled.size() - controlled.size() <= containmentCutoff
-				|| containmentIgnore.contains(species)) {
+		if (containmentIgnore.contains(species) || comanaged.size() - controlled.size() <= containmentCutoff) {
 
 			// If the species is exempt from ground control actions, then break.
 
@@ -303,8 +304,7 @@ public class Process_Monitor implements Process, Cloneable {
 			ms.setMonitored(filled, true);
 
 			// Containment overrides ground control (unless we're ignoring
-			// containment,
-			// which is handled above).
+			// containment, which is handled above).
 
 			ms.removeControl(filled, ControlType.GROUND_CONTROL, species);
 
