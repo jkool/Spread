@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * Copyright Charles Darwin University 2014. All Rights Reserved.  
+ * For review only, not for distribution.
+ *******************************************************************************/
 package test;
 
 import java.io.IOException;
